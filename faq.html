@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Frequently asked questions about working with AI Gents — how we engage, who we work with, what to expect, and how we're different.">
+  <title>FAQ | AI Gents</title>
+  <link rel="icon" type="image/png" href="images/logo-white.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .faq-hero { padding: 72px 0 60px; max-width: 680px; }
+    .faq-hero h1 em { color: var(--accent); font-style: italic; }
+    .faq-hero p { font-size: 20px; color: var(--text-2); line-height: 1.8; margin-top: 24px; }
+
+    .faq-body {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 80px;
+      align-items: start;
+    }
+
+    /* Sticky nav sidebar */
+    .faq-nav {
+      position: sticky;
+      top: calc(var(--nav-h) + 40px);
+    }
+    .faq-nav-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: 20px;
+    }
+    .faq-nav ul { list-style: none; display: flex; flex-direction: column; gap: 4px; }
+    .faq-nav a {
+      font-size: 13px;
+      color: var(--text-2);
+      padding: 6px 0;
+      border-left: 2px solid transparent;
+      padding-left: 14px;
+      display: block;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .faq-nav a:hover { color: var(--text-1); border-left-color: var(--accent); }
+
+    /* FAQ sections */
+    .faq-section { margin-bottom: 72px; }
+    .faq-section:last-child { margin-bottom: 0; }
+    .faq-section-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 32px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    /* Individual Q&A */
+    .faq-item {
+      border-bottom: 1px solid var(--rule);
+      padding: 32px 0;
+    }
+    .faq-item:first-of-type { padding-top: 0; }
+    .faq-q {
+      font-family: var(--serif);
+      font-size: 20px;
+      line-height: 1.35;
+      margin-bottom: 16px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+    }
+    .faq-q-text { flex: 1; }
+    .faq-toggle {
+      width: 20px; height: 20px;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      margin-top: 4px;
+      transition: transform 0.25s;
+      color: var(--accent);
+    }
+    .faq-item.open .faq-toggle { transform: rotate(45deg); }
+    .faq-a {
+      font-size: 15px;
+      color: var(--text-2);
+      line-height: 1.82;
+      display: none;
+    }
+    .faq-a.visible { display: block; }
+    .faq-a p + p { margin-top: 14px; }
+    .faq-a strong { color: var(--text-1); font-weight: 500; }
+    .faq-a a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+
+    /* Summary stats bar */
+    .faq-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--rule);
+      margin-bottom: 80px;
+    }
+    .faq-stat {
+      padding: 36px 32px;
+      background: var(--surface);
+    }
+    .faq-stat-val {
+      font-family: var(--serif);
+      font-size: 36px;
+      color: var(--accent);
+      margin-bottom: 6px;
+      line-height: 1;
+    }
+    .faq-stat-label {
+      font-size: 13px;
+      color: var(--text-2);
+      line-height: 1.5;
+    }
+
+    @media (max-width: 900px) {
+      .faq-body { grid-template-columns: 1fr; }
+      .faq-nav { display: none; }
+      .faq-stats { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 500px) {
+      .faq-stats { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <img src="images/logo-white.png" alt="AI Gents logo" class="nav-logo-img">
+      <span class="nav-logo-text">AI <em>Gents</em></span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="capabilities.html">Capabilities</a></li>
+      <li><a href="approach.html">Approach</a></li>
+      <li><a href="work.html">Work</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="insights.html">Insights</a></li>
+      <li><a href="engage.html">Engage</a></li>
+    </ul>
+    <a href="contact.html" class="nav-cta">Engage Us</a>
+    <button class="nav-mobile-toggle" aria-label="Menu">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+    </button>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="container">
+    <div class="eyebrow">Frequently Asked Questions</div>
+    <div class="faq-hero reveal">
+      <h1>The questions most clients<br>ask <em>before</em> the briefing.</h1>
+      <p>Direct answers. If something isn't covered here, ask us directly — we'll respond the same way.</p>
+    </div>
+  </div>
+</div>
+
+<section class="section-sm">
+  <div class="container">
+    <!-- Stats bar -->
+    <div class="faq-stats reveal">
+      <div class="faq-stat">
+        <div class="faq-stat-val">24h</div>
+        <div class="faq-stat-label">Response time on every inquiry</div>
+      </div>
+      <div class="faq-stat">
+        <div class="faq-stat-val">48h</div>
+        <div class="faq-stat-label">From briefing to scoped proposal</div>
+      </div>
+      <div class="faq-stat">
+        <div class="faq-stat-val">~4</div>
+        <div class="faq-stat-label">Active client engagements at any time</div>
+      </div>
+      <div class="faq-stat">
+        <div class="faq-stat-val">100%</div>
+        <div class="faq-stat-label">Principal-led — no junior staff on client work</div>
+      </div>
+    </div>
+
+    <div class="faq-body">
+
+      <!-- Sidebar nav -->
+      <nav class="faq-nav" aria-label="FAQ categories">
+        <div class="faq-nav-label">Categories</div>
+        <ul>
+          <li><a href="#working-with-us">Working with Us</a></li>
+          <li><a href="#engagements">Engagements & Scope</a></li>
+          <li><a href="#pricing">Pricing & Structure</a></li>
+          <li><a href="#process">Process & Timeline</a></li>
+          <li><a href="#different">How We're Different</a></li>
+        </ul>
+      </nav>
+
+      <!-- Q&A content -->
+      <div class="faq-content">
+
+        <!-- Section 1 -->
+        <div class="faq-section" id="working-with-us">
+          <div class="faq-section-label">Working with Us</div>
+
+          <div class="faq-item">
+            <div class="faq-q">
+              <span class="faq-q-text">Who actually does the work?</span>
+              <span class="faq-toggle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></span>
+            </div>
+            <div class="faq-a">
+              <p>Vijayalakshmi Kokku leads every engagement personally. Anthony Kates manages project design and coordination. There are no junior analysts, no offshore delivery teams, and no bait-and-switch after the proposal is signed.</p>
+              <p>For highly technical implementation work, we occasionally bring in a small number of vetted specialists — but only when the engagement explicitly requires it, and only people whose work we stand behind completely. You'll know who is on your project before we begin.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <div class="faq-q">
+              <span class="faq-q-text">How many clients do you work with at one time?</span>
+              <span class="faq-toggle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></span>
+            </div>
+            <div class="faq-a">
+              <p>We limit active engagements to approximately four at any given time. This is a deliberate choice. The quality of the work — and the level of attention your program receives — depends on it.</p>
+              <p>If our capacity is full when you reach out, we'll tell you directly and give you a realistic timeline for when we can begin. We will not take on a project we can't give adequate attention to.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <div class="faq-q">
+              <span class="faq-q-text">Do you work with AI vendors or have preferred technology partnerships?</span>
+              <span class="faq-toggle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></span>
+            </div>
+            <div class="faq-a">
+              <p>No. We have no financial relationships with AI vendors, cloud providers, or technology platforms. Our recommendations are based entirely on what is right for your organization's situation — not on referral fees or partnership incentives.</p>
+              <p>This matters more than it might seem. A meaningful portion of the AI consulting market is structurally incentivized to recommend specific vendors regardless of fit. We are not.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <div class="faq-q">
+              <span class="faq-q-text">Do you sign NDAs?</span>
+              <span class="faq-toggle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></span>
+            </div>
+            <div class="faq-a">
+              <p>Yes, without reservation. We will sign a mutual NDA before any substantive conversation about your organization. Confidentiality is a baseline expectation, not a negotiating point.</p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Section 2 -->
+        <div class="faq-section" id="engagements">
+          <div class="faq-section-label">Engagements &amp; Scope</div>
+
+          <div class="faq-item">
+            <div class="faq-q">
+              <span class="faq-q-text">What size organizations do you typically work with?</span>
+              <span class="faq-toggle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></span>
+            </div>
+            <div class="faq-a">
+              <p>Most of our clients are mid-market and enterprise organizations with $50M–$5B in annual revenue. The common thread is not company size — it's seriousness. We work best with organizations that have a genuine AI mandate, executive sponsorship, and the willingness to act on what we find.</p>
+              <p>We have worked with smaller organizations when the situation warrants it — typically well-funded companies in regulated industries where AI has high stakes. If you're unsure whether you're a fit, <a href="contact.html">submit an inquiry</a> and we'll tell you honestly.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <div class="faq-q">
+              <span class="faq-q-text">What industries do you work in?</span>
+              <span class="faq-toggle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></span>
+            </div>
+            <div class="faq-a">
+              <p>Our deepest experience is in financial services, healthcare, professional services, and technology. These are industries where the stakes of AI implementation are high — regulatory exposure, data sensitivity, and competitive consequence are all real.</p>
+              <p>We are not restricted to these sectors. Our methodology applies wherever AI has meaningful operational or strategic impact. What matters is the seriousness of the program, not the industry label.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <div class="faq-q">
+              <span class="faq-q-text">Can you help us if we've already started an AI initiative that isn't working?</span>
+              <span class="faq-toggle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></span>
+            </div>
+            <div class="faq-a">
+              <p>Yes — and this is actually one of the more common situations we encounter. Organizations often come to us 6–12 months into an AI initiative that has stalled, drifted from its original objectives, or produced outputs that no one can act on.</p>
+              <p>A diagnostic in this context is particularly valuable. We'll give you an honest assessment of what's recoverable, what needs to be restarted, and what to do differently. Sometimes the most useful thing we can do is tell you to stop spending money on a particular path.</p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Section 3 -->
+        <div class="faq-section" id="pricing">
+          <div class="faq-section-label">Pricing &amp; Structure</div>
+
+          <div class="faq-item">
+            <div class="faq-q">
+              <span class="faq-q-text">Why are your fees structured the way they are?</span>
+              <span class="faq-toggle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></span>
+            </div>
+            <div class="faq-a">
+              <p>We price by deliverable and outcome, not by hour. Hourly billing creates a structural misalignment — it rewards slow work and penalizes efficiency. We'd rather give you a fixed price for a defined deliverable and bear the time risk ourselves.</p>
+              <p>For ongoing advisory relationships, we use a monthly retainer structure. The retainer covers a defined level of access and a specified set of ongoing deliverables. Nothing is billed by surprise.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <div class="faq-q">
+              <span class="faq-q-text">Do you offer payment plans or phased billing?</span>
+              <span class="faq-toggle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></span>
+            </div>
+            <div class="faq-a">
+              <p>Yes. For engagements above $15,000, we typically structure billing in two or three milestones tied to defined deliverables — not arbitrary time intervals. You pay for work as it's completed, not in advance of it.</p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Section 4 -->
+        <div class="faq-section" id="process">
+          <div class="faq-section-label">Process &amp; Timeline</div>
+
+          <div class="faq-item">
+            <div class="faq-q">
+              <span class="faq-q-text">How quickly can we get started?</span>
+              <span class="faq-toggle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></span>
+            </div>
+            <div class="faq-a">
+              <p>Most engagements move from first inquiry to signed proposal within 5–7 business days. Kickoff typically follows within another week. The limiting factor is usually internal procurement and legal review on the client side — not us.</p>
+              <p>If you have genuine urgency, tell us in your inquiry. We'll tell you honestly whether we can accommodate it.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <div class="faq-q">
+              <span class="faq-q-text">How much of our team's time will this require?</span>
+              <span class="faq-toggle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></span>
+            </div>
+            <div class="faq-a">
+              <p>We work hard to minimize the burden on your team. For a Diagnostic, expect 3–5 hours of stakeholder time across the two-week engagement — structured interviews and a readout session. We do the rest.</p>
+              <p>For full program engagements, the time requirement scales with scope. We'll be explicit about what we need from your side before you sign. If we need a dedicated internal point of contact or specific technical access, you'll know upfront.</p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Section 5 -->
+        <div class="faq-section" id="different">
+          <div class="faq-section-label">How We're Different</div>
+
+          <div class="faq-item">
+            <div class="faq-q">
+              <span class="faq-q-text">How are you different from a large consulting firm?</span>
+              <span class="faq-toggle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></span>
+            </div>
+            <div class="faq-a">
+              <p>Three things, primarily. <strong>Principal involvement:</strong> the person who convinced you to hire us is the person who does the work. Large firms use senior partners to sell and junior staff to deliver — we don't. <strong>Vendor independence:</strong> we have no financial incentives tied to technology recommendations. <strong>Scope discipline:</strong> we don't expand engagements without reason. We'd rather complete a smaller scope well than stretch work to fill a larger budget.</p>
+              <p>The tradeoff is clear: we can't staff a 20-person program management office. For organizations that need that kind of coverage, we're not the right fit.</p>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <div class="faq-q">
+              <span class="faq-q-text">What happens after the engagement ends?</span>
+              <span class="faq-toggle"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></span>
+            </div>
+            <div class="faq-a">
+              <p>Most clients continue with a monthly advisory retainer after the initial engagement. This isn't a revenue strategy — it's a reflection of how AI programs actually work. The landscape shifts, implementations surface new questions, and having a standing relationship with someone who knows your context is genuinely useful.</p>
+              <p>That said, there's no pressure to continue. Every engagement is designed to leave your team fully capable of operating what we build without us. Our goal is to transfer capability, not create dependency.</p>
+            </div>
+          </div>
+
+        </div>
+
+      </div><!-- /.faq-content -->
+    </div><!-- /.faq-body -->
+  </div>
+</section>
+
+<!-- CTA -->
+<div style="border-top:1px solid var(--rule);padding:100px 0;text-align:center">
+  <div class="container">
+    <div class="section-eyebrow reveal" style="margin-bottom:20px">Still have questions?</div>
+    <h2 style="max-width:480px;margin:0 auto 20px" class="reveal">Ask us directly.<br>We'll give you a straight answer.</h2>
+    <p style="color:var(--text-2);max-width:420px;margin:0 auto 40px;font-size:16px" class="reveal">Submit an inquiry and include your question. Vijayalakshmi responds to every message personally — usually within one business day.</p>
+    <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap" class="reveal">
+      <a href="contact.html" class="btn btn-primary">Submit an Inquiry</a>
+      <a href="engage.html" class="btn btn-outline">See Engagement Options</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-main">
+    <div class="footer-brand">
+      <div class="footer-brand-logo">
+        <img src="images/logo-white.png" alt="AI Gents" class="footer-logo-img">
+        <span class="footer-logo-text">AI <em>Gents</em></span>
+      </div>
+      <p>Enterprise AI consulting for organizations that intend to lead their industries — not follow them into obsolescence.</p>
+    </div>
+    <div class="footer-col"><h4>Capabilities</h4><ul><li><a href="capabilities.html#strategy">AI Strategy</a></li><li><a href="capabilities.html#llm">LLM Integration</a></li><li><a href="capabilities.html#visibility">AI Visibility</a></li><li><a href="capabilities.html#governance">Governance</a></li></ul></div>
+    <div class="footer-col"><h4>Company</h4><ul><li><a href="about.html">About</a></li><li><a href="work.html">Case Studies</a></li><li><a href="insights.html">Insights</a></li><li><a href="faq.html">FAQ</a></li><li><a href="privacy.html">Privacy Policy</a></li></ul></div>
+    <div class="footer-col"><h4>Contact</h4><ul><li><a href="contact.html">New Engagements</a></li><li><a href="engage.html">How to Engage</a></li><li><a href="faq.html">FAQ</a></li><li><a href="mailto:contact@aigents.help">contact@aigents.help</a></li></ul></div>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-copy">&copy; 2026 AI Gents LLC. All rights reserved.</span>
+    <span class="footer-tagline">Intelligence, applied with precision.</span>
+  </div>
+</footer>
+<script src="js/main.js"></script>
+<script>
+  // FAQ accordion
+  document.querySelectorAll('.faq-q').forEach(q => {
+    q.addEventListener('click', () => {
+      const item = q.closest('.faq-item');
+      const answer = item.querySelector('.faq-a');
+      const isOpen = item.classList.contains('open');
+      // Close all
+      document.querySelectorAll('.faq-item').forEach(i => {
+        i.classList.remove('open');
+        i.querySelector('.faq-a').classList.remove('visible');
+      });
+      // Open clicked if it was closed
+      if (!isOpen) {
+        item.classList.add('open');
+        answer.classList.add('visible');
+      }
+    });
+  });
+</script>
+</body>
+</html>

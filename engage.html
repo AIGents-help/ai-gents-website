@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="How to engage AI Gents — three defined entry points, what each includes, typical investment, and who we work with.">
+  <title>How to Engage | AI Gents</title>
+  <link rel="icon" type="image/png" href="images/logo-white.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* ── Hero ── */
+    .engage-hero { padding: 72px 0 60px; max-width: 760px; }
+    .engage-hero h1 em { color: var(--accent); font-style: italic; }
+    .engage-hero p { font-size: 20px; color: var(--text-2); line-height: 1.8; max-width: 600px; margin-top: 24px; }
+
+    /* ── Offers ── */
+    .offers-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--rule);
+      margin-bottom: 1px;
+    }
+    .offer-card {
+      background: var(--surface);
+      padding: 52px 44px 56px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .offer-card.featured {
+      background: var(--surface-2);
+    }
+    .offer-card.featured::before {
+      content: 'Most common starting point';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      background: var(--accent);
+      color: var(--black);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      text-align: center;
+      padding: 8px 0;
+    }
+    .offer-card.featured { padding-top: 72px; }
+
+    .offer-num {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 20px;
+    }
+    .offer-name {
+      font-family: var(--serif);
+      font-size: 26px;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+    .offer-tagline {
+      font-size: 13px;
+      color: var(--text-2);
+      margin-bottom: 28px;
+      line-height: 1.6;
+    }
+    .offer-divider {
+      width: 32px; height: 1px;
+      background: var(--accent);
+      margin-bottom: 28px;
+    }
+    .offer-desc {
+      font-size: 15px;
+      color: var(--text-2);
+      line-height: 1.78;
+      margin-bottom: 32px;
+    }
+    .offer-includes-label {
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: 16px;
+    }
+    .offer-includes {
+      list-style: none;
+      margin-bottom: 40px;
+      flex: 1;
+    }
+    .offer-includes li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 14px;
+      color: var(--text-2);
+      line-height: 1.6;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--rule);
+    }
+    .offer-includes li:last-child { border-bottom: none; padding-bottom: 0; }
+    .offer-includes li::before {
+      content: '';
+      width: 4px; height: 4px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+      margin-top: 8px;
+    }
+    .offer-meta {
+      border-top: 1px solid var(--rule);
+      padding-top: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .offer-meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 13px;
+    }
+    .offer-meta-label {
+      color: var(--text-3);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .offer-meta-val {
+      color: var(--text-1);
+      font-size: 14px;
+    }
+    .offer-investment {
+      font-family: var(--serif);
+      font-size: 22px;
+      color: var(--accent);
+    }
+    .offer-cta {
+      margin-top: 32px;
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-1);
+      border: 1px solid var(--rule-light);
+      padding: 14px 24px;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .offer-cta:hover { border-color: var(--accent); color: var(--accent); }
+    .offer-card.featured .offer-cta {
+      background: var(--accent);
+      color: var(--black);
+      border-color: var(--accent);
+    }
+    .offer-card.featured .offer-cta:hover { opacity: 0.9; }
+
+    /* ── How it flows ── */
+    .flow-steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--rule);
+    }
+    .flow-step {
+      padding: 44px 36px;
+      background: var(--black);
+    }
+    .flow-step-num {
+      font-family: var(--mono);
+      font-size: 32px;
+      color: var(--rule-light);
+      margin-bottom: 20px;
+      line-height: 1;
+    }
+    .flow-step h4 {
+      font-size: 17px;
+      margin-bottom: 10px;
+    }
+    .flow-step p {
+      font-size: 14px;
+      color: var(--text-2);
+      line-height: 1.72;
+    }
+
+    /* ── Who we work with ── */
+    .fit-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--rule);
+    }
+    .fit-col {
+      padding: 56px 52px;
+      background: var(--surface);
+    }
+    .fit-col h3 {
+      font-size: 20px;
+      margin-bottom: 28px;
+    }
+    .fit-col h3 span {
+      display: block;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+      font-style: normal;
+    }
+    .fit-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .fit-list li {
+      font-size: 15px;
+      color: var(--text-2);
+      line-height: 1.65;
+      padding-left: 20px;
+      position: relative;
+    }
+    .fit-list li::before {
+      content: '—';
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+    }
+    .fit-col.not-fit { background: var(--black); }
+    .fit-col.not-fit .fit-list li::before { color: var(--text-3); }
+
+    /* ── Engagement note ── */
+    .engage-note {
+      border: 1px solid var(--rule);
+      padding: 48px 52px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: start;
+    }
+    .engage-note-lead {
+      font-family: var(--serif);
+      font-size: 24px;
+      line-height: 1.4;
+    }
+    .engage-note-lead em { color: var(--accent); font-style: italic; }
+    .engage-note-body {
+      font-size: 15px;
+      color: var(--text-2);
+      line-height: 1.8;
+    }
+    .engage-note-body p + p { margin-top: 16px; }
+
+    @media (max-width: 960px) {
+      .offers-grid { grid-template-columns: 1fr; }
+      .flow-steps { grid-template-columns: 1fr 1fr; }
+      .fit-grid { grid-template-columns: 1fr; }
+      .engage-note { grid-template-columns: 1fr; gap: 28px; }
+    }
+    @media (max-width: 600px) {
+      .flow-steps { grid-template-columns: 1fr; }
+      .offer-card { padding: 36px 28px 40px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <img src="images/logo-white.png" alt="AI Gents logo" class="nav-logo-img">
+      <span class="nav-logo-text">AI <em>Gents</em></span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="capabilities.html">Capabilities</a></li>
+      <li><a href="approach.html">Approach</a></li>
+      <li><a href="work.html">Work</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="insights.html">Insights</a></li>
+      <li><a href="engage.html">Engage</a></li>
+    </ul>
+    <a href="contact.html" class="nav-cta">Engage Us</a>
+    <button class="nav-mobile-toggle" aria-label="Menu">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+    </button>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="container">
+    <div class="eyebrow">How to Engage</div>
+    <div class="engage-hero reveal">
+      <h1>Three ways to start.<br><em>One standard</em> of work.</h1>
+      <p>Every engagement starts with a direct conversation — no sales team, no qualification process. Vijayalakshmi reviews your situation personally and recommends where to begin.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Offers -->
+<section class="section-sm">
+  <div class="container">
+    <div class="offers-grid">
+
+      <!-- Offer 1: Clarity Session -->
+      <div class="offer-card reveal">
+        <div class="offer-num">01</div>
+        <div class="offer-name">AI Clarity<br>Session</div>
+        <div class="offer-tagline">A focused 90-minute working session to diagnose your highest-leverage AI opportunity.</div>
+        <div class="offer-divider"></div>
+        <p class="offer-desc">You have questions. You may have internal proposals, vendor pitches, or a board mandate and no clear direction. We spend 90 minutes together reviewing your specific situation and leave you with a concrete diagnosis — not a sales pitch for more work.</p>
+        <div class="offer-includes-label">What's included</div>
+        <ul class="offer-includes">
+          <li>Pre-session intake review of your organization and current AI situation</li>
+          <li>90-minute live working session with Vijayalakshmi</li>
+          <li>Written diagnosis of your top 3 AI opportunities and risks</li>
+          <li>Recommended next step — whether that's us or not</li>
+        </ul>
+        <div class="offer-meta">
+          <div class="offer-meta-row">
+            <span class="offer-meta-label">Investment</span>
+            <span class="offer-investment">$2,500</span>
+          </div>
+          <div class="offer-meta-row">
+            <span class="offer-meta-label">Timeline</span>
+            <span class="offer-meta-val">Schedulable within 5 business days</span>
+          </div>
+          <div class="offer-meta-row">
+            <span class="offer-meta-label">Format</span>
+            <span class="offer-meta-val">Video call + written follow-up</span>
+          </div>
+        </div>
+        <a href="contact.html" class="offer-cta">Book a Clarity Session →</a>
+      </div>
+
+      <!-- Offer 2: AI Readiness Diagnostic (FEATURED) -->
+      <div class="offer-card featured reveal">
+        <div class="offer-num">02</div>
+        <div class="offer-name">AI Readiness<br>Diagnostic</div>
+        <div class="offer-tagline">A two-week structured assessment that tells you exactly where to invest and where to wait.</div>
+        <div class="offer-divider"></div>
+        <p class="offer-desc">Most organizations waste their first 12 months on AI initiatives that were never going to succeed — wrong use case, wrong sequencing, or wrong infrastructure. This diagnostic eliminates that risk. You receive a clear, honest assessment of your AI readiness and a prioritized roadmap anchored to your specific business outcomes.</p>
+        <div class="offer-includes-label">What's included</div>
+        <ul class="offer-includes">
+          <li>Structured readiness assessment across five dimensions: data, infrastructure, talent, culture, and competitive context</li>
+          <li>Stakeholder interviews (up to 6 leaders) and current-state technical review</li>
+          <li>Prioritized use case portfolio with ROI modeling for each initiative</li>
+          <li>12-month implementation roadmap with phasing and resource requirements</li>
+          <li>Board-ready executive presentation (optional)</li>
+          <li>60-minute readout session with Q&A</li>
+        </ul>
+        <div class="offer-meta">
+          <div class="offer-meta-row">
+            <span class="offer-meta-label">Investment</span>
+            <span class="offer-investment">$12,000 – $18,000</span>
+          </div>
+          <div class="offer-meta-row">
+            <span class="offer-meta-label">Timeline</span>
+            <span class="offer-meta-val">2 weeks from kickoff</span>
+          </div>
+          <div class="offer-meta-row">
+            <span class="offer-meta-label">Best for</span>
+            <span class="offer-meta-val">Organizations beginning a serious AI program</span>
+          </div>
+        </div>
+        <a href="contact.html" class="offer-cta">Request a Diagnostic →</a>
+      </div>
+
+      <!-- Offer 3: Full Engagement -->
+      <div class="offer-card reveal">
+        <div class="offer-num">03</div>
+        <div class="offer-name">Full Program<br>Engagement</div>
+        <div class="offer-tagline">End-to-end AI program design, implementation, and ongoing advisory.</div>
+        <div class="offer-divider"></div>
+        <p class="offer-desc">For organizations ready to build a serious AI capability — not just run a pilot. We design the strategy, architect the systems, oversee implementation, and stay alongside your team through deployment and into compounding value. Scoped specifically to your program and outcomes.</p>
+        <div class="offer-includes-label">Typical scope includes</div>
+        <ul class="offer-includes">
+          <li>AI strategy and architecture across one or more capability areas</li>
+          <li>LLM implementation, agent systems, or data infrastructure buildout</li>
+          <li>Governance framework and model risk management</li>
+          <li>Team enablement and internal capability building</li>
+          <li>Ongoing principal-level advisory (monthly retainer available)</li>
+          <li>KPI framework and performance measurement through 90-day horizon</li>
+        </ul>
+        <div class="offer-meta">
+          <div class="offer-meta-row">
+            <span class="offer-meta-label">Investment</span>
+            <span class="offer-investment">From $45,000</span>
+          </div>
+          <div class="offer-meta-row">
+            <span class="offer-meta-label">Timeline</span>
+            <span class="offer-meta-val">Scoped to program; typically 8–24 weeks</span>
+          </div>
+          <div class="offer-meta-row">
+            <span class="offer-meta-label">Best for</span>
+            <span class="offer-meta-val">Enterprises with budget and board commitment</span>
+          </div>
+        </div>
+        <a href="contact.html" class="offer-cta">Request a Briefing →</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- How it flows -->
+<section class="section" style="border-top:1px solid var(--rule)">
+  <div class="container">
+    <div class="section-eyebrow reveal">The Process</div>
+    <h2 class="reveal" style="max-width:520px;margin-bottom:56px">From first contact to first deliverable — what to expect.</h2>
+    <div class="flow-steps">
+      <div class="flow-step reveal">
+        <div class="flow-step-num">01</div>
+        <h4>Submit an inquiry</h4>
+        <p>Tell us what you're working on. A few sentences is enough. No RFP required, no lengthy intake form — just context.</p>
+      </div>
+      <div class="flow-step reveal">
+        <div class="flow-step-num">02</div>
+        <h4>Direct response within 24 hours</h4>
+        <p>Vijayalakshmi reviews every inquiry personally. You'll hear back within one business day with an honest assessment of whether and how we can help.</p>
+      </div>
+      <div class="flow-step reveal">
+        <div class="flow-step-num">03</div>
+        <h4>45-minute briefing call</h4>
+        <p>A direct, working conversation. No deck, no pitch. We review your situation and recommend a starting point — usually one of the three engagements above.</p>
+      </div>
+      <div class="flow-step reveal">
+        <div class="flow-step-num">04</div>
+        <h4>Scoped proposal within 48 hours</h4>
+        <p>A one-page scope document with deliverables, timeline, and investment. We move fast. Most engagements kick off within two weeks of first contact.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Who we work with -->
+<section class="section" style="border-top:1px solid var(--rule)">
+  <div class="container">
+    <div class="section-eyebrow reveal">Fit</div>
+    <h2 class="reveal" style="max-width:520px;margin-bottom:56px">We work with a small number of organizations at a time. This is intentional.</h2>
+    <div class="fit-grid">
+      <div class="fit-col reveal">
+        <h3><span>We're the right fit when you are</span>A serious buyer with real stakes.</h3>
+        <ul class="fit-list">
+          <li>A mid-market or enterprise organization ($50M+ revenue) with a genuine AI mandate</li>
+          <li>A leadership team that has budget authority and is ready to make decisions</li>
+          <li>Willing to be honest about where you are — not where you'd like to appear to be</li>
+          <li>Looking for a partner who will tell you what's true, not what's comfortable</li>
+          <li>Operating in a regulated or competitive-moat industry where AI has real stakes</li>
+          <li>Ready to begin within 30–60 days, not "exploring for future budget"</li>
+        </ul>
+      </div>
+      <div class="fit-col not-fit reveal">
+        <h3><span>We're probably not the right fit if you need</span>A different kind of firm.</h3>
+        <ul class="fit-list">
+          <li>A large team staffed with junior consultants billed at senior rates</li>
+          <li>Reassurance that your current AI strategy is correct (we'll tell you if it isn't)</li>
+          <li>A proof-of-concept with no path to production</li>
+          <li>Body-shop implementation at the lowest possible rate</li>
+          <li>A firm that will tell you AI can solve problems it cannot</li>
+          <li>Someone to manage an existing vendor relationship you've already committed to</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Engagement philosophy note -->
+<section class="section-sm" style="border-top:1px solid var(--rule)">
+  <div class="container">
+    <div class="engage-note reveal">
+      <div class="engage-note-lead">A note on how we<br><em>price and structure</em><br>our work.</div>
+      <div class="engage-note-body">
+        <p>We don't bill by the hour and we don't staff projects with people you won't meet in the briefing. When you engage AI Gents, you get Vijayalakshmi's direct involvement — not a team of analysts she supervises from a distance.</p>
+        <p>Our fees are anchored to outcomes, not inputs. The Diagnostic has a fixed price because we know what it takes to do it well. Full engagements are scoped based on your specific situation — complexity, size, and what success actually requires.</p>
+        <p>We work with a limited number of clients at any given time. This is not a positioning strategy — it's a consequence of how we work. If our capacity is full, we'll tell you and we'll give you a realistic timeline for when we can begin.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div style="border-top:1px solid var(--rule);padding:100px 0;text-align:center">
+  <div class="container">
+    <div class="section-eyebrow reveal" style="margin-bottom:20px">Ready to start</div>
+    <h2 style="max-width:500px;margin:0 auto 20px" class="reveal">Not sure which engagement is right?<br>Start with the inquiry.</h2>
+    <p style="color:var(--text-2);max-width:440px;margin:0 auto 40px;font-size:16px" class="reveal">Describe your situation in a few sentences. Vijayalakshmi will review it and recommend a starting point — usually within one business day.</p>
+    <div class="reveal"><a href="contact.html" class="btn btn-primary">Submit an Inquiry</a></div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-main">
+    <div class="footer-brand">
+      <div class="footer-brand-logo">
+        <img src="images/logo-white.png" alt="AI Gents" class="footer-logo-img">
+        <span class="footer-logo-text">AI <em>Gents</em></span>
+      </div>
+      <p>Enterprise AI consulting for organizations that intend to lead their industries — not follow them into obsolescence.</p>
+    </div>
+    <div class="footer-col"><h4>Capabilities</h4><ul><li><a href="capabilities.html#strategy">AI Strategy</a></li><li><a href="capabilities.html#llm">LLM Integration</a></li><li><a href="capabilities.html#visibility">AI Visibility</a></li><li><a href="capabilities.html#governance">Governance</a></li></ul></div>
+    <div class="footer-col"><h4>Company</h4><ul><li><a href="about.html">About</a></li><li><a href="work.html">Case Studies</a></li><li><a href="insights.html">Insights</a></li><li><a href="faq.html">FAQ</a></li><li><a href="privacy.html">Privacy Policy</a></li></ul></div>
+    <div class="footer-col"><h4>Contact</h4><ul><li><a href="contact.html">New Engagements</a></li><li><a href="engage.html">How to Engage</a></li><li><a href="faq.html">FAQ</a></li><li><a href="mailto:contact@aigents.help">contact@aigents.help</a></li></ul></div>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-copy">&copy; 2026 AI Gents LLC. All rights reserved.</span>
+    <span class="footer-tagline">Intelligence, applied with precision.</span>
+  </div>
+</footer>
+<script src="js/main.js"></script>
+</body>
+</html>
