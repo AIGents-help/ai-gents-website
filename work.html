@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AI Gents case studies — real enterprise AI deployments across financial services, healthcare, retail, and professional services with measurable business outcomes.">
+  <title>Our Work | AI Gents</title>
+  <link rel="icon" type="image/png" href="images/logo-white.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .work-hero-stats { display: flex; gap: 56px; margin-top: 52px; padding-top: 40px; border-top: 1px solid var(--rule); }
+    .work-stat-val { font-family: var(--serif); font-size: 44px; line-height: 1; }
+    .work-stat-val sup { font-size: 20px; color: var(--accent); }
+    .work-stat-label { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); margin-top: 6px; }
+
+    .case-full { padding: 72px 0; border-bottom: 1px solid var(--rule); }
+    .case-full:last-of-type { border-bottom: none; }
+    .case-full-grid { display: grid; grid-template-columns: 5fr 7fr; gap: 80px; align-items: start; }
+    .case-header { position: sticky; top: 88px; }
+    .case-sector { font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
+    .case-full h2 { font-size: clamp(22px, 2.4vw, 32px); line-height: 1.25; margin-bottom: 24px; }
+    .case-outcome-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--rule); margin-top: 32px; }
+    .case-outcome-cell { background: var(--surface); padding: 24px 20px; }
+    .case-outcome-val { font-family: var(--serif); font-size: 32px; color: var(--accent); line-height: 1; }
+    .case-outcome-label { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-3); margin-top: 5px; }
+
+    .case-body-col p { font-size: 15px; color: var(--text-2); line-height: 1.82; }
+    .case-body-col p + p { margin-top: 16px; }
+    .case-section-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-3); margin: 32px 0 12px; }
+    .case-tag-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .case-tag {
+      font-size: 11px; letter-spacing: 0.06em;
+      padding: 5px 12px; border: 1px solid var(--rule-light);
+      color: var(--text-3);
+    }
+
+    @media (max-width: 900px) {
+      .case-full-grid { grid-template-columns: 1fr; gap: 36px; }
+      .case-header { position: static; }
+      .work-hero-stats { flex-direction: column; gap: 28px; }
+      .case-outcome-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <img src="images/logo-white.png" alt="AI Gents logo" class="nav-logo-img">
+      <span class="nav-logo-text">AI <em>Gents</em></span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="capabilities.html">Capabilities</a></li>
+      <li><a href="approach.html">Approach</a></li>
+      <li><a href="work.html" class="active">Work</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="insights.html">Insights</a></li>
+    </ul>
+    <a href="contact.html" class="nav-cta">Engage Us</a>
+    <button class="nav-mobile-toggle" aria-label="Menu">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+    </button>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="container">
+    <div class="eyebrow">Selected Work</div>
+    <h1 style="max-width:720px;margin-top:16px">Results, not reports.</h1>
+    <p style="color:var(--text-2);font-size:18px;max-width:600px;margin-top:24px;line-height:1.8">Every engagement is measured against a single question: did this create material, measurable business value? Below is a selection of what that looks like in practice. Client names are withheld unless explicit permission is granted.</p>
+    <div class="work-hero-stats reveal">
+      <div>
+        <div class="work-stat-val"><sup>$</sup>2.4B</div>
+        <div class="work-stat-label">Total client value created</div>
+      </div>
+      <div>
+        <div class="work-stat-val">140<sup>+</sup></div>
+        <div class="work-stat-label">Engagements completed</div>
+      </div>
+      <div>
+        <div class="work-stat-val">11</div>
+        <div class="work-stat-label">Industries served</div>
+      </div>
+      <div>
+        <div class="work-stat-val">94<sup>%</sup></div>
+        <div class="work-stat-label">Client retention rate</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Case 1 -->
+  <div class="case-full reveal">
+    <div class="case-full-grid">
+      <div class="case-header">
+        <div class="case-sector">Financial Services · AI Strategy &amp; Infrastructure</div>
+        <h2>Rebuilding a regional bank's intelligence layer from the ground up</h2>
+        <div class="case-outcome-row">
+          <div class="case-outcome-cell">
+            <div class="case-outcome-val">$340M</div>
+            <div class="case-outcome-label">Operational cost reduction, 3 years</div>
+          </div>
+          <div class="case-outcome-cell">
+            <div class="case-outcome-val">14 mo</div>
+            <div class="case-outcome-label">From engagement start to 4 live systems</div>
+          </div>
+          <div class="case-outcome-cell">
+            <div class="case-outcome-val">Zero</div>
+            <div class="case-outcome-label">Regulatory findings on AI systems</div>
+          </div>
+          <div class="case-outcome-cell">
+            <div class="case-outcome-val">97<sup>%</sup></div>
+            <div class="case-outcome-label">Model decision accuracy</div>
+          </div>
+        </div>
+      </div>
+      <div class="case-body-col">
+        <p>A top-25 U.S. bank had attempted two internal AI initiatives over three years, investing more than $28M in each, with neither reaching production. Senior leadership brought us in to conduct an honest post-mortem and provide a path forward.</p>
+        <p>Our diagnostic revealed that both prior programs had failed not because of inadequate model selection or engineering talent, but because of fundamental data infrastructure problems. Thirteen core data assets required to power the AI systems were siloed across four legacy systems, inconsistently defined, and incompletely reconciled. No amount of model sophistication could overcome that foundation.</p>
+        <p>We restructured the program around a data-first approach — spending the first four months building the infrastructure before touching model development. This required convincing senior leadership that pace was less important than sequence, and that another fast start would produce another failure. That conversation was difficult. It was also correct.</p>
+        <p>In month five, model development began in earnest. By month fourteen, four production AI systems were live: a credit underwriting model, a fraud detection system, a customer churn prediction engine, and an internal document intelligence tool for compliance. All four passed their first Model Risk Management review without findings.</p>
+        <div class="case-section-label">Capabilities applied</div>
+        <div class="case-tag-row">
+          <span class="case-tag">AI Strategy</span>
+          <span class="case-tag">Data Infrastructure</span>
+          <span class="case-tag">AI Governance</span>
+          <span class="case-tag">LLM Implementation</span>
+          <span class="case-tag">Model Risk Management</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Case 2 -->
+  <div class="case-full reveal">
+    <div class="case-full-grid">
+      <div class="case-header">
+        <div class="case-sector">Healthcare · LLM Implementation</div>
+        <h2>Clinical documentation AI that physicians actually use</h2>
+        <div class="case-outcome-row">
+          <div class="case-outcome-cell">
+            <div class="case-outcome-val">2.1 hr</div>
+            <div class="case-outcome-label">Saved per physician per day</div>
+          </div>
+          <div class="case-outcome-cell">
+            <div class="case-outcome-val">96<sup>%</sup></div>
+            <div class="case-outcome-label">Physician satisfaction at 90 days</div>
+          </div>
+          <div class="case-outcome-cell">
+            <div class="case-outcome-val">12</div>
+            <div class="case-outcome-label">Hospital sites deployed</div>
+          </div>
+          <div class="case-outcome-cell">
+            <div class="case-outcome-val">HIPAA</div>
+            <div class="case-outcome-label">Fully compliant deployment</div>
+          </div>
+        </div>
+      </div>
+      <div class="case-body-col">
+        <p>A 12-hospital integrated health system faced a crisis that most healthcare leaders recognize: physician burnout driven substantially by administrative documentation burden. Physicians were spending an average of 3.1 hours per day on documentation — time that should have been spent on patients.</p>
+        <p>Previous attempts to implement commercial documentation AI had achieved 40% adoption before physicians abandoned the tools, citing accuracy problems and workflow friction that created more work than it saved. The clinical informatics team brought us in specifically because our implementation approach emphasizes adoption engineering alongside model engineering.</p>
+        <p>We began by shadowing physicians across four specialties for two weeks — not interviewing them, but observing how they actually worked, where documentation occurred in their workflow, and what specifically they found friction-generating about the prior tools. This produced a behavioral map that became the design foundation for everything that followed.</p>
+        <p>The system we built uses a fine-tuned clinical language model, integrated directly into the EHR's existing interface, with specialty-specific prompting systems that produce note drafts matching each physician's documented style. A human review step is preserved for all final notes — the system assists, it does not replace clinical judgment.</p>
+        <div class="case-section-label">Capabilities applied</div>
+        <div class="case-tag-row">
+          <span class="case-tag">LLM Fine-tuning</span>
+          <span class="case-tag">Healthcare AI</span>
+          <span class="case-tag">HIPAA Compliance</span>
+          <span class="case-tag">Workforce Enablement</span>
+          <span class="case-tag">EHR Integration</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Case 3 -->
+  <div class="case-full reveal">
+    <div class="case-full-grid">
+      <div class="case-header">
+        <div class="case-sector">Retail &amp; E-Commerce · AI Visibility</div>
+        <h2>Dominating AI search in a category owned by a competitor</h2>
+        <div class="case-outcome-row">
+          <div class="case-outcome-cell">
+            <div class="case-outcome-val">4.7<sup>×</sup></div>
+            <div class="case-outcome-label">AI-generated brand citations</div>
+          </div>
+          <div class="case-outcome-cell">
+            <div class="case-outcome-val">90</div>
+            <div class="case-outcome-label">Days to measurable reversal</div>
+          </div>
+          <div class="case-outcome-cell">
+            <div class="case-outcome-val">38<sup>%</sup></div>
+            <div class="case-outcome-label">AI-attributed revenue increase</div>
+          </div>
+          <div class="case-outcome-cell">
+            <div class="case-outcome-val">#1</div>
+            <div class="case-outcome-label">AI recommendation share in category</div>
+          </div>
+        </div>
+      </div>
+      <div class="case-body-col">
+        <p>A mid-market specialty retailer discovered, through their own consumer research, that when their target customers asked AI assistants for product recommendations, a legacy competitor was cited in 80% of responses. Their own brand appeared in fewer than 12% of AI-generated responses — despite being rated higher by customers who had actually used both brands.</p>
+        <p>The disconnect was not a product quality problem. It was an AI visibility problem. The competitor had decades of inbound link authority and structured content that had been indexed and absorbed by AI training pipelines. The client's digital presence, while aesthetically superior, lacked the structured content signals that AI systems use to evaluate credibility and relevance.</p>
+        <p>Our AI Visibility program began with a comprehensive audit mapping every dimension of their AI search presence: citation frequency across platforms, sentiment accuracy, product representation quality, and structural content gaps. We identified 14 specific gaps in their content architecture that were directly suppressing AI citation rates.</p>
+        <p>The remediation program addressed each gap systematically: structured product data in schema markup, category-level FAQ content written for AI extraction, an llms.txt file providing AI systems with authoritative brand information, and a coordinated effort to secure structured third-party mentions from review platforms with high AI index authority. Within 90 days, citation share had reversed.</p>
+        <div class="case-section-label">Capabilities applied</div>
+        <div class="case-tag-row">
+          <span class="case-tag">AI Visibility Audit</span>
+          <span class="case-tag">Answer Engine Optimization</span>
+          <span class="case-tag">Content Architecture</span>
+          <span class="case-tag">Citation Monitoring</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Case 4 -->
+  <div class="case-full reveal">
+    <div class="case-full-grid">
+      <div class="case-header">
+        <div class="case-sector">Professional Services · Agent Systems</div>
+        <h2>Autonomous research agents for a global law firm</h2>
+        <div class="case-outcome-row">
+          <div class="case-outcome-cell">
+            <div class="case-outcome-val">70<sup>%</sup></div>
+            <div class="case-outcome-label">Reduction in research hours</div>
+          </div>
+          <div class="case-outcome-cell">
+            <div class="case-outcome-val">14</div>
+            <div class="case-outcome-label">Jurisdictions covered</div>
+          </div>
+          <div class="case-outcome-cell">
+            <div class="case-outcome-val">99.1<sup>%</sup></div>
+            <div class="case-outcome-label">Citation accuracy rate</div>
+          </div>
+          <div class="case-outcome-cell">
+            <div class="case-outcome-val">$18M</div>
+            <div class="case-outcome-label">Annual efficiency value unlocked</div>
+          </div>
+        </div>
+      </div>
+      <div class="case-body-col">
+        <p>A 600-attorney global law firm identified legal research as their single highest-cost inefficiency — associates spending 30-40% of billable time on research tasks that, in principle, could be substantially automated. The challenge was designing a system that met the firm's non-negotiable requirements: citation accuracy, jurisdictional precision, and a human attorney review step that maintained professional accountability.</p>
+        <p>We designed a multi-agent research system comprising four specialized agents: a query decomposition agent that breaks complex legal questions into structured sub-queries, a parallel retrieval agent that searches across case law databases, regulatory filings, and statute libraries across 14 jurisdictions simultaneously, a synthesis agent that compiles and cross-checks findings, and a citation verification agent that validates every reference before it reaches an attorney's screen.</p>
+        <p>The system is explicitly designed to augment attorney judgment, not replace it. Every output is formatted as a structured research memorandum with confidence levels, jurisdictional flags, and explicit uncertainty markers — giving attorneys the context they need to review and rely on the research with appropriate professional diligence.</p>
+        <p>The 99.1% citation accuracy rate was achieved through an intensive validation program in which 200 randomly selected research outputs were manually verified by senior associates. This validation process also produced the training data used to improve the citation verification agent's performance over successive iterations.</p>
+        <div class="case-section-label">Capabilities applied</div>
+        <div class="case-tag-row">
+          <span class="case-tag">Multi-Agent Systems</span>
+          <span class="case-tag">Legal AI</span>
+          <span class="case-tag">RAG Architecture</span>
+          <span class="case-tag">Human-in-the-Loop Design</span>
+          <span class="case-tag">Model Evaluation</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<!-- CTA -->
+<div style="background:var(--surface);border-top:1px solid var(--rule);padding:100px 0;text-align:center">
+  <div class="container">
+    <div class="section-eyebrow reveal" style="margin-bottom:20px">Your engagement</div>
+    <h2 style="max-width:540px;margin:0 auto 20px" class="reveal">Every case study on this page began with a single conversation.</h2>
+    <p style="color:var(--text-2);max-width:440px;margin:0 auto 40px;font-size:16px" class="reveal">If you have a serious AI program to build or an existing one that isn't performing, we'd like to hear about it. Our initial briefings are confidential and without obligation.</p>
+    <div class="reveal"><a href="contact.html" class="btn btn-primary">Request a Briefing</a></div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-main">
+    <div class="footer-brand"><div class="footer-brand-logo">
+        <img src="images/logo-white.png" alt="AI Gents" class="footer-logo-img">
+        <span class="footer-logo-text">AI <em>Gents</em></span>
+      </div><p>Enterprise AI consulting for organizations that intend to lead their industries — not follow them into obsolescence.</p></div>
+    <div class="footer-col"><h4>Capabilities</h4><ul><li><a href="capabilities.html#strategy">AI Strategy</a></li><li><a href="capabilities.html#llm">LLM Integration</a></li><li><a href="capabilities.html#visibility">AI Visibility</a></li><li><a href="capabilities.html#governance">Governance</a></li></ul></div>
+    <div class="footer-col"><h4>Company</h4><ul><li><a href="about.html">About</a></li><li><a href="work.html">Case Studies</a></li><li><a href="insights.html">Insights</a></li><li><a href="privacy.html">Privacy Policy</a></li></ul></div>
+    <div class="footer-col"><h4>Contact</h4><ul><li><a href="contact.html">New Engagements</a></li><li><a href="https://linkedin.com" target="_blank" rel="noopener">LinkedIn</a></li></ul></div>
+  </div>
+  <div class="footer-bottom"><span class="footer-copy">&copy; 2026 AI Gents LLC. All rights reserved.</span><span class="footer-tagline">Intelligence, applied with precision.</span></div>
+</footer>
+<script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AI Gents Insights — enterprise AI strategy, LLM implementation, AI visibility, and governance perspectives from the AI Gents principals.">
+  <title>Insights | AI Gents</title>
+  <link rel="icon" type="image/png" href="images/logo-white.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .insight-full { display: grid; grid-template-columns: 3fr 7fr; gap: 80px; align-items: start; padding: 72px 0; border-bottom: 1px solid var(--rule); }
+    .insight-meta { position: sticky; top: 88px; }
+    .insight-category { font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+    .insight-date { font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; color: var(--text-3); margin-bottom: 20px; }
+    .insight-full h2 { font-size: clamp(22px, 2.4vw, 30px); line-height: 1.3; }
+    .insight-byline { font-size: 12px; color: var(--text-3); margin-top: 16px; }
+    .insight-body p { font-size: 15px; color: var(--text-2); line-height: 1.85; }
+    .insight-body p + p { margin-top: 16px; }
+    .insight-body h3 { font-size: 20px; margin: 32px 0 12px; }
+    .insight-body ul { padding-left: 20px; margin-top: 12px; }
+    .insight-body ul li { font-size: 15px; color: var(--text-2); line-height: 1.75; margin-bottom: 8px; }
+
+    .topics-strip { display: flex; gap: 10px; flex-wrap: wrap; padding: 32px 0; border-bottom: 1px solid var(--rule); }
+    .topic-pill { font-size: 11px; letter-spacing: 0.06em; padding: 6px 14px; border: 1px solid var(--rule-light); color: var(--text-3); cursor: pointer; transition: all 0.2s; }
+    .topic-pill:hover, .topic-pill.active { border-color: var(--accent); color: var(--accent); }
+
+    @media (max-width: 900px) {
+      .insight-full { grid-template-columns: 1fr; gap: 32px; }
+      .insight-meta { position: static; }
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <img src="images/logo-white.png" alt="AI Gents logo" class="nav-logo-img">
+      <span class="nav-logo-text">AI <em>Gents</em></span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="capabilities.html">Capabilities</a></li>
+      <li><a href="approach.html">Approach</a></li>
+      <li><a href="work.html">Work</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="insights.html" class="active">Insights</a></li>
+    </ul>
+    <a href="contact.html" class="nav-cta">Engage Us</a>
+    <button class="nav-mobile-toggle" aria-label="Menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12h18M3 6h18M3 18h18"/></svg></button>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="container">
+    <div class="eyebrow">Insights</div>
+    <h1 style="max-width:680px;margin-top:16px">Thinking on enterprise AI that we'd want to read ourselves.</h1>
+    <p style="color:var(--text-2);font-size:18px;max-width:580px;margin-top:24px;line-height:1.8">Perspectives from the AI Gents principals — on strategy, implementation, governance, AI visibility, and the organizational dimensions of getting AI right at enterprise scale.</p>
+  </div>
+</div>
+
+<div class="container">
+  <div class="topics-strip">
+    <span class="topic-pill active">All</span>
+    <span class="topic-pill">AI Strategy</span>
+    <span class="topic-pill">LLM &amp; Agents</span>
+    <span class="topic-pill">AI Visibility</span>
+    <span class="topic-pill">Governance</span>
+    <span class="topic-pill">Workforce</span>
+    <span class="topic-pill">Data Infrastructure</span>
+  </div>
+
+  <!-- Article 1 -->
+  <div class="insight-full reveal">
+    <div class="insight-meta">
+      <div class="insight-category">AI Visibility</div>
+      <div class="insight-date">June 2026</div>
+      <h2>Why 73% of B2B buyers now use AI before contacting a vendor — and what to do about it</h2>
+      <div class="insight-byline">By Anthony Gaines, Managing Principal</div>
+    </div>
+    <div class="insight-body reveal reveal-d1">
+      <p>Gartner's 2026 B2B Buyer Study confirmed what our clients had been observing anecdotally for two years: the majority of enterprise buyers now use AI assistants as the first step in their vendor discovery process — before visiting company websites, before reading analyst reports, before asking colleagues for referrals.</p>
+      <p>For most enterprise marketing and sales leaders, this represents an alarming blind spot. They have invested heavily in SEO, in analyst relations, in content marketing — all of which influenced traditional search behavior. But AI-generated answers do not work like Google. The signals that drive AI citation are fundamentally different from the signals that drive search ranking, and most organizations have not yet adapted.</p>
+      <h3>What AI systems actually use to form recommendations</h3>
+      <p>When a buyer asks an AI assistant "which vendors should I consider for enterprise data governance?", the AI is not returning a ranked list of websites. It is synthesizing its training data, retrieval-augmented sources, and real-time search results into a curated narrative response. The factors that determine whether your brand appears in that narrative are:</p>
+      <ul>
+        <li><strong>Structured entity representation:</strong> Does AI training data contain well-structured, authoritative information about your company, your capabilities, and your positioning?</li>
+        <li><strong>Third-party citation density:</strong> Are credible external sources citing your brand in contexts that are relevant to your category?</li>
+        <li><strong>Content accessibility:</strong> Is your content structured in a way that AI systems can read, extract, and synthesize — or is it blocked, rendered in JavaScript, or structured for human eyes rather than machine consumption?</li>
+        <li><strong>Temporal recency:</strong> Are there recent, high-authority mentions of your brand that real-time retrieval systems can access?</li>
+      </ul>
+      <p>Most organizations score poorly on at least two of these four dimensions, usually without knowing it. The first step is measurement — establishing a baseline of your current AI citation performance across the platforms your buyers use.</p>
+      <h3>What to do in the next 90 days</h3>
+      <p>The organizations that move fastest on AI visibility will establish a durable early advantage. The mechanics are learnable and implementable. Start with an audit that tells you where you actually stand — not where you assume you stand — and build from there. The organizations we've worked with that executed this well saw measurable citation improvement within 90 days. The ones that waited watched competitors capture share they'll spend years trying to recover.</p>
+    </div>
+  </div>
+
+  <!-- Article 2 -->
+  <div class="insight-full reveal">
+    <div class="insight-meta">
+      <div class="insight-category">AI Strategy</div>
+      <div class="insight-date">May 2026</div>
+      <h2>The CFO's guide to evaluating AI program ROI — a framework that finance will actually trust</h2>
+      <div class="insight-byline">By Simone Reyes, Principal</div>
+    </div>
+    <div class="insight-body reveal reveal-d1">
+      <p>The most common reason enterprise AI programs stall in approval processes is that the business case is built on metrics that finance teams can't validate: "improved decision quality," "enhanced customer experience," "accelerated innovation." These outcomes may be real, but they are not financial.</p>
+      <p>CFOs are not hostile to AI investment. They are hostile to business cases that conflate activity with outcome, that use optimistic assumptions without defensible evidence, and that can't be connected to a specific P&amp;L line. The solution is not to sell harder — it's to build the case differently.</p>
+      <h3>The three categories of AI ROI</h3>
+      <p>There are only three ways AI programs create financial value: they reduce the cost of doing something that already happens, they improve the revenue associated with something that already happens, or they enable something new that generates revenue that wouldn't otherwise exist. Every AI investment case should map explicitly to one or more of these.</p>
+      <p>Cost reduction cases are the most credible to finance because they are directly auditable. If you deploy an AI system to automate a workflow that currently requires 40 FTEs, the financial value is calculable within a range that finance can accept. The risk factors are adoption rate and accuracy requirements — and those can be modeled with defensible assumptions.</p>
+      <p>Revenue improvement cases require more care. The causal link between an AI intervention and a revenue outcome is harder to establish cleanly. The most credible approach is to design for measurability from the beginning — using A/B testing frameworks, clear attribution logic, and realistic timelines for the effect to manifest.</p>
+      <h3>The assumptions that kill AI business cases</h3>
+      <p>The single most common failure is the assumption of 100% adoption. Almost no enterprise technology achieves 100% adoption. Model your base case at 60-70% adoption of the target workflow, and your conservative case at 40%. If the investment still makes sense at 40% adoption, you have a credible case. If it only works at 90%, you have a hope, not a business case.</p>
+    </div>
+  </div>
+
+  <!-- Article 3 -->
+  <div class="insight-full reveal">
+    <div class="insight-meta">
+      <div class="insight-category">Governance</div>
+      <div class="insight-date">April 2026</div>
+      <h2>AI governance isn't a constraint — it's a competitive moat for regulated industries</h2>
+      <div class="insight-byline">By Simone Reyes, Principal</div>
+    </div>
+    <div class="insight-body reveal reveal-d1">
+      <p>The conventional wisdom in enterprise AI is that governance slows you down. Compliance requirements, model validation processes, approval workflows — these are treated as friction to be minimized, not infrastructure to be built. That framing is wrong, and the organizations that recognize why are accumulating advantages that will be very difficult to replicate.</p>
+      <p>The insight is this: in regulated industries, the ability to deploy AI at scale is gated by the quality of your governance infrastructure. A bank that has built a robust model risk management program can introduce new AI systems quickly and at scale, because the approval pathway is well-defined and the validation infrastructure is in place. A bank that has avoided investing in governance faces a new regulatory review for every AI system it wants to deploy.</p>
+      <h3>Governance as a deployment accelerator</h3>
+      <p>The organizations we work with that have invested early in AI governance infrastructure deploy new AI capabilities two to three times faster than competitors who treat governance as an afterthought. This seems counterintuitive until you understand the mechanics: governance infrastructure — model cards, validation frameworks, bias testing pipelines, audit trails — makes each new deployment cheaper and faster, not more expensive and slower.</p>
+      <p>The first AI governance program you build is expensive. The tenth deployment that runs through that governance infrastructure costs a fraction of what the first did. You are amortizing the fixed cost of the infrastructure across every AI system you subsequently build.</p>
+      <h3>The regulatory window is closing</h3>
+      <p>The EU AI Act is creating a compliance landscape that will reward organizations with mature governance infrastructure and penalize those without it. In the United States, banking regulators are increasing scrutiny of algorithmic decision systems. Healthcare AI is under growing regulatory attention. The organizations that have invested in governance now will have a structural advantage as these requirements tighten — not because they were more risk-averse, but because they were more strategically foresighted.</p>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<footer>
+  <div class="footer-main">
+    <div class="footer-brand"><div class="footer-brand-logo">
+        <img src="images/logo-white.png" alt="AI Gents" class="footer-logo-img">
+        <span class="footer-logo-text">AI <em>Gents</em></span>
+      </div><p>Enterprise AI consulting for organizations that intend to lead their industries — not follow them into obsolescence.</p></div>
+    <div class="footer-col"><h4>Capabilities</h4><ul><li><a href="capabilities.html#strategy">AI Strategy</a></li><li><a href="capabilities.html#llm">LLM Integration</a></li><li><a href="capabilities.html#visibility">AI Visibility</a></li><li><a href="capabilities.html#governance">Governance</a></li></ul></div>
+    <div class="footer-col"><h4>Company</h4><ul><li><a href="about.html">About</a></li><li><a href="work.html">Case Studies</a></li><li><a href="insights.html">Insights</a></li><li><a href="privacy.html">Privacy Policy</a></li></ul></div>
+    <div class="footer-col"><h4>Contact</h4><ul><li><a href="contact.html">New Engagements</a></li><li><a href="https://linkedin.com" target="_blank" rel="noopener">LinkedIn</a></li></ul></div>
+  </div>
+  <div class="footer-bottom"><span class="footer-copy">&copy; 2026 AI Gents LLC. All rights reserved.</span><span class="footer-tagline">Intelligence, applied with precision.</span></div>
+</footer>
+<script src="js/main.js"></script>
+</body>
+</html>

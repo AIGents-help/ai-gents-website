@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AI Gents — Enterprise AI consulting. We architect, implement, and scale AI programs that create durable competitive advantage for Fortune 500 organizations.">
+  <title>AI Gents | Enterprise AI Consulting</title>
+  <link rel="icon" type="image/png" href="images/logo-white.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* ── HERO ── */
+    .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: calc(var(--nav-h) + 80px) 44px 80px; max-width: var(--max); margin: 0 auto; }
+    .hero-eyebrow { display: flex; align-items: center; gap: 16px; margin-bottom: 44px; }
+    .eyebrow-line { width: 48px; height: 1px; background: var(--accent); }
+    .eyebrow-text { font-family: var(--mono); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); }
+    .hero h1 { max-width: 860px; margin-bottom: 32px; }
+    .hero h1 em { color: var(--accent); font-style: italic; }
+    .hero-sub { font-size: clamp(16px,1.5vw,19px); color: var(--text-2); max-width: 540px; line-height: 1.78; margin-bottom: 52px; }
+    .hero-actions { display: flex; align-items: center; gap: 28px; flex-wrap: wrap; }
+    .hero-metrics { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; max-width: 680px; margin-top: 88px; border: 1px solid var(--rule); }
+    .hero-metric { padding: 30px 32px; background: rgba(255,255,255,0.018); }
+    .hero-metric-val { font-family: var(--serif); font-size: 38px; line-height: 1; }
+    .hero-metric-val sup { font-size: 18px; color: var(--accent); }
+    .hero-metric-label { font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-3); margin-top: 8px; }
+
+    /* ── HERO LOGO WATERMARK ── */
+    .hero-watermark {
+      position: absolute; right: 0; top: 50%; transform: translateY(-50%);
+      width: clamp(320px, 38vw, 560px); opacity: 0.04; pointer-events: none;
+      filter: invert(1);
+    }
+    .hero-wrap { position: relative; overflow: hidden; }
+
+    /* ── CAPABILITIES ── */
+    .cap-card { padding: 44px 40px; transition: background 0.3s; cursor: default; }
+    .cap-card:hover { background: #0E1118; }
+    .cap-icon { width: 42px; height: 42px; border: 1px solid var(--rule-light); display: flex; align-items: center; justify-content: center; margin-bottom: 28px; }
+    .cap-icon svg { width: 18px; height: 18px; stroke: var(--accent); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    .cap-title { font-size: 20px; margin-bottom: 12px; }
+    .cap-text { font-size: 14px; color: var(--text-2); line-height: 1.75; }
+
+    /* ── APPROACH ── */
+    .approach-band { background: var(--surface); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+    .approach-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 1px; background: var(--rule); }
+    .approach-step { background: var(--surface); padding: 40px 34px; }
+    .step-num { font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; color: var(--accent); margin-bottom: 20px; }
+    .step-title { font-size: 20px; margin-bottom: 12px; }
+    .step-text { font-size: 13px; color: var(--text-2); line-height: 1.75; }
+
+    /* ── TRUST ── */
+    .trust-row { display: grid; grid-template-columns: repeat(5,1fr); gap: 1px; background: var(--rule); }
+    .trust-cell { background: var(--black); padding: 36px 20px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+    .trust-icon { width: 40px; height: 40px; border: 1px solid var(--rule-light); display: flex; align-items: center; justify-content: center; }
+    .trust-icon svg { width: 16px; height: 16px; stroke: var(--accent); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    .trust-label { font-size: 12px; color: var(--text-3); text-align: center; line-height: 1.4; }
+
+    /* ── CASES ── */
+    .case-card { padding: 52px 48px; transition: background 0.3s; }
+    .case-card:hover { background: #0D1016; }
+    .case-tag { font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); margin-bottom: 20px; }
+    .case-title { font-size: 22px; line-height: 1.3; margin-bottom: 16px; }
+    .case-body { font-size: 14px; color: var(--text-2); line-height: 1.78; margin-bottom: 32px; }
+    .case-result { display: flex; align-items: baseline; gap: 10px; padding-top: 24px; border-top: 1px solid var(--rule); }
+    .case-result-val { font-family: var(--serif); font-size: 34px; color: var(--accent); }
+    .case-result-label { font-size: 13px; color: var(--text-3); }
+
+    /* ── INSIGHTS ── */
+    .insight-strip { background: var(--surface); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+    .insight-card { padding: 40px; }
+    .insight-tag { font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-3); margin-bottom: 14px; }
+    .insight-title { font-size: 18px; line-height: 1.35; margin-bottom: 12px; }
+    .insight-desc { font-size: 13px; color: var(--text-2); line-height: 1.7; }
+
+    /* ── CTA ── */
+    .cta-band { padding: 120px 44px; text-align: center; }
+    .cta-band h2 { max-width: 600px; margin: 0 auto 20px; }
+    .cta-band p { max-width: 440px; margin: 0 auto 48px; color: var(--text-2); font-size: 16px; }
+    .cta-form { display: flex; max-width: 500px; margin: 0 auto; border: 1px solid var(--rule-light); }
+    .cta-form input { flex: 1; padding: 16px 20px; background: rgba(255,255,255,0.03); border: none; color: var(--text-1); font-family: var(--sans); font-size: 14px; outline: none; }
+    .cta-form input::placeholder { color: var(--text-3); }
+    .cta-form button { padding: 16px 28px; background: var(--accent); color: var(--black); border: none; font-family: var(--sans); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 500; cursor: pointer; white-space: nowrap; transition: background 0.2s; }
+    .cta-form button:hover { background: #D4B87E; }
+    .cta-note { font-size: 12px; color: var(--text-3); margin-top: 14px; }
+
+    @media (max-width: 900px) {
+      .hero { padding: calc(var(--nav-h) + 48px) 24px 60px; }
+      .hero-metrics { grid-template-columns: 1fr; }
+      .approach-grid { grid-template-columns: 1fr; }
+      .trust-row { grid-template-columns: 1fr 1fr; }
+      .hero-watermark { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <img src="images/logo-white.png" alt="AI Gents logo" class="nav-logo-img">
+      <span class="nav-logo-text">AI <em>Gents</em></span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="capabilities.html">Capabilities</a></li>
+      <li><a href="approach.html">Approach</a></li>
+      <li><a href="work.html">Work</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="insights.html">Insights</a></li>
+    </ul>
+    <a href="contact.html" class="nav-cta">Engage Us</a>
+    <button class="nav-mobile-toggle" aria-label="Menu">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero-wrap">
+  <div class="hero">
+    <div class="hero-eyebrow reveal">
+      <div class="eyebrow-line"></div>
+      <span class="eyebrow-text">Enterprise AI Transformation</span>
+    </div>
+    <h1 class="reveal reveal-d1">Deploying AI where it<br><em>compounds</em> competitive<br>advantage.</h1>
+    <p class="hero-sub reveal reveal-d2">We partner with enterprise leadership teams to architect, implement, and scale AI programs that create durable business value — not pilot purgatory.</p>
+    <div class="hero-actions reveal reveal-d3">
+      <a href="contact.html" class="btn btn-primary">Request a Briefing</a>
+      <a href="approach.html" class="btn btn-ghost">
+        View our approach
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+    <div class="hero-metrics reveal">
+      <div class="hero-metric"><div class="hero-metric-val"><sup>$</sup>2.4B</div><div class="hero-metric-label">Client value unlocked</div></div>
+      <div class="hero-metric"><div class="hero-metric-val">140<sup>+</sup></div><div class="hero-metric-label">Engagements delivered</div></div>
+      <div class="hero-metric"><div class="hero-metric-val">94<sup>%</sup></div><div class="hero-metric-label">Client retention rate</div></div>
+    </div>
+  </div>
+  <img src="images/logo-white.png" alt="" class="hero-watermark" aria-hidden="true">
+</div>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-track">
+    <span class="ticker-item"><span class="ticker-dot"></span>AI Strategy &amp; Roadmapping</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>LLM Integration Architecture</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>Autonomous Agent Design</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>AI Governance &amp; Risk</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>Workforce AI Enablement</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>AI Visibility Optimization</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>Data &amp; ML Infrastructure</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>AI Strategy &amp; Roadmapping</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>LLM Integration Architecture</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>Autonomous Agent Design</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>AI Governance &amp; Risk</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>Workforce AI Enablement</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>AI Visibility Optimization</span>
+    <span class="ticker-item"><span class="ticker-dot"></span>Data &amp; ML Infrastructure</span>
+  </div>
+</div>
+
+<!-- CAPABILITIES -->
+<section class="section">
+  <div class="container">
+    <div class="section-rule reveal"><span class="section-eyebrow">01 — Capabilities</span></div>
+    <div style="display:grid;grid-template-columns:1fr 2fr;gap:80px;align-items:start;margin-bottom:64px" class="reveal">
+      <h2>What we do, and how we do it differently.</h2>
+      <p style="color:var(--text-2);font-size:16px;line-height:1.8;padding-top:16px">Our practice covers the full arc of enterprise AI — from initial strategy through production deployment and ongoing optimization. We don't hand off deliverables and disappear. We stay until the value is realized and compounding.</p>
+    </div>
+    <div class="ruled-grid ruled-grid-3">
+      <div class="cap-card ruled-cell reveal">
+        <div class="cap-icon"><svg viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg></div>
+        <h3 class="cap-title">AI Strategy &amp; Architecture</h3>
+        <p class="cap-text">Enterprise AI roadmaps grounded in your business model, competitive position, and technical realities. We identify where AI compounds — not where it merely automates.</p>
+        <div style="margin-top:24px"><a href="capabilities.html#strategy" class="arrow-link">Explore <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a></div>
+      </div>
+      <div class="cap-card ruled-cell reveal reveal-d1">
+        <div class="cap-icon"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div>
+        <h3 class="cap-title">LLM &amp; Agent Implementation</h3>
+        <p class="cap-text">End-to-end deployment of large language models and autonomous agent systems — from integration to fine-tuning to production-grade infrastructure at enterprise scale.</p>
+        <div style="margin-top:24px"><a href="capabilities.html#llm" class="arrow-link">Explore <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a></div>
+      </div>
+      <div class="cap-card ruled-cell reveal reveal-d2">
+        <div class="cap-icon"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+        <h3 class="cap-title">AI Visibility &amp; Brand Authority</h3>
+        <p class="cap-text">The competitive frontier has shifted to AI-generated answers. We ensure your brand is cited, recommended, and trusted across ChatGPT, Perplexity, Claude, and Gemini.</p>
+        <div style="margin-top:24px"><a href="capabilities.html#visibility" class="arrow-link">Explore <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a></div>
+      </div>
+      <div class="cap-card ruled-cell reveal">
+        <div class="cap-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+        <h3 class="cap-title">AI Governance &amp; Risk</h3>
+        <p class="cap-text">Governance frameworks, model risk programs, and compliance infrastructure for regulated industries. We build the controls that make boards and regulators confident.</p>
+        <div style="margin-top:24px"><a href="capabilities.html#governance" class="arrow-link">Explore <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a></div>
+      </div>
+      <div class="cap-card ruled-cell reveal reveal-d1">
+        <div class="cap-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></div>
+        <h3 class="cap-title">Workforce AI Enablement</h3>
+        <p class="cap-text">Structured programs that elevate your organization's AI fluency from the C-suite to operations. Adoption that sticks because it's designed around how your people actually work.</p>
+        <div style="margin-top:24px"><a href="capabilities.html#enablement" class="arrow-link">Explore <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a></div>
+      </div>
+      <div class="cap-card ruled-cell reveal reveal-d2">
+        <div class="cap-icon"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4.03 3-9 3S3 13.66 3 12"/><path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/></svg></div>
+        <h3 class="cap-title">Data &amp; ML Infrastructure</h3>
+        <p class="cap-text">The foundation AI programs run on. Data pipelines, model serving, vector databases, and the engineering layer that separates promising pilots from production systems.</p>
+        <div style="margin-top:24px"><a href="capabilities.html#data" class="arrow-link">Explore <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- APPROACH -->
+<div class="approach-band">
+  <div class="container section">
+    <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:72px;gap:40px" class="reveal">
+      <div><div class="section-eyebrow">02 — Our Approach</div><h2 style="max-width:420px">Four phases.<br>One continuous commitment.</h2></div>
+      <p style="color:var(--text-2);font-size:15px;line-height:1.8;max-width:360px;padding-top:20px;align-self:flex-end">Most firms deliver a deck. We deliver a running system — and we measure ourselves against your P&amp;L, not our slide count.</p>
+    </div>
+    <div class="approach-grid">
+      <div class="approach-step reveal"><div class="step-num">Phase 01</div><h3 class="step-title">Diagnose</h3><p class="step-text">A structured 2-week AI readiness assessment: data assets, talent, infrastructure, and highest-value use cases identified and ranked.</p></div>
+      <div class="approach-step reveal reveal-d1"><div class="step-num">Phase 02</div><h3 class="step-title">Architect</h3><p class="step-text">An enterprise AI blueprint with prioritized use case roadmap, technical architecture, build-vs-buy decisions, and a CFO-defensible ROI model.</p></div>
+      <div class="approach-step reveal reveal-d2"><div class="step-num">Phase 03</div><h3 class="step-title">Deploy</h3><p class="step-text">Embedded teams that build alongside your engineers. We write the code, configure the models, and own the outcome alongside your team.</p></div>
+      <div class="approach-step reveal reveal-d3"><div class="step-num">Phase 04</div><h3 class="step-title">Compound</h3><p class="step-text">Post-launch optimization, model drift monitoring, and a standing partnership that continuously extracts more value as your AI systems mature.</p></div>
+    </div>
+    <div style="padding-top:40px"><a href="approach.html" class="arrow-link reveal">Learn about our full methodology <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a></div>
+  </div>
+</div>
+
+<!-- TRUST -->
+<section class="section-sm">
+  <div class="container">
+    <div class="trust-row">
+      <div class="trust-cell reveal"><div class="trust-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div><div class="trust-label">Financial Services<br>&amp; Banking</div></div>
+      <div class="trust-cell reveal reveal-d1"><div class="trust-icon"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div><div class="trust-label">Healthcare &amp;<br>Life Sciences</div></div>
+      <div class="trust-cell reveal reveal-d2"><div class="trust-icon"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div><div class="trust-label">Technology &amp;<br>SaaS Enterprises</div></div>
+      <div class="trust-cell reveal reveal-d3"><div class="trust-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg></div><div class="trust-label">Retail &amp;<br>E-Commerce</div></div>
+      <div class="trust-cell reveal reveal-d4"><div class="trust-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div class="trust-label">Professional<br>Services &amp; Legal</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CASE STUDIES -->
+<section class="section" style="padding-top:0">
+  <div class="container">
+    <div class="section-rule reveal"><span class="section-eyebrow">03 — Selected Work</span></div>
+    <div class="ruled-grid ruled-grid-2">
+      <div class="case-card ruled-cell reveal">
+        <div class="case-tag">Financial Services · AI Strategy</div>
+        <h3 class="case-title">Rebuilding a regional bank's intelligence layer from the ground up</h3>
+        <p class="case-body">A top-25 U.S. bank engaged us after two failed internal AI initiatives. We diagnosed the root cause — poor data infrastructure, not ambition — and rebuilt from the foundation, deploying four production AI systems in 14 months.</p>
+        <div class="case-result"><span class="case-result-val">$340M</span><span class="case-result-label">operational cost reduction over 3 years</span></div>
+      </div>
+      <div class="case-card ruled-cell reveal reveal-d1">
+        <div class="case-tag">Healthcare · LLM Implementation</div>
+        <h3 class="case-title">Clinical documentation AI that physicians actually use</h3>
+        <p class="case-body">A 12-hospital system needed to reduce documentation burden without compromising accuracy or compliance. We designed, validated, and deployed a fine-tuned clinical LLM with full EHR integration and 96% physician satisfaction.</p>
+        <div class="case-result"><span class="case-result-val">2.1 hrs</span><span class="case-result-label">saved per physician per day</span></div>
+      </div>
+    </div>
+    <div style="padding-top:32px"><a href="work.html" class="arrow-link reveal">View all case studies <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a></div>
+  </div>
+</section>
+
+<!-- INSIGHTS -->
+<div class="insight-strip">
+  <div class="container section-sm">
+    <div class="section-rule reveal"><span class="section-eyebrow">04 — Latest Thinking</span></div>
+    <div class="ruled-grid ruled-grid-3">
+      <div class="insight-card ruled-cell reveal"><div class="insight-tag">AI Visibility · June 2026</div><h4 class="insight-title">Why 73% of B2B buyers now use AI before contacting a vendor</h4><p class="insight-desc">The buyer journey has been restructured around AI-generated answers. Here's what that means for enterprise marketing strategy.</p><div style="margin-top:20px"><a href="insights.html" class="arrow-link">Read <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a></div></div>
+      <div class="insight-card ruled-cell reveal reveal-d1"><div class="insight-tag">AI Strategy · May 2026</div><h4 class="insight-title">The CFO's guide to evaluating AI program ROI</h4><p class="insight-desc">Most AI business cases are built on the wrong metrics. A framework for measuring AI value in terms your finance team will trust.</p><div style="margin-top:20px"><a href="insights.html" class="arrow-link">Read <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a></div></div>
+      <div class="insight-card ruled-cell reveal reveal-d2"><div class="insight-tag">Governance · April 2026</div><h4 class="insight-title">AI governance isn't a constraint — it's a competitive moat</h4><p class="insight-desc">Regulated industries that build robust AI governance programs are pulling ahead, not falling behind. The counterintuitive advantage explained.</p><div style="margin-top:20px"><a href="insights.html" class="arrow-link">Read <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div style="border-top:1px solid var(--rule)">
+  <div class="cta-band">
+    <div class="section-eyebrow reveal" style="margin-bottom:24px">Ready to begin?</div>
+    <h2 class="reveal">The best time to build your AI advantage was two years ago.</h2>
+    <p class="reveal">Request a confidential briefing. We'll tell you exactly where you stand — and what it would take to lead.</p>
+    <div class="cta-form reveal"><input type="email" placeholder="your.name@company.com"><button type="button">Request Briefing</button></div>
+    <p class="cta-note reveal">A 45-minute call with a principal. No sales team, no deck. Just a direct conversation.</p>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-main">
+    <div class="footer-brand">
+      <div class="footer-brand-logo">
+        <img src="images/logo-white.png" alt="AI Gents" class="footer-logo-img">
+        <span class="footer-logo-text">AI <em>Gents</em></span>
+      </div>
+      <p>Enterprise AI consulting for organizations that intend to lead their industries — not follow them into obsolescence. Based in the United States, serving global enterprise clients.</p>
+    </div>
+    <div class="footer-col"><h4>Capabilities</h4><ul><li><a href="capabilities.html#strategy">AI Strategy</a></li><li><a href="capabilities.html#llm">LLM Integration</a></li><li><a href="capabilities.html#agents">Agent Systems</a></li><li><a href="capabilities.html#visibility">AI Visibility</a></li><li><a href="capabilities.html#governance">Governance</a></li><li><a href="capabilities.html#data">Data Infrastructure</a></li></ul></div>
+    <div class="footer-col"><h4>Company</h4><ul><li><a href="about.html">About</a></li><li><a href="about.html#team">Leadership</a></li><li><a href="work.html">Case Studies</a></li><li><a href="insights.html">Insights</a></li><li><a href="privacy.html">Privacy Policy</a></li><li><a href="terms.html">Terms of Use</a></li></ul></div>
+    <div class="footer-col"><h4>Contact</h4><ul><li><a href="contact.html">New Engagements</a></li><li><a href="contact.html#partnership">Partnerships</a></li><li><a href="contact.html#media">Media Inquiries</a></li><li><a href="https://linkedin.com" target="_blank" rel="noopener">LinkedIn</a></li></ul></div>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-copy">&copy; 2026 AI Gents LLC. All rights reserved.</span>
+    <span class="footer-tagline">Intelligence, applied with precision.</span>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>

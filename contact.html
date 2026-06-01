@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Contact AI Gents — request a briefing, discuss a new engagement, or inquire about a partnership. We respond to every qualified inquiry within one business day.">
+  <title>Contact | AI Gents</title>
+  <link rel="icon" type="image/png" href="images/logo-white.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .contact-grid { display: grid; grid-template-columns: 5fr 7fr; gap: 100px; align-items: start; padding: 80px 0; }
+    .contact-left h2 { font-size: clamp(26px, 3vw, 40px); line-height: 1.2; margin-bottom: 24px; }
+    .contact-left p { font-size: 15px; color: var(--text-2); line-height: 1.8; margin-bottom: 16px; }
+    .contact-detail { margin-top: 48px; }
+    .contact-detail-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-3); margin-bottom: 10px; }
+    .contact-detail-val { font-size: 15px; color: var(--text-2); margin-bottom: 28px; }
+    .contact-detail-val a { color: var(--accent); }
+
+    .contact-form { background: var(--surface); border: 1px solid var(--rule); padding: 48px; }
+    .form-title { font-family: var(--serif); font-size: 22px; margin-bottom: 8px; }
+    .form-sub { font-size: 13px; color: var(--text-3); margin-bottom: 36px; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .form-submit {
+      width: 100%; padding: 18px; margin-top: 8px;
+      background: var(--accent); color: var(--black);
+      border: none; font-family: var(--sans); font-size: 12px;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      font-weight: 500; cursor: pointer; transition: background 0.2s;
+    }
+    .form-submit:hover { background: #D4B87E; }
+    .form-note { font-size: 12px; color: var(--text-3); margin-top: 12px; text-align: center; }
+
+    .contact-types { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--rule); margin-top: 0; }
+    .contact-type-cell { background: var(--surface); padding: 36px 32px; }
+    .contact-type-cell h3 { font-size: 18px; margin-bottom: 10px; }
+    .contact-type-cell p { font-size: 13px; color: var(--text-2); line-height: 1.72; }
+
+    .success-msg { display: none; text-align: center; padding: 40px; }
+    .success-msg h3 { font-size: 24px; margin-bottom: 12px; }
+    .success-msg p { font-size: 15px; color: var(--text-2); }
+
+    @media (max-width: 900px) {
+      .contact-grid { grid-template-columns: 1fr; gap: 48px; }
+      .field-row { grid-template-columns: 1fr; }
+      .contact-types { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <img src="images/logo-white.png" alt="AI Gents logo" class="nav-logo-img">
+      <span class="nav-logo-text">AI <em>Gents</em></span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="capabilities.html">Capabilities</a></li>
+      <li><a href="approach.html">Approach</a></li>
+      <li><a href="work.html">Work</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="insights.html">Insights</a></li>
+    </ul>
+    <a href="contact.html" class="nav-cta" style="border-color:rgba(200,169,110,0.5)">Engage Us</a>
+    <button class="nav-mobile-toggle" aria-label="Menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12h18M3 6h18M3 18h18"/></svg></button>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="container">
+    <div class="eyebrow">Contact</div>
+    <h1 style="max-width:680px;margin-top:16px">Start with a direct conversation.</h1>
+    <p style="color:var(--text-2);font-size:18px;max-width:560px;margin-top:24px;line-height:1.8">We respond to every qualified inquiry within one business day. Our initial briefings are confidential, without obligation, and conducted by a principal — not a business development representative.</p>
+  </div>
+</div>
+
+<!-- CONTACT TYPES -->
+<div style="border-bottom:1px solid var(--rule)">
+  <div class="container section-sm">
+    <div class="contact-types">
+      <div class="contact-type-cell reveal">
+        <h3>New Engagement</h3>
+        <p>You have an AI program you need to build, an existing one that isn't performing, or you want an honest assessment of where to begin. Use the form below.</p>
+      </div>
+      <div class="contact-type-cell reveal reveal-d1" id="partnership">
+        <h3>Partnership Inquiry</h3>
+        <p>You represent a technology vendor, data provider, or complementary services firm and you want to explore a referral or co-delivery relationship. Email us directly at partners@aigents.com.</p>
+      </div>
+      <div class="contact-type-cell reveal reveal-d2" id="media">
+        <h3>Media &amp; Speaking</h3>
+        <p>You want a principal to speak at an event, contribute to a publication, or provide expert commentary. Email media@aigents.com with details and deadline.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN CONTACT FORM -->
+<div class="container">
+  <div class="contact-grid">
+    <div class="reveal">
+      <h2>Tell us about your AI program.</h2>
+      <p>The more context you provide, the more useful our first conversation will be. We read every inquiry personally and respond with a substantive note — not a generic follow-up asking what you're trying to accomplish.</p>
+      <p>If you're not sure what you're trying to accomplish, that's fine too. Helping organizations figure out where to begin is one of the things we do.</p>
+      <div class="contact-detail">
+        <div class="contact-detail-label">General Inquiries</div>
+        <div class="contact-detail-val"><a href="mailto:hello@aigents.com">hello@aigents.com</a></div>
+        <div class="contact-detail-label">New Engagements</div>
+        <div class="contact-detail-val"><a href="mailto:engage@aigents.com">engage@aigents.com</a></div>
+        <div class="contact-detail-label">Response Time</div>
+        <div class="contact-detail-val">Within 1 business day for all qualified inquiries</div>
+        <div class="contact-detail-label">Initial Briefing</div>
+        <div class="contact-detail-val">45 minutes · Conducted by a principal · Confidential &amp; without obligation</div>
+      </div>
+    </div>
+
+    <div class="contact-form reveal reveal-d1">
+      <div class="form-title">Request a Briefing</div>
+      <div class="form-sub">All fields marked * are required. Information is kept strictly confidential.</div>
+
+      <div id="contact-form-inner">
+        <div class="field-row">
+          <div class="field">
+            <label>First Name *</label>
+            <input type="text" id="fname" placeholder="Anthony" autocomplete="given-name">
+          </div>
+          <div class="field">
+            <label>Last Name *</label>
+            <input type="text" id="lname" placeholder="Gaines" autocomplete="family-name">
+          </div>
+        </div>
+        <div class="field">
+          <label>Work Email *</label>
+          <input type="email" id="email" placeholder="you@company.com" autocomplete="email">
+        </div>
+        <div class="field">
+          <label>Company Name *</label>
+          <input type="text" id="company" placeholder="Company Inc." autocomplete="organization">
+        </div>
+        <div class="field">
+          <label>Your Role / Title</label>
+          <input type="text" id="role" placeholder="Chief AI Officer" autocomplete="organization-title">
+        </div>
+        <div class="field">
+          <label>Industry</label>
+          <select id="industry">
+            <option value="" disabled selected>Select your industry</option>
+            <option>Financial Services &amp; Banking</option>
+            <option>Healthcare &amp; Life Sciences</option>
+            <option>Technology &amp; SaaS</option>
+            <option>Retail &amp; E-Commerce</option>
+            <option>Professional Services &amp; Legal</option>
+            <option>Industrial &amp; Manufacturing</option>
+            <option>Media &amp; Publishing</option>
+            <option>Government &amp; Public Sector</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>What are you trying to accomplish? *</label>
+          <textarea id="context" placeholder="Describe your AI challenge or opportunity in as much detail as you're comfortable sharing. There are no wrong answers here." style="min-height:140px"></textarea>
+        </div>
+        <div class="field">
+          <label>How did you hear about AI Gents?</label>
+          <select id="source">
+            <option value="" disabled selected>Select one</option>
+            <option>Referral from a colleague</option>
+            <option>AI-generated search (ChatGPT / Perplexity / Claude / Gemini)</option>
+            <option>Google or traditional search</option>
+            <option>LinkedIn</option>
+            <option>Industry event or conference</option>
+            <option>Publication or press mention</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <button type="button" class="form-submit" onclick="submitForm()">Submit Inquiry</button>
+        <p class="form-note">By submitting this form, you agree to our <a href="privacy.html" style="color:var(--accent)">Privacy Policy</a>. We do not share your information.</p>
+      </div>
+
+      <div class="success-msg" id="success-msg">
+        <h3>Thank you for reaching out.</h3>
+        <p>We've received your inquiry and a principal will respond within one business day. We look forward to the conversation.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-main">
+    <div class="footer-brand"><div class="footer-brand-logo">
+        <img src="images/logo-white.png" alt="AI Gents" class="footer-logo-img">
+        <span class="footer-logo-text">AI <em>Gents</em></span>
+      </div><p>Enterprise AI consulting for organizations that intend to lead their industries — not follow them into obsolescence.</p></div>
+    <div class="footer-col"><h4>Capabilities</h4><ul><li><a href="capabilities.html#strategy">AI Strategy</a></li><li><a href="capabilities.html#llm">LLM Integration</a></li><li><a href="capabilities.html#visibility">AI Visibility</a></li><li><a href="capabilities.html#governance">Governance</a></li></ul></div>
+    <div class="footer-col"><h4>Company</h4><ul><li><a href="about.html">About</a></li><li><a href="work.html">Case Studies</a></li><li><a href="insights.html">Insights</a></li><li><a href="privacy.html">Privacy Policy</a></li></ul></div>
+    <div class="footer-col"><h4>Contact</h4><ul><li><a href="contact.html">New Engagements</a></li><li><a href="mailto:hello@aigents.com">hello@aigents.com</a></li></ul></div>
+  </div>
+  <div class="footer-bottom"><span class="footer-copy">&copy; 2026 AI Gents LLC. All rights reserved.</span><span class="footer-tagline">Intelligence, applied with precision.</span></div>
+</footer>
+
+<script src="js/main.js"></script>
+<script>
+function submitForm() {
+  var fname = document.getElementById('fname').value.trim();
+  var email = document.getElementById('email').value.trim();
+  var company = document.getElementById('company').value.trim();
+  var context = document.getElementById('context').value.trim();
+  if (!fname || !email || !company || !context) {
+    alert('Please complete all required fields before submitting.');
+    return;
+  }
+  document.getElementById('contact-form-inner').style.display = 'none';
+  document.getElementById('success-msg').style.display = 'block';
+}
+</script>
+</body>
+</html>

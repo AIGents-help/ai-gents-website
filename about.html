@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="About AI Gents — Our mission, leadership team, and the principles that guide how we work with enterprise clients.">
+  <title>About | AI Gents</title>
+  <link rel="icon" type="image/png" href="images/logo-white.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .about-hero { max-width: 820px; padding: 60px 0; }
+    .about-hero h1 em { color: var(--accent); font-style: italic; }
+    .about-hero p { font-size: 20px; color: var(--text-2); line-height: 1.8; max-width: 640px; margin-top: 28px; }
+
+    .mission-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--rule); }
+    .mission-cell { padding: 52px 48px; background: var(--black); }
+    .mission-num  { font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; color: var(--accent); margin-bottom: 16px; }
+
+    .values-list { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1px; background: var(--rule); }
+    .value-cell  { padding: 40px; background: var(--surface); }
+    .value-cell h3 { font-size: 19px; margin-bottom: 12px; }
+    .value-cell p  { font-size: 14px; color: var(--text-2); line-height: 1.75; }
+
+    .team-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
+    .team-card { }
+    .team-avatar {
+      width: 100%; aspect-ratio: 1; background: var(--surface-2);
+      border: 1px solid var(--rule); margin-bottom: 20px;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; position: relative;
+    }
+    .team-avatar-initials {
+      font-family: var(--serif); font-size: 52px; color: var(--accent);
+      opacity: 0.25; letter-spacing: 0.04em;
+    }
+    .team-avatar-lines {
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(
+        -45deg,
+        transparent, transparent 12px,
+        rgba(200,169,110,0.04) 12px, rgba(200,169,110,0.04) 13px
+      );
+    }
+    .team-name { font-family: var(--serif); font-size: 20px; margin-bottom: 4px; }
+    .team-title { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
+    .team-bio { font-size: 14px; color: var(--text-2); line-height: 1.72; }
+
+    .timeline-list { list-style: none; border-left: 1px solid var(--rule); padding-left: 40px; }
+    .timeline-item { position: relative; padding-bottom: 48px; }
+    .timeline-item::before {
+      content: ''; position: absolute;
+      left: -44px; top: 6px;
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--accent);
+    }
+    .timeline-year { font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; color: var(--accent); margin-bottom: 8px; }
+    .timeline-item h4 { font-size: 18px; margin-bottom: 8px; }
+    .timeline-item p  { font-size: 14px; color: var(--text-2); line-height: 1.72; max-width: 540px; }
+
+    @media (max-width: 900px) {
+      .mission-grid, .values-list, .team-grid { grid-template-columns: 1fr; }
+    }
+      .about-hero-wrap { display: grid; grid-template-columns: 1fr auto; gap: 60px; align-items: center; padding: 60px 0; }
+    .about-hero-logo { width: 220px; height: 220px; object-fit: contain; opacity: 0.12; filter: invert(0.2) sepia(1) saturate(2) hue-rotate(10deg); }
+    .about-hero h1 em { color: var(--accent); font-style: italic; }
+    .about-hero p { font-size: 20px; color: var(--text-2); line-height: 1.8; max-width: 640px; margin-top: 28px; }
+    @media (max-width: 900px) { .about-hero-wrap { grid-template-columns: 1fr; } .about-hero-logo { display: none; } }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <img src="images/logo-white.png" alt="AI Gents logo" class="nav-logo-img">
+      <span class="nav-logo-text">AI <em>Gents</em></span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="capabilities.html">Capabilities</a></li>
+      <li><a href="approach.html">Approach</a></li>
+      <li><a href="work.html">Work</a></li>
+      <li><a href="about.html" class="active">About</a></li>
+      <li><a href="insights.html">Insights</a></li>
+    </ul>
+    <a href="contact.html" class="nav-cta">Engage Us</a>
+    <button class="nav-mobile-toggle" aria-label="Menu">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+    </button>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="container">
+    <div class="eyebrow">About AI Gents</div>
+    <div class="about-hero">
+      <h1>We built the firm we wished existed when <em>AI got serious.</em></h1>
+      <p>Most consulting firms retrofitted AI into their existing practices. We started from a different premise: what if a firm were built, from day one, around helping enterprises extract genuine, compounding value from artificial intelligence?</p>
+    </div>
+  </div>
+</div>
+
+<!-- MISSION -->
+<section class="section">
+  <div class="container">
+    <div class="section-rule reveal">
+      <span class="section-eyebrow">Our Mission</span>
+    </div>
+    <div class="mission-grid">
+      <div class="mission-cell reveal">
+        <div class="mission-num">01</div>
+        <h3 style="font-size:22px;margin-bottom:16px">Why AI Gents exists</h3>
+        <p style="font-size:15px;color:var(--text-2);line-height:1.8">The enterprise AI market is cluttered with vendors selling outcomes they can't deliver, frameworks that don't survive contact with reality, and proof-of-concept projects that never reach production. We exist to be the firm that enterprises call when they're tired of pilots and need results.</p>
+        <p style="font-size:15px;color:var(--text-2);line-height:1.8;margin-top:16px">Our mission is straightforward: deploy AI programs that create durable, measurable competitive advantage for the organizations we serve. Not slide decks. Not innovation theater. Systems that run, compound, and defend.</p>
+      </div>
+      <div class="mission-cell reveal reveal-d1">
+        <div class="mission-num">02</div>
+        <h3 style="font-size:22px;margin-bottom:16px">How we are different</h3>
+        <p style="font-size:15px;color:var(--text-2);line-height:1.8">We operate as embedded partners, not external consultants. Our teams sit inside your organization, work in your systems, and hold themselves accountable to your business metrics — not hours billed or deliverables produced.</p>
+        <p style="font-size:15px;color:var(--text-2);line-height:1.8;margin-top:16px">Every engagement is scoped around a clear business outcome with a defined measurement framework. We don't accept engagements we don't believe we can win. That discipline protects our clients and sharpens our practice.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRINCIPALS -->
+<section class="section" id="team" style="padding-top:0;background:var(--surface);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)">
+  <div class="container">
+    <div style="padding-top:100px"></div>
+    <div class="section-rule reveal">
+      <span class="section-eyebrow">Leadership</span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 2fr;gap:80px;margin-bottom:64px" class="reveal">
+      <h2>The principals behind the practice.</h2>
+      <p style="color:var(--text-2);font-size:16px;line-height:1.8;padding-top:16px">Our leadership team combines backgrounds in enterprise software, applied machine learning, management consulting, and business operations. We've built AI systems from the inside of large organizations and we've advised them from the outside. That dual perspective is what makes our counsel different.</p>
+    </div>
+    <div class="team-grid">
+      <div class="team-card reveal">
+        <div class="team-avatar">
+          <div class="team-avatar-lines"></div>
+          <div class="team-avatar-initials">AG</div>
+        </div>
+        <div class="team-name">Anthony Gaines</div>
+        <div class="team-title">Founder &amp; Managing Principal</div>
+        <p class="team-bio">Former VP of AI Products at a Fortune 100 financial institution. Built and scaled machine learning teams across three continents before founding AI Gents to bring the same rigor to mid-market and enterprise organizations. Recognized by Forbes as a leading voice in enterprise AI adoption.</p>
+      </div>
+      <div class="team-card reveal reveal-d1">
+        <div class="team-avatar">
+          <div class="team-avatar-lines"></div>
+          <div class="team-avatar-initials">ML</div>
+        </div>
+        <div class="team-name">Marcus Liu</div>
+        <div class="team-title">Principal, LLM &amp; Agent Systems</div>
+        <p class="team-bio">PhD in Computational Linguistics from Stanford. Led applied AI research at two major technology companies before transitioning to enterprise consulting. Specializes in production-grade LLM deployment, fine-tuning methodologies, and multi-agent system architecture for regulated industries.</p>
+      </div>
+      <div class="team-card reveal reveal-d2">
+        <div class="team-avatar">
+          <div class="team-avatar-lines"></div>
+          <div class="team-avatar-initials">SR</div>
+        </div>
+        <div class="team-name">Simone Reyes</div>
+        <div class="team-title">Principal, AI Strategy &amp; Governance</div>
+        <p class="team-bio">Fourteen years in management consulting, most recently as a Director at a Big Four firm leading technology strategy engagements. Deep expertise in AI governance frameworks, model risk management, and C-suite AI transformation programs across financial services and healthcare verticals.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VALUES -->
+<section class="section">
+  <div class="container">
+    <div class="section-rule reveal">
+      <span class="section-eyebrow">What We Believe</span>
+    </div>
+    <h2 style="margin-bottom:52px;max-width:540px" class="reveal">The operating principles that guide every engagement.</h2>
+    <div class="values-list">
+      <div class="value-cell reveal">
+        <h3>Outcomes over outputs</h3>
+        <p>Every engagement is scoped to a business outcome, not a deliverable. We refuse to let the presence of a finished slide deck substitute for the presence of a working system.</p>
+      </div>
+      <div class="value-cell reveal reveal-d1">
+        <h3>Honesty before comfort</h3>
+        <p>We tell clients what we actually believe — including when their proposed approach is wrong, their timeline is unrealistic, or their organization isn't ready. That candor is the most valuable thing we offer.</p>
+      </div>
+      <div class="value-cell reveal reveal-d2">
+        <h3>Depth over breadth</h3>
+        <p>We deliberately limit the number of engagements we run simultaneously. Every client gets principal attention, not junior team members operating from playbooks.</p>
+      </div>
+      <div class="value-cell reveal">
+        <h3>Embedded, not external</h3>
+        <p>Our teams work inside your systems, alongside your people. We don't produce recommendations from a distance — we share accountability for the result.</p>
+      </div>
+      <div class="value-cell reveal reveal-d1">
+        <h3>Compounding as the goal</h3>
+        <p>One-time AI implementations are not our goal. We design programs that improve over time, accumulate organizational knowledge, and create widening competitive advantage.</p>
+      </div>
+      <div class="value-cell reveal reveal-d2">
+        <h3>Discretion as discipline</h3>
+        <p>We do not publicize the organizations we work with unless invited to do so. Confidentiality is not a clause in our agreements — it's a core professional standard.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPANY TIMELINE -->
+<section class="section" style="background:var(--surface);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)">
+  <div class="container">
+    <div class="section-rule reveal">
+      <span class="section-eyebrow">Company History</span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 2fr;gap:80px;align-items:start">
+      <h2 class="reveal">From founding to the present.</h2>
+      <ul class="timeline-list reveal">
+        <li class="timeline-item">
+          <div class="timeline-year">2021</div>
+          <h4>AI Gents founded</h4>
+          <p>Established with a founding thesis: enterprise AI programs fail not because the technology is inadequate, but because the implementation model is wrong. Built the firm around embedded, outcome-oriented engagements from day one.</p>
+        </li>
+        <li class="timeline-item">
+          <div class="timeline-year">2022</div>
+          <h4>First enterprise deployments</h4>
+          <p>Completed our first three production AI deployments across financial services and healthcare, establishing the four-phase methodology that remains the foundation of every engagement today.</p>
+        </li>
+        <li class="timeline-item">
+          <div class="timeline-year">2023</div>
+          <h4>LLM practice launched</h4>
+          <p>As large language models transitioned from research curiosity to enterprise infrastructure, we built a dedicated LLM and agent systems practice. Completed 22 enterprise LLM deployments in the first 12 months.</p>
+        </li>
+        <li class="timeline-item">
+          <div class="timeline-year">2024</div>
+          <h4>AI Visibility practice established</h4>
+          <p>Recognized the structural shift in buyer behavior as AI-generated answers began replacing traditional search. Launched our AI Visibility practice to help enterprise brands maintain and grow their presence in the AI discovery layer.</p>
+        </li>
+        <li class="timeline-item">
+          <div class="timeline-year">2025–Present</div>
+          <h4>Mobile AI platform in development</h4>
+          <p>Extending our AI-powered analysis capabilities into a native mobile platform, enabling organizations to access AI performance intelligence and coaching tools directly on iOS devices.</p>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div style="border-top:1px solid var(--rule);padding:100px 0;text-align:center">
+  <div class="container">
+    <div class="section-eyebrow reveal" style="margin-bottom:20px">Work with us</div>
+    <h2 style="max-width:500px;margin:0 auto 20px" class="reveal">Ready to have a direct conversation?</h2>
+    <p style="color:var(--text-2);max-width:420px;margin:0 auto 40px;font-size:16px" class="reveal">We engage with a small number of organizations at a time. If you have a serious AI program to build, we'd like to hear about it.</p>
+    <div class="reveal"><a href="contact.html" class="btn btn-primary">Request a Briefing</a></div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-main">
+    <div class="footer-brand">
+      <div class="footer-brand-logo">
+        <img src="images/logo-white.png" alt="AI Gents" class="footer-logo-img">
+        <span class="footer-logo-text">AI <em>Gents</em></span>
+      </div>
+      <p>Enterprise AI consulting for organizations that intend to lead their industries — not follow them into obsolescence.</p>
+    </div>
+    <div class="footer-col"><h4>Capabilities</h4><ul><li><a href="capabilities.html#strategy">AI Strategy</a></li><li><a href="capabilities.html#llm">LLM Integration</a></li><li><a href="capabilities.html#visibility">AI Visibility</a></li><li><a href="capabilities.html#governance">Governance</a></li></ul></div>
+    <div class="footer-col"><h4>Company</h4><ul><li><a href="about.html">About</a></li><li><a href="work.html">Case Studies</a></li><li><a href="insights.html">Insights</a></li><li><a href="privacy.html">Privacy Policy</a></li></ul></div>
+    <div class="footer-col"><h4>Contact</h4><ul><li><a href="contact.html">New Engagements</a></li><li><a href="contact.html#partnership">Partnerships</a></li><li><a href="https://linkedin.com" target="_blank" rel="noopener">LinkedIn</a></li></ul></div>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-copy">&copy; 2026 AI Gents LLC. All rights reserved.</span>
+    <span class="footer-tagline">Intelligence, applied with precision.</span>
+  </div>
+</footer>
+<script src="js/main.js"></script>
+</body>
+</html>

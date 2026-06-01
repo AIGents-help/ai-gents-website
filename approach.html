@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="The AI Gents methodology — a four-phase approach to enterprise AI that goes from diagnosis through compounding value creation.">
+  <title>Our Approach | AI Gents</title>
+  <link rel="icon" type="image/png" href="images/logo-white.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .phase-block { padding: 80px 0; border-bottom: 1px solid var(--rule); }
+    .phase-block:last-of-type { border-bottom: none; }
+    .phase-grid { display: grid; grid-template-columns: 3fr 7fr; gap: 80px; align-items: start; }
+    .phase-left { position: sticky; top: 88px; }
+    .phase-num { font-family: var(--serif); font-size: 80px; color: rgba(200,169,110,0.12); line-height: 1; margin-bottom: 8px; }
+    .phase-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
+    .phase-name { font-size: 32px; }
+    .phase-duration { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; color: var(--text-3); margin-top: 12px; }
+
+    .phase-right p { font-size: 15px; color: var(--text-2); line-height: 1.82; }
+    .phase-right p + p { margin-top: 16px; }
+
+    .phase-outputs { margin-top: 40px; }
+    .phase-outputs-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-3); margin-bottom: 14px; }
+    .output-list { list-style: none; }
+    .output-list li { font-size: 14px; color: var(--text-2); padding: 10px 0; border-bottom: 1px solid var(--rule); display: flex; align-items: center; gap: 12px; }
+    .output-list li::before { content: ''; width: 4px; height: 4px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+
+    .principles-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--rule); }
+    .principle-cell { background: var(--black); padding: 40px 36px; }
+    .principle-num { font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em; color: var(--accent); margin-bottom: 14px; }
+    .principle-cell h3 { font-size: 20px; margin-bottom: 12px; }
+    .principle-cell p { font-size: 14px; color: var(--text-2); line-height: 1.75; }
+
+    @media (max-width: 900px) {
+      .phase-grid { grid-template-columns: 1fr; gap: 32px; }
+      .phase-left { position: static; }
+      .principles-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">
+      <img src="images/logo-white.png" alt="AI Gents logo" class="nav-logo-img">
+      <span class="nav-logo-text">AI <em>Gents</em></span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="capabilities.html">Capabilities</a></li>
+      <li><a href="approach.html" class="active">Approach</a></li>
+      <li><a href="work.html">Work</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="insights.html">Insights</a></li>
+    </ul>
+    <a href="contact.html" class="nav-cta">Engage Us</a>
+    <button class="nav-mobile-toggle" aria-label="Menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12h18M3 6h18M3 18h18"/></svg></button>
+  </div>
+</nav>
+
+<div class="page-header">
+  <div class="container">
+    <div class="eyebrow">Our Approach</div>
+    <h1 style="max-width:740px;margin-top:16px">Four phases. One continuous commitment to your outcome.</h1>
+    <p style="color:var(--text-2);font-size:18px;max-width:600px;margin-top:24px;line-height:1.8">We don't deliver a strategy and move on. We don't run a pilot and declare success. Every AI Gents engagement is designed around a single question: what would it take for this to create durable, compounding business value?</p>
+  </div>
+</div>
+
+<div class="container">
+  <div class="phase-block">
+    <div class="phase-grid">
+      <div class="phase-left reveal">
+        <div class="phase-num">01</div>
+        <div class="phase-label">Phase One</div>
+        <h2 class="phase-name">Diagnose</h2>
+        <div class="phase-duration">Typical duration: 2–3 weeks</div>
+      </div>
+      <div class="phase-right reveal reveal-d1">
+        <p>Before we recommend anything, we understand everything. Our diagnostic process is conducted by principals — not analysts — and it is deliberately uncomfortable. We are looking for honest answers, not validation of assumptions.</p>
+        <p>The diagnostic covers five dimensions: data maturity (what data you have, where it lives, how clean it is, and how accessible it is to AI systems), technical infrastructure (cloud architecture, current tooling, security posture), talent density (who on your team can build and maintain AI systems), organizational culture (how decisions get made, how change propagates, where resistance will emerge), and competitive context (what your competitors are doing and where AI-enabled competitive gaps are opening).</p>
+        <p>The output of the diagnostic is a frank assessment — including things that are wrong, gaps that need to be addressed before AI programs can succeed, and an honest estimate of what it will take to get where you want to go. If we don't believe we can help you create meaningful value, we tell you in the diagnostic, and we stop there.</p>
+        <div class="phase-outputs">
+          <div class="phase-outputs-label">Deliverables</div>
+          <ul class="output-list">
+            <li>AI Readiness Assessment Report (confidential)</li>
+            <li>Data maturity scorecard</li>
+            <li>Use case opportunity map with prioritization</li>
+            <li>Gap analysis and pre-conditions for success</li>
+            <li>Recommended scope for engagement</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="phase-block">
+    <div class="phase-grid">
+      <div class="phase-left reveal">
+        <div class="phase-num">02</div>
+        <div class="phase-label">Phase Two</div>
+        <h2 class="phase-name">Architect</h2>
+        <div class="phase-duration">Typical duration: 3–4 weeks</div>
+      </div>
+      <div class="phase-right reveal reveal-d1">
+        <p>The architecture phase translates the diagnostic findings into a concrete plan. Not a conceptual roadmap with vague milestones, but a specific, sequenced implementation plan with defined resource requirements, technology decisions, and financial projections that your finance team can evaluate.</p>
+        <p>We make explicit build-vs-buy decisions for every component. We specify which model families are appropriate for each use case and why. We design the data pipeline architecture, the serving infrastructure, and the governance framework that will need to surround the system. We create an ROI model with conservative, base, and optimistic cases — and we defend the assumptions in each.</p>
+        <p>The architecture blueprint is designed to survive contact with reality. Every technical decision accounts for your existing systems, your security requirements, your team's ability to maintain what gets built, and your organization's capacity to absorb the change. Architectures that look elegant on paper but can't be operated by your team are not good architectures.</p>
+        <div class="phase-outputs">
+          <div class="phase-outputs-label">Deliverables</div>
+          <ul class="output-list">
+            <li>Enterprise AI Architecture Blueprint</li>
+            <li>Prioritized implementation roadmap (18-month horizon)</li>
+            <li>Technology stack recommendations with vendor analysis</li>
+            <li>Build vs. buy decision framework</li>
+            <li>ROI model with scenario analysis</li>
+            <li>Board and executive presentation materials</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="phase-block">
+    <div class="phase-grid">
+      <div class="phase-left reveal">
+        <div class="phase-num">03</div>
+        <div class="phase-label">Phase Three</div>
+        <h2 class="phase-name">Deploy</h2>
+        <div class="phase-duration">Typical duration: 3–12 months</div>
+      </div>
+      <div class="phase-right reveal reveal-d1">
+        <p>Deployment is where most consulting relationships end and where ours is most differentiated. We don't hand the architecture to your internal team or a systems integrator and wish you well. Our engineers and data scientists work embedded within your team — in your systems, in your communication channels, accountable to your project milestones.</p>
+        <p>Embedded deployment means we catch problems early, adapt to organizational realities as they emerge, and build genuine capability transfer into the team working alongside us. Every AI Gents engagement is designed to increase your internal AI capability, not create a dependency on our continued involvement.</p>
+        <p>We operate with a bias toward production over perfection. A system running in production and generating value — even if imperfect — is more useful than a technically superior system that never ships. We use rigorous evaluation frameworks to determine when a system is ready for production, and we don't let the perfect be the enemy of the operational.</p>
+        <div class="phase-outputs">
+          <div class="phase-outputs-label">What gets built</div>
+          <ul class="output-list">
+            <li>Production-grade AI systems (not prototypes)</li>
+            <li>Model evaluation and validation documentation</li>
+            <li>Integration with existing enterprise systems</li>
+            <li>Governance and compliance controls</li>
+            <li>Monitoring and alerting infrastructure</li>
+            <li>Internal team training and capability transfer</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="phase-block">
+    <div class="phase-grid">
+      <div class="phase-left reveal">
+        <div class="phase-num">04</div>
+        <div class="phase-label">Phase Four</div>
+        <h2 class="phase-name">Compound</h2>
+        <div class="phase-duration">Ongoing partnership</div>
+      </div>
+      <div class="phase-right reveal reveal-d1">
+        <p>The most valuable AI programs are not static deployments — they improve over time, accumulate organizational knowledge, and widen competitive advantage as they compound. Phase Four is the ongoing partnership structure that makes compounding possible.</p>
+        <p>We monitor deployed systems for model drift, data distribution shift, and performance degradation. We implement new capabilities as the model landscape evolves and as your business context changes. We identify adjacent use cases that become viable as your data infrastructure matures. We provide quarterly reviews with your leadership team that connect AI program performance to business outcomes.</p>
+        <p>Clients who maintain a Phase Four engagement relationship with AI Gents consistently outpace competitors who run one-time AI implementation projects. The compounding effect of continuous improvement, applied over 18-36 months, produces advantages that are genuinely difficult for competitors to replicate — not because the technology is proprietary, but because the organizational knowledge and data assets that accumulate are.</p>
+        <div class="phase-outputs">
+          <div class="phase-outputs-label">Ongoing partnership includes</div>
+          <ul class="output-list">
+            <li>Monthly model performance monitoring and reporting</li>
+            <li>Quarterly business impact reviews with leadership</li>
+            <li>Continuous improvement and new capability development</li>
+            <li>Model drift detection and remediation</li>
+            <li>AI landscape monitoring and technology advisory</li>
+            <li>Strategic use case expansion planning</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PRINCIPLES -->
+<div style="background:var(--surface);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)">
+  <div class="container section">
+    <div class="section-rule reveal"><span class="section-eyebrow">Operating Principles</span></div>
+    <h2 style="margin-bottom:52px;max-width:480px" class="reveal">The non-negotiables in how we work.</h2>
+    <div class="principles-grid">
+      <div class="principle-cell reveal">
+        <div class="principle-num">01</div>
+        <h3>Principals on every engagement</h3>
+        <p>Every AI Gents engagement is led by a principal — not a senior associate, not a project manager. The people who sell the engagement are the people who do the work. There is no bait-and-switch.</p>
+      </div>
+      <div class="principle-cell reveal reveal-d1">
+        <div class="principle-num">02</div>
+        <h3>Fixed scope, accountable outcomes</h3>
+        <p>We scope engagements to outcomes, not hours. When we commit to a deliverable, we deliver it — regardless of how many iterations it takes or how many unexpected complications arise. This creates the right incentives for everyone.</p>
+      </div>
+      <div class="principle-cell reveal">
+        <div class="principle-num">03</div>
+        <h3>No proprietary lock-in</h3>
+        <p>We do not build systems that require our ongoing involvement to operate. We use open standards, well-documented architectures, and we invest in building your team's capability. Our goal is to make ourselves dispensable.</p>
+      </div>
+      <div class="principle-cell reveal reveal-d1">
+        <div class="principle-num">04</div>
+        <h3>Honest assessments, always</h3>
+        <p>If your AI program is failing, we tell you why. If your expectations are unrealistic, we say so before we take your money. We are not in the business of telling clients what they want to hear — we are in the business of telling them what is true.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="padding:100px 0;text-align:center">
+  <div class="container">
+    <div class="section-eyebrow reveal" style="margin-bottom:20px">Begin the process</div>
+    <h2 style="max-width:500px;margin:0 auto 20px" class="reveal">Ready to start with Phase One?</h2>
+    <p style="color:var(--text-2);max-width:420px;margin:0 auto 40px;font-size:16px" class="reveal">The diagnostic is the right place to start. It establishes whether our engagement would create meaningful value for your organization — and if it wouldn't, we'll tell you that too.</p>
+    <div class="reveal"><a href="contact.html" class="btn btn-primary">Request a Briefing</a></div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-main">
+    <div class="footer-brand"><div class="footer-brand-logo">
+        <img src="images/logo-white.png" alt="AI Gents" class="footer-logo-img">
+        <span class="footer-logo-text">AI <em>Gents</em></span>
+      </div><p>Enterprise AI consulting for organizations that intend to lead their industries — not follow them into obsolescence.</p></div>
+    <div class="footer-col"><h4>Capabilities</h4><ul><li><a href="capabilities.html#strategy">AI Strategy</a></li><li><a href="capabilities.html#llm">LLM Integration</a></li><li><a href="capabilities.html#visibility">AI Visibility</a></li><li><a href="capabilities.html#governance">Governance</a></li></ul></div>
+    <div class="footer-col"><h4>Company</h4><ul><li><a href="about.html">About</a></li><li><a href="work.html">Case Studies</a></li><li><a href="insights.html">Insights</a></li><li><a href="privacy.html">Privacy Policy</a></li></ul></div>
+    <div class="footer-col"><h4>Contact</h4><ul><li><a href="contact.html">New Engagements</a></li><li><a href="https://linkedin.com" target="_blank" rel="noopener">LinkedIn</a></li></ul></div>
+  </div>
+  <div class="footer-bottom"><span class="footer-copy">&copy; 2026 AI Gents LLC. All rights reserved.</span><span class="footer-tagline">Intelligence, applied with precision.</span></div>
+</footer>
+<script src="js/main.js"></script>
+</body>
+</html>
