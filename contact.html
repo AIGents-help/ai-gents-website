@@ -200,17 +200,61 @@
 
 <script src="js/main.js"></script>
 <script>
-function submitForm() {
+var SUPABASE_FUNC_URL = 'https://apcvfezfmegqqjuonrgl.supabase.co/functions/v1/submit-inquiry';
+var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFwY3ZmZXpmbWVncXFqdW9ucmdsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzNDI5MDksImV4cCI6MjA5NTkxODkwOX0.3p2hvVCTERknQwgh6F3s98St0uNPDVtojH8XVBz2POc';
+
+async function submitForm() {
   var fname = document.getElementById('fname').value.trim();
+  var lname = document.getElementById('lname').value.trim();
   var email = document.getElementById('email').value.trim();
   var company = document.getElementById('company').value.trim();
+  var role = document.getElementById('role').value.trim();
+  var industry = document.getElementById('industry').value;
   var context = document.getElementById('context').value.trim();
+  var source = document.getElementById('source').value;
+
   if (!fname || !email || !company || !context) {
     alert('Please complete all required fields before submitting.');
     return;
   }
-  document.getElementById('contact-form-inner').style.display = 'none';
-  document.getElementById('success-msg').style.display = 'block';
+
+  var btn = document.querySelector('.form-submit');
+  btn.textContent = 'Sending…';
+  btn.disabled = true;
+
+  try {
+    var res = await fetch(SUPABASE_FUNC_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_ANON_KEY,
+      },
+      body: JSON.stringify({
+        first_name: fname,
+        last_name: lname,
+        email: email,
+        company: company,
+        role: role || null,
+        industry: industry || null,
+        message: context,
+        source: source || 'Website Form',
+      }),
+    });
+
+    if (res.ok) {
+      document.getElementById('contact-form-inner').style.display = 'none';
+      document.getElementById('success-msg').style.display = 'block';
+    } else {
+      var err = await res.json();
+      alert('Something went wrong. Please email us directly at contact@aigents.help');
+      btn.textContent = 'Submit Inquiry';
+      btn.disabled = false;
+    }
+  } catch(e) {
+    alert('Something went wrong. Please email us directly at contact@aigents.help');
+    btn.textContent = 'Submit Inquiry';
+    btn.disabled = false;
+  }
 }
 </script>
 </body>
