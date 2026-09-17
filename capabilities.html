@@ -2,348 +2,73 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="AI Gents capabilities: AI strategy, LLM implementation, AI visibility optimization, governance, workforce enablement, and data infrastructure for enterprise organizations.">
-  <title>Capabilities | AI Gents</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta name="description" content="AI Gents services: AI strategy, workflow modernization, AI agents, brand language, onboarding, governance, and automation readiness.">
+  <title>Services | AI Gents</title>
   <link rel="icon" type="image/png" href="images/logo-white.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
   <style>
-    .cap-section { padding: 88px 0; border-bottom: 1px solid var(--rule); }
-    .cap-section:last-of-type { border-bottom: none; }
-    .cap-main { display: grid; grid-template-columns: 5fr 7fr; gap: 80px; align-items: start; }
-    .cap-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin-bottom: 16px; }
-    .cap-section h2 { font-size: clamp(26px, 2.8vw, 38px); margin-bottom: 20px; }
-    .cap-section .cap-lead { font-size: 16px; color: var(--text-2); line-height: 1.8; margin-bottom: 28px; }
-    .cap-detail { font-size: 14px; color: var(--text-2); line-height: 1.8; }
-    .cap-detail + .cap-detail { margin-top: 14px; }
-
-    .deliverables { margin-top: 40px; }
-    .deliverables-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-3); margin-bottom: 16px; }
-    .deliverable-list { list-style: none; }
-    .deliverable-list li {
-      font-size: 13px; color: var(--text-2); padding: 10px 0;
-      border-bottom: 1px solid var(--rule);
-      display: flex; align-items: center; gap: 12px;
-    }
-    .deliverable-list li::before { content: ''; width: 4px; height: 4px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
-
-    .cap-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--rule); margin-top: 48px; }
-    .cap-metric-cell { background: var(--surface); padding: 28px 24px; }
-    .cap-metric-val { font-family: var(--serif); font-size: 36px; color: var(--text-1); line-height: 1; }
-    .cap-metric-val sup { font-size: 16px; color: var(--accent); }
-    .cap-metric-label { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-3); margin-top: 6px; }
-
-    .cap-icon-lg {
-      width: 60px; height: 60px; border: 1px solid var(--rule-light);
-      display: flex; align-items: center; justify-content: center; margin-bottom: 32px;
-    }
-    .cap-icon-lg svg { width: 26px; height: 26px; stroke: var(--accent); fill: none; stroke-width: 1.3; stroke-linecap: round; stroke-linejoin: round; }
-
-    @media (max-width: 900px) {
-      .cap-main { grid-template-columns: 1fr; gap: 40px; }
-      .cap-metrics { grid-template-columns: 1fr; }
-    }
+    .service-hero{padding:calc(var(--nav-h) + 56px) 0 54px;border-bottom:1px solid var(--rule)}
+    .service-hero-grid{display:grid;grid-template-columns:6fr 5fr;gap:80px;align-items:end}
+    .service-hero h1{font-size:clamp(42px,5vw,68px);max-width:700px}
+    .service-hero p{font-size:18px;color:var(--text-2);line-height:1.7;max-width:520px}
+    .problem-bar{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
+    .problem-chip{font-size:12px;color:var(--text-2);border:1px solid var(--rule-light);padding:9px 12px}
+    .catalog{padding:64px 0 86px}
+    .catalog-head{display:flex;justify-content:space-between;gap:40px;align-items:end;margin-bottom:32px}
+    .catalog-head p{font-size:15px;color:var(--text-2);max-width:470px}
+    .service-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule)}
+    .service-card{background:var(--surface);padding:34px 32px;display:flex;flex-direction:column;min-height:390px;transition:background .2s,transform .2s}
+    .service-card:hover{background:var(--surface-2);transform:translateY(-2px)}
+    .service-num{font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:var(--accent);margin-bottom:22px}
+    .service-card h2{font-size:25px;line-height:1.22;margin-bottom:12px}
+    .service-one-line{font-size:15px;color:var(--text-2);line-height:1.65;margin-bottom:24px}
+    .best-for{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-3);margin-bottom:9px}
+    .service-card ul{list-style:none;margin-bottom:28px;flex:1}
+    .service-card li{font-size:13px;color:var(--text-2);padding:8px 0;border-bottom:1px solid var(--rule)}
+    .service-card li::before{content:'—';color:var(--accent);margin-right:8px}
+    .service-link{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+    .engagement-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule)}
+    .engagement{background:var(--black);padding:28px}.engagement strong{display:block;font-family:var(--serif);font-size:19px;font-weight:400;margin-bottom:6px}.engagement span{font-size:13px;color:var(--text-2)}
+    .closing{padding:82px 0;text-align:center;background:var(--surface);border-top:1px solid var(--rule)}
+    .closing p{color:var(--text-2);max-width:540px;margin:18px auto 32px}
+    @media(max-width:950px){.service-hero-grid{grid-template-columns:1fr;gap:26px}.service-grid{grid-template-columns:1fr 1fr}.catalog-head{display:block}.catalog-head p{margin-top:16px}}
+    @media(max-width:620px){.service-grid,.engagement-strip{grid-template-columns:1fr}.service-card{min-height:0}.service-hero{padding-top:calc(var(--nav-h) + 40px)}}
   </style>
 </head>
 <body>
-<nav>
-  <div class="nav-inner">
-    <a href="index.html" class="nav-logo">
-      <img src="images/logo-white.png" alt="AI Gents logo" class="nav-logo-img">
-      <span class="nav-logo-text">AI <em>Gents</em></span>
-    </a>
-    <ul class="nav-links">
-      <li><a href="capabilities.html" class="active">Capabilities</a></li>
-      <li><a href="operations.html">Operational Systems</a></li>
-      <li><a href="approach.html">Approach</a></li>
-      <li><a href="work.html">Work</a></li>
-      <li><a href="about.html">About</a></li>
-      <li><a href="engage.html">Engage</a></li>
-    </ul>
-    <a href="contact.html" class="nav-cta">Engage Us</a>
-    <button class="nav-mobile-toggle" aria-label="Menu">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
-    </button>
-  </div>
-</nav>
+<nav><div class="nav-inner">
+  <a href="index.html" class="nav-logo"><img src="images/logo-white.png" alt="AI Gents logo" class="nav-logo-img"><span class="nav-logo-text">AI <em>Gents</em></span></a>
+  <ul class="nav-links"><li><a href="capabilities.html" class="active">Services</a></li><li><a href="operations.html">Operational Systems</a></li><li><a href="approach.html">Approach</a></li><li><a href="work.html">Standards</a></li><li><a href="about.html">About</a></li><li><a href="engage.html">Engage</a></li></ul>
+  <a href="contact.html" class="nav-cta">Discuss a Project</a>
+  <button class="nav-mobile-toggle" aria-label="Menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12h18M3 6h18M3 18h18"/></svg></button>
+</div></nav>
 
-<div class="page-header">
-  <div class="container">
-    <div class="eyebrow">Capabilities</div>
-    <h1 style="max-width:780px;margin-top:16px">Where we apply intelligence<br>across the enterprise.</h1>
-    <p style="color:var(--text-2);font-size:18px;max-width:620px;margin-top:24px;line-height:1.8">Our core AI practices are now joined by Operational Transformation: the workflow, documentation, language, and onboarding systems that make intelligent automation possible.</p>
-    <a href="operations.html" class="btn btn-primary" style="margin-top:32px">View Operational Transformation</a>
-  </div>
-</div>
+<header class="service-hero"><div class="container service-hero-grid">
+  <div><div class="section-eyebrow">AI Gents Services</div><h1>Six ways we make companies work smarter.</h1></div>
+  <div><p>Choose the problem that sounds most like yours. We will determine the right scope, technology, and starting point.</p><div class="problem-bar"><span class="problem-chip">Too much manual work</span><span class="problem-chip">Unclear AI direction</span><span class="problem-chip">Inconsistent communication</span><span class="problem-chip">Broken onboarding</span></div></div>
+</div></header>
 
-<div class="container">
-
-  <!-- STRATEGY -->
-  <div class="cap-section" id="strategy">
-    <div class="cap-main">
-      <div class="reveal">
-        <div class="cap-icon-lg">
-          <svg viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>
-        </div>
-        <div class="cap-label">01 — AI Strategy &amp; Architecture</div>
-        <h2>Building the roadmap that executives can execute and boards can defend.</h2>
-        <div class="cap-metrics">
-          <div class="cap-metric-cell">
-            <div class="cap-metric-val">5</div>
-            <div class="cap-metric-label">Readiness dimensions assessed</div>
-          </div>
-          <div class="cap-metric-cell">
-            <div class="cap-metric-val">1</div>
-            <div class="cap-metric-label">Prioritized decision roadmap</div>
-          </div>
-        </div>
-      </div>
-      <div class="reveal reveal-d1">
-        <p class="cap-lead">Most enterprise AI strategies fail before a single model is deployed. They're too broad, too aspirational, and disconnected from the specific business levers that actually drive financial performance. We build AI strategies differently.</p>
-        <p class="cap-detail">Our process begins with a rigorous diagnostic of your organization's AI readiness across five dimensions: data maturity, technical infrastructure, talent, organizational culture, and competitive context. Evidence is gathered through stakeholder interviews, system and document review, workflow observation, and measurable baselines.</p>
-        <p class="cap-detail">The output is a prioritized AI roadmap anchored to specific P&amp;L line items. Every use case is mapped to a measurable outcome, a realistic timeline, a resource requirement, and a risk profile. Your CFO will be able to evaluate it. Your CTO will be able to execute it. Your board will be able to approve it.</p>
-        <div class="deliverables">
-          <div class="deliverables-label">What you receive</div>
-          <ul class="deliverable-list">
-            <li>AI Readiness Assessment (confidential, for internal use)</li>
-            <li>Prioritized use case portfolio with ROI modeling</li>
-            <li>Technical architecture blueprint and vendor recommendations</li>
-            <li>Build vs. buy decision framework</li>
-            <li>18-month implementation roadmap with milestones</li>
-            <li>Board-ready executive presentation</li>
-          </ul>
-        </div>
-      </div>
-    </div>
+<main>
+<section class="catalog"><div class="container">
+  <div class="catalog-head"><div><div class="section-eyebrow">What we provide</div><h2>Start with the business problem.</h2></div><p>Each service can stand alone or combine into a larger transformation program. Every engagement produces usable systems—not just recommendations.</p></div>
+  <div class="service-grid">
+    <article class="service-card"><div class="service-num">01 — DIRECTION</div><h2>AI Strategy &amp; Roadmap</h2><p class="service-one-line">Decide where AI should—and should not—be used.</p><div class="best-for">You receive</div><ul><li>Readiness assessment</li><li>Prioritized opportunities</li><li>Implementation roadmap</li></ul><a class="service-link" href="contact.html?service=ai">Discuss AI strategy →</a></article>
+    <article class="service-card"><div class="service-num">02 — OPERATIONS</div><h2>Workflow &amp; Document Systems</h2><p class="service-one-line">Simplify paperwork, handoffs, approvals, and repeatable work.</p><div class="best-for">You receive</div><ul><li>Current workflow map</li><li>Redesigned process</li><li>Standard forms and SOPs</li></ul><a class="service-link" href="operations.html#workflow">Explore workflow services →</a></article>
+    <article class="service-card"><div class="service-num">03 — AUTOMATION</div><h2>AI Agents &amp; Automation</h2><p class="service-one-line">Build controlled systems that complete useful work.</p><div class="best-for">You receive</div><ul><li>Use-case design</li><li>Working implementation</li><li>Human review and controls</li></ul><a class="service-link" href="contact.html?service=ai">Discuss automation →</a></article>
+    <article class="service-card"><div class="service-num">04 — LANGUAGE</div><h2>Brand Language &amp; AI Visibility</h2><p class="service-one-line">Make your company easier to understand, remember, and recommend.</p><div class="best-for">You receive</div><ul><li>Named language system</li><li>Messaging and usage guide</li><li>AI visibility improvements</li></ul><a class="service-link" href="operations.html#language">Explore language systems →</a></article>
+    <article class="service-card"><div class="service-num">05 — PEOPLE</div><h2>Onboarding &amp; Workforce Adoption</h2><p class="service-one-line">Help employees, clients, and partners reach confident action faster.</p><div class="best-for">You receive</div><ul><li>Guided onboarding journey</li><li>Training and reference tools</li><li>Adoption measurement</li></ul><a class="service-link" href="operations.html#onboarding">Explore onboarding →</a></article>
+    <article class="service-card"><div class="service-num">06 — READINESS</div><h2>Governance, Data &amp; Robotics Readiness</h2><p class="service-one-line">Prepare processes and controls for safe, scalable automation.</p><div class="best-for">You receive</div><ul><li>Risk and data requirements</li><li>Decision and access controls</li><li>Automation readiness plan</li></ul><a class="service-link" href="operations.html#readiness">Explore readiness →</a></article>
   </div>
+</div></section>
 
-  <!-- LLM -->
-  <div class="cap-section" id="llm">
-    <div class="cap-main">
-      <div class="reveal">
-        <div class="cap-icon-lg">
-          <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-        </div>
-        <div class="cap-label">02 — LLM &amp; Agent Implementation</div>
-        <h2>From the frontier of AI research to your production environment.</h2>
-        <div class="cap-metrics">
-          <div class="cap-metric-cell">
-            <div class="cap-metric-val">Model</div>
-            <div class="cap-metric-label">Independent architecture</div>
-          </div>
-          <div class="cap-metric-cell">
-            <div class="cap-metric-val">Eval</div>
-            <div class="cap-metric-label">Defined before deployment</div>
-          </div>
-        </div>
-      </div>
-      <div class="reveal reveal-d1">
-        <p class="cap-lead">Large language models are the most consequential technology infrastructure decision most organizations will make this decade. Getting the implementation right — model selection, fine-tuning approach, retrieval architecture, safety controls, serving infrastructure — requires engineering expertise that is genuinely scarce.</p>
-        <p class="cap-detail">We evaluate model families and architecture patterns against the organization's actual accuracy, latency, privacy, integration, and cost requirements. Production design includes observability, evaluation, access control, human review, and failure handling from the beginning.</p>
-        <p class="cap-detail">Our agent systems practice extends this capability to multi-step, autonomous workflows. We design agentic systems with the guardrails and observability that enterprise environments require — not demonstrations that work in controlled conditions, but systems that operate reliably in the unpredictability of real business operations.</p>
-        <div class="deliverables">
-          <div class="deliverables-label">What we build</div>
-          <ul class="deliverable-list">
-            <li>Custom LLM selection, evaluation, and fine-tuning programs</li>
-            <li>Retrieval-augmented generation (RAG) architectures</li>
-            <li>Multi-agent workflow systems with human-in-the-loop controls</li>
-            <li>LLM serving infrastructure (cloud, on-premise, or hybrid)</li>
-            <li>Evaluation frameworks and accuracy monitoring pipelines</li>
-            <li>Safety, content policy, and compliance layers</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
+<section class="section-sm" style="padding-top:0"><div class="container"><div class="section-rule"><span class="section-eyebrow">Ways to begin</span></div><div class="engagement-strip"><div class="engagement"><strong>Focused Working Session</strong><span>Clarify one decision or opportunity.</span></div><div class="engagement"><strong>Diagnostic</strong><span>Map the problem and define the solution.</span></div><div class="engagement"><strong>Implementation</strong><span>Design, build, launch, and transfer the system.</span></div></div></div></section>
 
-  <!-- VISIBILITY -->
-  <div class="cap-section" id="visibility">
-    <div class="cap-main">
-      <div class="reveal">
-        <div class="cap-icon-lg">
-          <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-        </div>
-        <div class="cap-label">03 — AI Visibility &amp; Brand Authority</div>
-        <h2>The search engine has been replaced. Is your brand ready?</h2>
-        <div class="cap-metrics">
-          <div class="cap-metric-cell">
-            <div class="cap-metric-val">4</div>
-            <div class="cap-metric-label">Major answer platforms audited</div>
-          </div>
-          <div class="cap-metric-cell">
-            <div class="cap-metric-val">Base</div>
-            <div class="cap-metric-label">Measured before intervention</div>
-          </div>
-        </div>
-      </div>
-      <div class="reveal reveal-d1">
-        <p class="cap-lead">When a buyer asks ChatGPT, Perplexity, or Claude which vendor to consider in your category, what happens? For most organizations, the honest answer is: they don't know. That is the most dangerous gap in their go-to-market strategy.</p>
-        <p class="cap-detail">AI Visibility is the emerging discipline of ensuring your brand, expertise, and positioning are accurately represented across AI-generated answers. It's distinct from traditional SEO — the underlying mechanics, the content signals that matter, and the measurement frameworks are fundamentally different. Most organizations are invisible in the AI discovery layer without realizing it.</p>
-        <p class="cap-detail">Our AI Visibility program begins with a comprehensive audit across the major AI platforms, establishing a baseline of your current citation frequency, sentiment, accuracy, and competitive positioning. We then implement a systematic program to improve each dimension — and we measure the results with the same rigor we apply to any revenue-generating initiative.</p>
-        <div class="deliverables">
-          <div class="deliverables-label">Program components</div>
-          <ul class="deliverable-list">
-            <li>AI Visibility Audit across ChatGPT, Perplexity, Claude, and Gemini</li>
-            <li>Competitor citation gap analysis</li>
-            <li>Content architecture for AI indexability (llms.txt, schema, structured data)</li>
-            <li>Answer engine optimization for high-value query categories</li>
-            <li>Monthly citation monitoring and reporting dashboard</li>
-            <li>30 / 90 / 180-day performance benchmarking</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
+<section class="closing"><div class="container"><div class="section-eyebrow">Not sure which service fits?</div><h2>Describe what is not working.</h2><p>You do not need to diagnose the solution. Tell us where time, money, clarity, or control is being lost.</p><a href="contact.html?service=unsure" class="btn btn-primary">Describe the Problem</a></div></section>
+</main>
 
-  <!-- GOVERNANCE -->
-  <div class="cap-section" id="governance">
-    <div class="cap-main">
-      <div class="reveal">
-        <div class="cap-icon-lg">
-          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        </div>
-        <div class="cap-label">04 — AI Governance &amp; Risk</div>
-        <h2>The controls that make boards, regulators, and customers confident.</h2>
-        <div class="cap-metrics">
-          <div class="cap-metric-cell">
-            <div class="cap-metric-val">Risk</div>
-            <div class="cap-metric-label">Mapped to accountable owners</div>
-          </div>
-          <div class="cap-metric-cell">
-            <div class="cap-metric-val">Audit</div>
-            <div class="cap-metric-label">Evidence retained by design</div>
-          </div>
-        </div>
-      </div>
-      <div class="reveal reveal-d1">
-        <p class="cap-lead">For organizations in regulated industries — banking, insurance, healthcare, legal, government — AI governance is not optional. It's the prerequisite for AI programs that can scale. The organizations that build governance correctly from the beginning move faster, not slower.</p>
-        <p class="cap-detail">The governance work can map internal policy and operating controls to relevant requirements such as model risk management, the EU AI Act, HIPAA constraints, and fair-lending considerations. Legal and regulatory conclusions remain with qualified counsel and the client's accountable functions.</p>
-        <p class="cap-detail">Governance is not a final chapter in an AI program — it's infrastructure that runs throughout. We design governance frameworks that are rigorous enough to satisfy regulators and lightweight enough to not obstruct the pace of AI development your organization needs.</p>
-        <div class="deliverables">
-          <div class="deliverables-label">Framework components</div>
-          <ul class="deliverable-list">
-            <li>AI Governance Policy and Charter development</li>
-            <li>Model Risk Management (MRM) program design</li>
-            <li>Regulatory compliance mapping (EU AI Act, SR 11-7, HIPAA)</li>
-            <li>AI audit and model validation frameworks</li>
-            <li>Bias detection and fairness monitoring programs</li>
-            <li>Board and executive AI risk reporting</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ENABLEMENT -->
-  <div class="cap-section" id="enablement">
-    <div class="cap-main">
-      <div class="reveal">
-        <div class="cap-icon-lg">
-          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
-        </div>
-        <div class="cap-label">05 — Workforce AI Enablement</div>
-        <h2>AI adoption that actually takes root across the organization.</h2>
-        <div class="cap-metrics">
-          <div class="cap-metric-cell">
-            <div class="cap-metric-val">Role</div>
-            <div class="cap-metric-label">Specific enablement paths</div>
-          </div>
-          <div class="cap-metric-cell">
-            <div class="cap-metric-val">90<sup>d</sup></div>
-            <div class="cap-metric-label">Adoption review window</div>
-          </div>
-        </div>
-      </div>
-      <div class="reveal reveal-d1">
-        <p class="cap-lead">The most sophisticated AI system in the world fails if your organization doesn't adopt it. Workforce enablement is not a training program — it's a change management discipline that requires understanding how people actually work, what they're worried about, and how to integrate AI tools into existing workflows without creating friction.</p>
-        <p class="cap-detail">We design enablement programs at three levels: executive (strategic AI literacy and decision-making frameworks), manager (AI-augmented team operations and performance management), and practitioner (hands-on AI tool proficiency and workflow integration). Each level has distinct content, distinct formats, and distinct success metrics.</p>
-        <p class="cap-detail">Our programs are built on behavioral science principles, not generic "AI 101" curricula. We measure adoption, not attendance. We track productivity changes, not completion rates. And we iterate the program based on what the data tells us isn't working.</p>
-        <div class="deliverables">
-          <div class="deliverables-label">Program components</div>
-          <ul class="deliverable-list">
-            <li>AI Literacy Assessment (organizational baseline)</li>
-            <li>Executive AI Leadership Program (workshop series)</li>
-            <li>Manager AI Operations Certification</li>
-            <li>Role-specific practitioner training modules</li>
-            <li>AI Champion Network design and activation</li>
-            <li>90-day adoption measurement and iteration</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- DATA -->
-  <div class="cap-section" id="data">
-    <div class="cap-main">
-      <div class="reveal">
-        <div class="cap-icon-lg">
-          <svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4.03 3-9 3S3 13.66 3 12"/><path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/></svg>
-        </div>
-        <div class="cap-label">06 — Data &amp; ML Infrastructure</div>
-        <h2>The foundation that AI programs actually run on.</h2>
-        <div class="cap-metrics">
-          <div class="cap-metric-cell">
-            <div class="cap-metric-val">Data</div>
-            <div class="cap-metric-label">Quality before model complexity</div>
-          </div>
-          <div class="cap-metric-cell">
-            <div class="cap-metric-val">Ops</div>
-            <div class="cap-metric-label">Monitoring and ownership included</div>
-          </div>
-        </div>
-      </div>
-      <div class="reveal reveal-d1">
-        <p class="cap-lead">Most enterprise AI programs underperform not because the models are wrong but because the data infrastructure underneath them is inadequate. Fragmented data pipelines, poor data quality, missing feature engineering, and inadequate model serving infrastructure are the actual failure modes — not model architecture decisions.</p>
-        <p class="cap-detail">Our data and ML infrastructure practice addresses these foundations directly. We design and implement data pipelines, feature stores, vector databases, model registries, and serving layers that give your AI programs the reliable substrate they need to perform in production.</p>
-        <p class="cap-detail">We are technology-agnostic — we evaluate and recommend across the full spectrum of cloud-native and on-premise tooling based on your specific requirements, existing investments, and operational constraints. We do not have vendor partnerships that bias our recommendations.</p>
-        <div class="deliverables">
-          <div class="deliverables-label">What we build</div>
-          <ul class="deliverable-list">
-            <li>Data quality assessment and remediation programs</li>
-            <li>Data pipeline architecture and implementation</li>
-            <li>Feature engineering and feature store setup</li>
-            <li>Vector database design and deployment</li>
-            <li>Model registry and versioning infrastructure</li>
-            <li>ML observability and drift monitoring systems</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
-
-</div><!-- /container -->
-
-<!-- CTA -->
-<div style="background:var(--surface);border-top:1px solid var(--rule);padding:100px 0;text-align:center">
-  <div class="container">
-    <div class="section-eyebrow reveal" style="margin-bottom:20px">Start a conversation</div>
-    <h2 style="max-width:560px;margin:0 auto 20px" class="reveal">Not sure which capability applies to your situation?</h2>
-    <p style="color:var(--text-2);max-width:440px;margin:0 auto 40px;font-size:16px" class="reveal">That's exactly what our initial briefing is for. We'll diagnose where the highest leverage is for your specific organization and recommend where to begin.</p>
-    <div class="reveal"><a href="contact.html" class="btn btn-primary">Request a Briefing</a></div>
-  </div>
-</div>
-
-<footer>
-  <div class="footer-main">
-    <div class="footer-brand">
-      <div class="footer-brand-logo">
-        <img src="images/logo-white.png" alt="AI Gents" class="footer-logo-img">
-        <span class="footer-logo-text">AI <em>Gents</em></span>
-      </div>
-      <p>Enterprise AI consulting for organizations that intend to lead their industries — not follow them into obsolescence.</p>
-    </div>
-    <div class="footer-col"><h4>Capabilities</h4><ul><li><a href="#strategy">AI Strategy</a></li><li><a href="#llm">LLM Integration</a></li><li><a href="#visibility">AI Visibility</a></li><li><a href="#governance">Governance</a></li><li><a href="#enablement">Workforce</a></li><li><a href="#data">Data Infrastructure</a></li></ul></div>
-    <div class="footer-col"><h4>Company</h4><ul><li><a href="about.html">About</a></li><li><a href="work.html">Case Studies</a></li><li><a href="insights.html">Insights</a></li><li><a href="faq.html">FAQ</a></li><li><a href="privacy.html">Privacy Policy</a></li></ul></div>
-    <div class="footer-col"><h4>Contact</h4><ul><li><a href="contact.html">New Engagements</a></li><li><a href="https://linkedin.com" target="_blank" rel="noopener">LinkedIn</a></li></ul></div>
-  </div>
-  <div class="footer-bottom">
-    <span class="footer-copy">&copy; 2026 AI Gents LLC. All rights reserved.</span>
-    <span class="footer-tagline">Intelligence, applied with precision.</span>
-  </div>
-</footer>
+<footer><div class="footer-main"><div class="footer-brand"><div class="footer-brand-logo"><img src="images/logo-white.png" alt="AI Gents" class="footer-logo-img"><span class="footer-logo-text">AI <em>Gents</em></span></div><p>Enterprise AI and operational transformation, clearly defined and responsibly delivered.</p></div><div class="footer-col"><h4>Services</h4><ul><li><a href="capabilities.html">All Services</a></li><li><a href="operations.html">Operational Systems</a></li><li><a href="contact.html?service=ai">AI Programs</a></li></ul></div><div class="footer-col"><h4>Company</h4><ul><li><a href="about.html">About</a></li><li><a href="approach.html">Approach</a></li><li><a href="work.html">Standards</a></li></ul></div><div class="footer-col"><h4>Contact</h4><ul><li><a href="contact.html">New Engagements</a></li><li><a href="mailto:contact@aigents.help">contact@aigents.help</a></li></ul></div></div><div class="footer-bottom"><span class="footer-copy">&copy; 2026 AI Gents LLC. All rights reserved.</span><span class="footer-tagline">Intelligence, applied with precision.</span></div></footer>
 <script src="js/main.js"></script>
-</body>
-</html>
+</body></html>

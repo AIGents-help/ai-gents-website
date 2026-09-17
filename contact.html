@@ -56,10 +56,10 @@
       <span class="nav-logo-text">AI <em>Gents</em></span>
     </a>
     <ul class="nav-links">
-      <li><a href="capabilities.html">Capabilities</a></li>
+      <li><a href="capabilities.html">Services</a></li>
       <li><a href="operations.html">Operational Systems</a></li>
       <li><a href="approach.html">Approach</a></li>
-      <li><a href="work.html">Work</a></li>
+      <li><a href="work.html">Standards</a></li>
       <li><a href="about.html">About</a></li>
       <li><a href="engage.html">Engage</a></li>
     </ul>
@@ -281,7 +281,7 @@ async function submitForm() {
 
 (function prefillServiceFromUrl(){
   var key = new URLSearchParams(window.location.search).get('service');
-  var map = { workflow:'service-workflow', language:'service-language', onboarding:'service-onboarding', readiness:'service-readiness', ai:'service-ai' };
+  var map = { workflow:'service-workflow', language:'service-language', onboarding:'service-onboarding', readiness:'service-readiness', ai:'service-ai', unsure:'service-unsure' };
   if (key && map[key]) document.getElementById(map[key]).checked = true;
 })();
 </script>
