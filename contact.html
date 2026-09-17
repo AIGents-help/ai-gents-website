@@ -57,10 +57,10 @@
     </a>
     <ul class="nav-links">
       <li><a href="capabilities.html">Capabilities</a></li>
+      <li><a href="operations.html">Operational Systems</a></li>
       <li><a href="approach.html">Approach</a></li>
       <li><a href="work.html">Work</a></li>
       <li><a href="about.html">About</a></li>
-      <li><a href="insights.html">Insights</a></li>
       <li><a href="engage.html">Engage</a></li>
     </ul>
     <a href="contact.html" class="nav-cta" style="border-color:rgba(200,169,110,0.5)">Engage Us</a>
@@ -116,14 +116,15 @@
     </div>
 
     <div class="contact-form reveal reveal-d1">
-      <div class="form-title">Request a Briefing</div>
-      <div class="form-sub">All fields marked * are required. Information is kept strictly confidential.</div>
+      <div class="form-title">Request an Enterprise Briefing</div>
+      <div class="form-sub">A structured intake helps us route your inquiry to the right capability. Information is kept confidential.</div>
 
       <div id="contact-form-inner">
+        <div class="intake-step"><span class="active"></span><span class="active"></span><span></span> Organization · Need · Timing</div>
         <div class="field-row">
           <div class="field">
             <label>First Name *</label>
-            <input type="text" id="fname" placeholder="Vijayalakshmi" autocomplete="given-name">
+            <input type="text" id="fname" placeholder="First name" autocomplete="given-name">
           </div>
           <div class="field">
             <label>Last Name *</label>
@@ -158,8 +159,24 @@
           </select>
         </div>
         <div class="field">
-          <label>What are you trying to accomplish? *</label>
-          <textarea id="context" placeholder="Describe your AI challenge or opportunity in as much detail as you're comfortable sharing. There are no wrong answers here." style="min-height:140px"></textarea>
+          <label>Primary Area of Need *</label>
+          <div class="choice-grid" id="service-options">
+            <div class="choice-card"><input type="radio" name="service" id="service-workflow" value="Workflow & Document Systems"><label for="service-workflow"><strong>Workflow &amp; Documents</strong>Processes, forms, handoffs, SOPs, and operational control.</label></div>
+            <div class="choice-card"><input type="radio" name="service" id="service-language" value="Brand Language Systems"><label for="service-language"><strong>Brand Language</strong>Vocabulary, messaging, voice, internal adoption, and governance.</label></div>
+            <div class="choice-card"><input type="radio" name="service" id="service-onboarding" value="Onboarding & Adoption"><label for="service-onboarding"><strong>Onboarding &amp; Adoption</strong>Employee, client, partner, or vendor journeys.</label></div>
+            <div class="choice-card"><input type="radio" name="service" id="service-readiness" value="Automation & Robotics Readiness"><label for="service-readiness"><strong>Automation Readiness</strong>AI agents, software automation, or future robotics preparation.</label></div>
+            <div class="choice-card"><input type="radio" name="service" id="service-ai" value="Enterprise AI Program"><label for="service-ai"><strong>Enterprise AI Program</strong>Strategy, architecture, agents, governance, or enablement.</label></div>
+            <div class="choice-card"><input type="radio" name="service" id="service-unsure" value="Not Sure Yet"><label for="service-unsure"><strong>Not Sure Yet</strong>We will help diagnose the right starting point.</label></div>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field"><label>Organization Size</label><select id="orgsize"><option value="" selected>Select range</option><option>1–49 employees</option><option>50–249 employees</option><option>250–999 employees</option><option>1,000–9,999 employees</option><option>10,000+ employees</option></select></div>
+          <div class="field"><label>Desired Start</label><select id="timeline"><option value="" selected>Select timing</option><option>Immediate / active issue</option><option>Within 30 days</option><option>Within 90 days</option><option>Within 6 months</option><option>Exploratory / planning</option></select></div>
+        </div>
+        <div class="field">
+          <label>What must change? *</label>
+          <textarea id="context" placeholder="Describe the process, risk, delay, inconsistency, or opportunity. Include who is affected and what a successful outcome would look like." style="min-height:140px"></textarea>
+          <p class="field-help">Please do not include confidential data, credentials, regulated records, or proprietary source material in this initial inquiry.</p>
         </div>
         <div class="field">
           <label>How did you hear about AI Gents?</label>
@@ -213,8 +230,12 @@ async function submitForm() {
   var industry = document.getElementById('industry').value;
   var context = document.getElementById('context').value.trim();
   var source = document.getElementById('source').value;
+  var serviceEl = document.querySelector('input[name="service"]:checked');
+  var service = serviceEl ? serviceEl.value : '';
+  var orgsize = document.getElementById('orgsize').value;
+  var timeline = document.getElementById('timeline').value;
 
-  if (!fname || !email || !company || !context) {
+  if (!fname || !email || !company || !service || !context) {
     alert('Please complete all required fields before submitting.');
     return;
   }
@@ -237,7 +258,7 @@ async function submitForm() {
         company: company,
         role: role || null,
         industry: industry || null,
-        message: context,
+        message: '[Primary need] ' + service + '\n[Organization size] ' + (orgsize || 'Not provided') + '\n[Desired start] ' + (timeline || 'Not provided') + '\n\n[Situation and desired outcome]\n' + context,
         source: source || 'Website Form',
       }),
     });
@@ -257,6 +278,12 @@ async function submitForm() {
     btn.disabled = false;
   }
 }
+
+(function prefillServiceFromUrl(){
+  var key = new URLSearchParams(window.location.search).get('service');
+  var map = { workflow:'service-workflow', language:'service-language', onboarding:'service-onboarding', readiness:'service-readiness', ai:'service-ai' };
+  if (key && map[key]) document.getElementById(map[key]).checked = true;
+})();
 </script>
 </body>
 </html>
