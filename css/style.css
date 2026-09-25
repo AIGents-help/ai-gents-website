@@ -17,3 +17,43 @@
 .project-card{overflow:hidden}
 .project-thumb{display:block;width:calc(100% + 64px);height:auto;aspect-ratio:16/9;object-fit:cover;object-position:center top;margin:-32px -32px 27px;border-bottom:1px solid var(--rule);background:var(--surface-2)}
 @media(max-width:760px){.project-thumb{width:calc(100% + 52px);margin:-26px -26px 23px}}
+
+/* Home: an operational point of view, expressed as a working example. */
+.home-hero{position:relative;overflow:hidden;border-bottom:1px solid var(--rule);background:var(--black)}
+.hero-layout{position:relative;display:grid;grid-template-columns:minmax(0,1.08fr) minmax(390px,.92fr);gap:clamp(36px,5vw,80px);align-items:center;padding-top:clamp(80px,9vw,140px);padding-bottom:clamp(80px,9vw,135px)}
+.hero-copy h1{font-size:clamp(3.2rem,5.5vw,5.8rem);margin:0 0 30px;letter-spacing:-.045em;line-height:1.08}
+.hero-copy h1 em{font-weight:400;color:var(--gold)}
+.hero-copy .lede{font-size:clamp(1.13rem,1.7vw,1.35rem);line-height:1.62;max-width:570px}
+.home-hero .hero-actions{padding:19px 0 0;gap:25px}
+.home-hero .button{gap:22px;transition:transform .2s ease,background .2s ease}
+.home-hero .button:hover{transform:translateY(-3px)}
+.hero-aside{font-size:.9rem;letter-spacing:.02em;margin:34px 0 0;color:#9298a5}
+.flow-demo{border:1px solid #62605b;background:#12151b;box-shadow:22px 22px 0 #0a0b0e;min-width:0}
+.demo-topline,.demo-footer{display:flex;align-items:center;gap:12px;padding:13px 20px;color:#b7b7b5;font:600 .7rem/1.3 var(--sans);letter-spacing:.1em;border-bottom:1px solid var(--rule)}
+.demo-mark{color:var(--gold);font-size:1.35rem;line-height:1}
+.demo-topline-end{margin-left:auto;color:var(--gold)}
+.demo-body{padding:28px 28px 24px}
+.demo-kicker{color:var(--white);font-weight:500;font-size:.95rem;margin-bottom:15px}
+.demo-options{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:28px}
+.demo-option{border:1px solid #58606d;background:transparent;color:#e2e2df;font:500 .83rem var(--sans);padding:9px 11px;cursor:pointer;transition:background .2s,border-color .2s,color .2s}
+.demo-option:hover{border-color:var(--gold);color:var(--white)}
+.demo-option.active{background:var(--gold);border-color:var(--gold);color:var(--black)}
+.demo-journey{display:grid;grid-template-columns:1fr 34px 1fr;align-items:stretch;gap:10px}
+.demo-stage{background:#1b2029;border:1px solid #4b515d;padding:20px;min-width:0}
+.demo-step{font:600 .7rem var(--sans);letter-spacing:.1em;color:#b4b7c0}
+.demo-stage h2{font:500 1.24rem/1.25 var(--serif);margin:18px 0 12px;color:var(--white)}
+.demo-stage p{font-size:.84rem;line-height:1.5;margin:0;color:#c6cad2}
+.demo-result{border-color:#907950;background:#24241e}
+.demo-result .demo-step,.demo-result h2{color:#f1cf8c}
+.demo-connector{display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--gold);font-size:1.4rem;transform:rotate(-90deg)}
+.demo-connector span{width:27px;height:1px;background:var(--gold)}
+.demo-footer{border-top:1px solid var(--rule);border-bottom:0;justify-content:space-between;font-size:.63rem;letter-spacing:.06em}
+.demo-footer a{color:var(--gold);text-decoration:none;white-space:nowrap}
+.demo-footer a:hover{text-decoration:underline;text-underline-offset:4px}
+.site-nav .nav-links a:not(.nav-action){transition:color .2s ease}
+.card{transition:background .2s ease,border-color .2s ease}
+.card:hover{background:#1b2028}
+.muted .card:hover{background:#202630}
+@media(max-width:1100px){.hero-layout{grid-template-columns:1fr;gap:50px}.hero-copy h1{max-width:760px}.flow-demo{max-width:760px}}
+@media(max-width:760px){.hero-layout{padding-top:70px;padding-bottom:75px;gap:42px}.hero-copy h1{font-size:clamp(3rem,11vw,4.4rem)}.home-hero .hero-actions{align-items:flex-start}.flow-demo{box-shadow:10px 10px 0 #0a0b0e}.demo-body{padding:21px 16px}.demo-journey{grid-template-columns:1fr;gap:0}.demo-connector{transform:none;height:29px;font-size:1.1rem}.demo-connector span{display:none}.demo-footer{flex-wrap:wrap}.demo-stage{padding:17px}.demo-stage h2{margin:8px 0}}
+@media(prefers-reduced-motion:reduce){.home-hero .button,.card,.demo-option,.site-nav .nav-links a{transition:none}.home-hero .button:hover{transform:none}}

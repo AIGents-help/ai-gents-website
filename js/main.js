@@ -12,6 +12,21 @@
   }
   const current = location.pathname.split('/').pop() || 'index.html';
   document.querySelectorAll('.nav-links a').forEach(a => { if (a.getAttribute('href') === current) a.setAttribute('aria-current', 'page'); });
+  const flowExamples = {
+    forms: {beforeTitle:'The form has three versions.',beforeCopy:'Staff collect the same information in different places and follow up by email.',afterTitle:'One intake. Clear ownership.',afterCopy:'A shared form routes each submission to the right person and keeps a usable record.'},
+    handoff: {beforeTitle:'The request disappears between teams.',beforeCopy:'Everyone knows their part, but nobody can see who has the next step.',afterTitle:'A visible path from start to finish.',afterCopy:'Name each owner, decision, and exception so work moves without guesswork.'},
+    updates: {beforeTitle:'A simple update takes a developer.',beforeCopy:'Events, notices, and page changes wait in a queue while information goes stale.',afterTitle:'The team can publish with confidence.',afterCopy:'A clear editing workflow lets authorized staff update content and review it before it goes live.'}
+  };
+  const flowButtons = document.querySelectorAll('[data-flow]');
+  if (flowButtons.length) {
+    const fields = {'demo-before-title':'beforeTitle','demo-before-copy':'beforeCopy','demo-after-title':'afterTitle','demo-after-copy':'afterCopy'};
+    flowButtons.forEach(button => button.addEventListener('click', () => {
+      const example = flowExamples[button.dataset.flow];
+      if (!example) return;
+      flowButtons.forEach(item => { const active = item === button; item.classList.toggle('active', active); item.setAttribute('aria-pressed', String(active)); });
+      Object.entries(fields).forEach(([id,key]) => { document.getElementById(id).textContent = example[key]; });
+    }));
+  }
   const form = document.querySelector('#inquiry-form');
   if (!form) return;
   const choice = new URLSearchParams(location.search).get('service');
