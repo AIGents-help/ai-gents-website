@@ -13,3 +13,7 @@
 .portfolio-note{margin:29px 0 0;max-width:760px;font-size:.95rem}
 .portfolio-feature .project-card{min-height:260px}
 @media(max-width:760px){.portfolio-grid{grid-template-columns:1fr}.project-card{min-height:0;padding:26px}.portfolio-feature .project-card{min-height:0}}
+
+.project-card{overflow:hidden}
+.project-thumb{display:block;width:calc(100% + 64px);height:auto;aspect-ratio:16/9;object-fit:cover;object-position:center top;margin:-32px -32px 27px;border-bottom:1px solid var(--rule);background:var(--surface-2)}
+@media(max-width:760px){.project-thumb{width:calc(100% + 52px);margin:-26px -26px 23px}}
