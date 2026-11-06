@@ -27,10 +27,20 @@
       Object.entries(fields).forEach(([id,key]) => { document.getElementById(id).textContent = example[key]; });
     }));
   }
+  const platformButtons = document.querySelectorAll('[data-platform-view]');
+  platformButtons.forEach(button => button.addEventListener('click', () => {
+    platformButtons.forEach(item => {
+      const active = item === button;
+      item.classList.toggle('active', active);
+      item.setAttribute('aria-pressed', String(active));
+      const panel = document.getElementById('platform-' + item.dataset.platformView);
+      if (panel) panel.hidden = !active;
+    });
+  }));
   const form = document.querySelector('#inquiry-form');
   if (!form) return;
   const choice = new URLSearchParams(location.search).get('service');
-  const choices = {workflow:'Field to Flow assessment', documents:'Workflow and documents', advisory:'Field to Flow assessment', language:'Corporate language development', website:'Website or portal'};
+  const choices = {platform:'Proprietary business platform', workflow:'Field to Flow assessment', documents:'Workflow and documents', advisory:'Field to Flow assessment', language:'Corporate language development', website:'Website or portal'};
   if (choices[choice]) form.elements.service.value = choices[choice];
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -50,3 +60,4 @@
     finally { button.disabled = false; button.textContent = 'Speak with an AI Gent'; }
   });
 })();
+
