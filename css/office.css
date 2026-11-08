@@ -74,3 +74,28 @@ form[data-proposal-decision] .btn{white-space:normal}
 .team-add-project .btn{margin-bottom:0}
 #team-invite-form .two{margin-top:16px}
 @media(max-width:750px){.team-add-project{grid-template-columns:1fr}.team-member{padding:13px}}
+
+/* Project Scope / Standard & Custom Components */
+.component-checklist{margin-top:22px}
+.component-summary{margin:18px 0}
+.component-summary .card{padding:16px 18px;min-width:0}
+.component-summary .stat{font-size:clamp(1.4rem,2.6vw,2rem);white-space:nowrap}
+.component-groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin:20px 0}
+.component-group{border:1px solid var(--line);border-radius:12px;padding:17px;min-width:0}
+.component-group h4{margin:0 0 13px;font:600 1.04rem "DM Sans",sans-serif;letter-spacing:0.01em}
+.component-line{padding:12px 0;border-top:1px solid var(--line);min-width:0}
+.component-line:first-of-type{border-top:0}
+.component-main{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0}
+.component-label{display:flex;align-items:center;gap:10px;min-width:0;flex:1;line-height:1.45;cursor:pointer}
+.component-label input[type=checkbox]{width:18px;height:18px;flex:0 0 18px;accent-color:#c8a96e}
+.component-label span{overflow-wrap:anywhere}
+.component-line select{max-width:142px;min-width:116px;flex:0 0 auto}
+.component-line:not(.is-scoped) .component-label{opacity:.78}
+.component-line.is-scoped .component-label span{font-weight:600}
+.component-notes{margin:10px 0 2px 28px}
+.component-notes summary{font-size:.82rem;cursor:pointer;color:var(--muted)}
+.component-notes textarea{margin-top:10px;width:100%;line-height:1.55}
+.component-notes button{margin-top:8px}
+.custom-component-form{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:12px;margin-top:16px}
+@media(max-width:970px){.component-groups{grid-template-columns:1fr}}
+@media(max-width:540px){.component-group{padding:13px}.component-main{align-items:flex-start;flex-wrap:wrap}.component-line select{margin-left:28px;max-width:100%;flex:1}.custom-component-form{grid-template-columns:1fr}}
