@@ -3,13 +3,16 @@ export function notificationPage({rows,escape,projectName}) {
  const h=escape,alerts=rows.ag_notifications||[];
  const unread=alerts.filter(n=>!n.read_at).length;
  return '<div class="section-head"><div><h2>Notifications</h2><p>Project messages, design decisions, proposals and shared files.</p></div><span class="pill">'+unread+' unread</span></div>'+
- '<p class="tiny muted">These notifications appear inside The Office. External email delivery is not enabled yet.</p>'+
+ '<p class="tiny muted">These notifications appear inside The Office. External email delivery is not enabled yet.</p>'+ '<div class="action-area" style="margin:14px 0"><button class="btn alt small" type="button" data-filter-alerts="all" aria-pressed="true">All activity</button><button class="btn alt small" type="button" data-filter-alerts="unread" aria-pressed="false">Unread only</button>'+(unread?'<button class="btn alt small" type="button" data-read-all-alerts>Mark all read</button>':'')+'</div>'+
  '<section class="card">'+(alerts.length?alerts.map(n=>
- '<div class="item"><div><div class="eyebrow">'+h(n.category)+'</div><strong>'+h(n.title)+'</strong><small>'+h(n.detail||'')+' · '+h(projectName(n.project_id))+' · '+new Date(n.created_at).toLocaleString()+'</small></div>'+
- (n.read_at?'<span class="pill">Read</span>':'<button class="btn alt small" data-notification-read="'+h(n.id)+'">Mark read</button>')+'</div>'
+ '<div class="item" data-alert-row data-unread="'+(!n.read_at?'true':'false')+'"><div><div class="eyebrow">'+h(n.category)+'</div><strong>'+h(n.title)+'</strong><small>'+h(n.detail||'')+' · '+h(projectName(n.project_id))+' · '+new Date(n.created_at).toLocaleString()+'</small></div>'+
+ '<div class="action-area">'+(n.project_id?'<button class="btn alt small" type="button" data-open-alert-project="'+h(n.project_id)+'">Open project</button>':'')+(n.read_at?'<span class="pill">Read</span>':'<button class="btn alt small" data-notification-read="'+h(n.id)+'">Mark read</button>')+'</div></div>'
  ).join(''):'<div class="empty">No notifications yet. Activity will appear when projects have client updates.</div>')+'</section>';
 }
-export function notificationWire({root,supabase,reload,notify}){
+export function notificationWire({root,supabase,reload,notify,navigateProject,rows}){
+ root.querySelectorAll('[data-filter-alerts]').forEach(btn=>btn.onclick=()=>{const unreadOnly=btn.dataset.filterAlerts==='unread';root.querySelectorAll('[data-filter-alerts]').forEach(b=>b.setAttribute('aria-pressed',String(b===btn)));root.querySelectorAll('[data-alert-row]').forEach(row=>{row.hidden=unreadOnly&&row.dataset.unread!=='true';});});
+ root.querySelectorAll('[data-open-alert-project]').forEach(b=>b.onclick=()=>navigateProject(b.dataset.openAlertProject));
+ root.querySelector('[data-read-all-alerts]')?.addEventListener('click',async e=>{const ids=(rows.ag_notifications||[]).filter(a=>!a.read_at).map(a=>a.id);if(!ids.length)return;e.currentTarget.disabled=true;const {error}=await supabase.from('ag_notifications').update({read_at:new Date().toISOString()}).in('id',ids).is('read_at',null);if(error){notify(error.message);e.currentTarget.disabled=false;}else await reload();});
  root.querySelectorAll('[data-notification-read]').forEach(b=>b.onclick=async()=>{
   b.disabled=true;
   const {data,error}=await supabase.from('ag_notifications').update({read_at:new Date().toISOString()}).eq('id',b.dataset.notificationRead).is('read_at',null).select('id').maybeSingle();
