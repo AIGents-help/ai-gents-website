@@ -75,11 +75,12 @@ export function componentsWire({root,supabase,rows,project,staff,teamRole,userId
   if(panel.isConnected)projectPanels.set(panel.dataset.accordionKey,panel.open);
  }));
  const refreshWithoutJump=async()=>{
-  // A database refresh replaces the entire project view: restore the scroll
-  // position as well as the manually selected accordion states.
+  // Snapshot immediately: a fast checkbox click can precede the async
+  // details.toggle event, but the user's current open/closed state is definitive.
+  accordions.forEach(panel=>projectPanels.set(panel.dataset.accordionKey,panel.open));
   const top=window.scrollY;
   await reload();
-  window.scrollTo({top,left:0,behavior:'instant'});
+  window.scrollTo({top,left:0,behavior:'auto'});
  };
  const write=staff||!!teamRole&&(rows.ag_team_assignments||[]).some(a=>a.user_id===userId&&a.project_id===project.id&&a.access_level==='write');
  const save=async(prompt,op,element)=>{
