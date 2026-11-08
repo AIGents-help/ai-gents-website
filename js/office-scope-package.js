@@ -25,6 +25,12 @@ const DEFAULT_PAYMENT_TERMS = [
  'Third-party subscriptions, transaction fees and applicable taxes are additional unless expressly included. Changes to scope, price, or milestone schedule require written approval.'
 ].join('\n\n');
 
+let activeProposalSaveCancel=null;
+export const hasUnsavedOfficeProposalDraft=()=>document.querySelector('#scope-package-form')?.dataset.unsaved==='true';
+export function cancelPendingOfficeProposalSave(){
+ if(activeProposalSaveCancel)activeProposalSaveCancel();
+ activeProposalSaveCancel=null;
+}
 export function scopePackagePage({rows,project,escape,staff}) {
  if(!staff)return '';
  const h=escape,packages=(rows.ag_scope_packages||[]).filter(x=>x.project_id===project.id).sort((a,b)=>b.version-a.version);
@@ -77,6 +83,7 @@ export function scopePackageWire({root,rows,project,supabase,notify,reload,staff
  const form=section.querySelector('#scope-package-form');
  const draftStatus=section.querySelector('#scope-draft-save-status');
  let lastSavedDraft=null,saveTimer=null,saveInFlight=null;
+ activeProposalSaveCancel=()=>{if(saveTimer){clearTimeout(saveTimer);saveTimer=null;}};
  const values=()=>{
   const d=Object.fromEntries(new FormData(form));
   return {title:String(d.title||'').trim(),assumptions:String(d.assumptions||'').trim(),payment_terms:String(d.payment_terms||'').trim(),discount:String(d.discount??'').trim()};
