@@ -394,3 +394,16 @@ form[data-proposal-decision] .btn{white-space:normal}
 .office-client-approver-row button{flex:0 0 auto;white-space:normal}
 .office-client-approver-row button:disabled{opacity:.45;cursor:not-allowed}
 @media(max-width:580px){.office-client-approvers{margin-left:3px;padding-left:10px}.office-client-approver-row{flex-wrap:wrap}.office-client-approver-row button{width:100%;flex:1 1 100%}}
+
+/* Client pilot: distinguish observed internal records from real end-to-end proof */
+.office-pilot-preflight{margin-top:24px;padding-top:20px;border-top:1px solid var(--line)}
+.office-pilot-preflight .section-head{align-items:center;flex-wrap:wrap;gap:10px}
+.office-pilot-preflight h4{font-size:1.05rem;margin:0 0 4px}
+.office-pilot-list{margin:14px 0;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.office-pilot-item{display:flex;align-items:center;gap:13px;padding:12px;border-top:1px solid var(--line)}
+.office-pilot-item:first-child{border-top:0}
+.office-pilot-item>div{min-width:0;flex:1 1 200px}
+.office-pilot-item strong{font-size:.88rem;line-height:1.5}
+.office-pilot-item p{margin:4px 0 0;line-height:1.55;overflow-wrap:anywhere}
+.office-pilot-item button{margin-left:auto;flex:0 0 auto}
+@media(max-width:610px){.office-pilot-item{flex-wrap:wrap}.office-pilot-item button{margin-left:30px;flex:1 1 100%}}
