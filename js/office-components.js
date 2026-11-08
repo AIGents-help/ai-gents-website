@@ -237,10 +237,10 @@ export function componentsWire({root,supabase,rows,project,staff,teamRole,userId
   });
   const dirty=changedEditors.length>0;
   const batch=scope.querySelector('#component-save-all-fees');
-  if(batch)batch.disabled=!dirty;
   const countLabel=scope.querySelector('#component-batch-count');
   if(countLabel)countLabel.textContent=dirty?changedEditors.length+' component'+(changedEditors.length===1?'':'s')+' with unsaved changes':'No unsaved fee changes';
   const pending=[...scope.querySelectorAll('[data-scope-key]')].some(c=>c.disabled);
+  if(batch)batch.disabled=!dirty||pending;
   const copy=scope.querySelector('#component-copy-quote');
   if(copy)copy.disabled=!lastPreviewItems.length||dirty||pending;
   const msg=scope.querySelector('#component-estimate-state');
@@ -327,6 +327,13 @@ export function componentsWire({root,supabase,rows,project,staff,teamRole,userId
  };
  scope.querySelectorAll('[data-scope-key]').forEach(c=>c.onchange=async()=>{
   if(!staff){c.checked=!c.checked;return;}
+  const batch=scope.querySelector('#component-save-all-fees');
+  if(batch&&!batch.disabled){
+   c.checked=!c.checked;
+   renderEstimate();
+   notify('Save your pending estimate changes before adding or removing components.');
+   return;
+  }
   const key=c.dataset.scopeKey;
   const existing=(rows.ag_project_components||[]).find(x=>x.project_id===project.id&&x.component_key===key);
   if(c.checked){
