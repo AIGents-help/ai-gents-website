@@ -3,6 +3,28 @@ import {asUsd} from '/js/office-component-pricing.js';
 
 // All three outputs originate from one immutable database snapshot.
 // The proposal/decision permissions are enforced by Supabase RLS and RPC checks.
+// Suggested starting terms, fully editable for every client proposal.
+// Commercial examples, not a legal contract or universal industry requirement.
+const DEFAULT_ASSUMPTIONS = [
+ 'Included scope: Only the components and functionality specifically listed in this proposal are included.',
+ 'Revisions: Up to two consolidated rounds of reasonable design/content revisions before final approval. New features or substantial scope changes require a separately approved estimate or change order.',
+ 'Client responsibilities: Client provides required content, logos, brand assets, access to approved existing accounts, timely feedback, and one authorized decision-maker.',
+ 'Schedule: Milestones depend on timely client approvals, content, credentials, and third-party availability. Delays or changed requirements may require schedule adjustments.',
+ 'Testing and handoff: AI Gents will perform agreed functional checks and provide reasonable administrative orientation and handoff materials for delivered components.',
+ 'Exclusions unless explicitly listed: Ongoing content creation, major copywriting, data migration, paid advertising, legal/compliance certification, extensive training, post-launch feature development, and integrations outside approved scope.',
+ 'Third-party services: Hosting, domain renewals, payment processing, email platforms, software subscriptions, usage fees, and taxes are separate unless expressly included. No new account or paid service is authorized by this proposal alone.',
+ 'Ownership and support: Domain/account ownership, access handoff, post-launch support, maintenance and any source-code/IP transfer are governed by the final written agreement.'
+].join('\n\n');
+
+const DEFAULT_PAYMENT_TERMS = [
+ '40% deposit upon acceptance of the proposal and before scheduled implementation begins.',
+ '40% at delivery of a functional staging build for client review, before production launch.',
+ '20% upon final approved handoff or production launch, according to the agreed acceptance criteria.',
+ 'Invoices are payable within 15 calendar days of issue unless otherwise agreed in writing.',
+ 'Any recurring AI Gents management/support charges begin only on the agreed service start date and are billed monthly under a separate approved recurring-services arrangement.',
+ 'Third-party subscriptions, transaction fees and applicable taxes are additional unless expressly included. Changes to scope, price, or milestone schedule require written approval.'
+].join('\n\n');
+
 export function scopePackagePage({rows,project,escape,staff}) {
  if(!staff)return '';
  const h=escape,packages=(rows.ag_scope_packages||[]).filter(x=>x.project_id===project.id).sort((a,b)=>b.version-a.version);
@@ -43,7 +65,7 @@ export function scopePackagePage({rows,project,escape,staff}) {
    '<p class="tiny muted">'+(completedTasks?verifiedTasks+' / '+completedTasks+' mapped tasks marked done. ':'')+(superseded?'This version has been superseded; a new version requires review and acceptance. ':'')+'Publish the related draft on the Proposals tab. Client acceptance is recorded there; no client is contacted automatically by creating this package.</p></article>';
  }).join('');
  return '<section class="card scope-packages" id="scope-packages"><div class="section-head"><div><h3>Proposal → Build → Delivery</h3><p>One frozen scope version powers all three outputs. Editing checked items later does not silently change an existing proposal.</p></div></div>'+
- '<details class="scope-package-create"><summary>Create a new scope and proposal draft</summary><form id="scope-package-form"><label class="form-field">Proposal name<input required maxlength="160" minlength="3" name="title" value="'+h(project.title+' — Proprietary Platform')+'"></label><label class="form-field">Assumptions and exclusions<textarea name="assumptions" rows="3" maxlength="3500" placeholder="Included revisions, training, dependencies, excluded work, scope overlap, hosting ownership"></textarea></label><label class="form-field">Payment terms<textarea name="payment_terms" rows="2" maxlength="3500" placeholder="Example: 40% deposit, 40% at staging acceptance, 20% on handoff (edit for this engagement)"></textarea></label><label class="form-field">One-time discount ($)<input type="number" name="discount" min="0" max="9999999.99" step="0.01" value="0"></label><button type="submit" class="btn" '+(!ready?'disabled':'')+'>Freeze scope and create draft proposal</button><p class="tiny muted">'+(ready?'This creates an internal draft only. No email, account, invoice, or deployment is created.':'Select and price at least one component, then save the business description first.')+'</p></form></details>'+
+ '<details class="scope-package-create"><summary>Create a new scope and proposal draft</summary><form id="scope-package-form"><label class="form-field">Proposal name<input required maxlength="160" minlength="3" name="title" value="'+h(project.title+' — Proprietary Platform')+'"></label><label class="form-field">Assumptions and exclusions<textarea name="assumptions" rows="11" maxlength="3500" aria-describedby="scope-assumptions-guidance">'+h(DEFAULT_ASSUMPTIONS)+'</textarea><small class="tiny muted" id="scope-assumptions-guidance">Suggested starting terms. Edit for this project before preparing the proposal; obtain legal review where appropriate.</small></label><label class="form-field">Payment terms<textarea name="payment_terms" rows="8" maxlength="3500" aria-describedby="scope-payment-guidance">'+h(DEFAULT_PAYMENT_TERMS)+'</textarea><small class="tiny muted" id="scope-payment-guidance">Example milestone schedule—fully editable. No automatic invoice or charge is created.</small></label><label class="form-field">One-time discount ($)<input type="number" name="discount" min="0" max="9999999.99" step="0.01" value="0"></label><button type="submit" class="btn" '+(!ready?'disabled':'')+'>Freeze scope and create draft proposal</button><p class="tiny muted">'+(ready?'This creates an internal draft only. No email, account, invoice, or deployment is created.':'Select and price at least one component, then save the business description first.')+'</p></form></details>'+
  '<div class="scope-actions"><button class="btn alt small" type="button" data-scope-open-proposals>Open Proposals & Client Approval</button></div>'+ 
  '<h4 class="scope-versions-title">Version history</h4>'+(display||'<p class="tiny muted">No frozen scope versions yet. Finish the checklist and create an internal proposal draft.</p>')+
  '<p class="tiny muted">The frozen proposal is published separately under Proposals. A client acceptance is not a legal e-signature or permission to charge; deployment and provider expenses still require owner authorization.</p></section>';
