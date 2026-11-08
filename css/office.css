@@ -179,3 +179,30 @@ form[data-proposal-decision] .btn{white-space:normal}
 .component-generator-body #component-prompt-output{min-height:300px;white-space:pre-wrap;font:400 .85rem/1.65 ui-monospace,SFMono-Regular,Consolas,monospace}
 .component-generator-body [hidden]{display:none!important}
 @media(max-width:760px){.component-category-heading{padding:14px}.component-group-body{padding:0 13px 14px}.component-fees{margin-left:18px}.component-build-generator>summary{padding:14px}.component-generator-body{padding:0 14px 18px}}
+
+/* Staff-only live estimate below project selections, before build prompt. */
+.component-quote-footer{margin-top:22px;margin-bottom:20px;max-width:100%;min-width:0}
+.component-quote-footer .section-head{align-items:center;flex-wrap:wrap}
+.component-quote-lines{border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:16px 0}
+.component-estimate-header,.component-estimate-row{
+ display:grid;grid-template-columns:minmax(0,1fr) minmax(95px,.36fr) minmax(95px,.36fr);
+ align-items:center;column-gap:14px;padding:11px 14px;max-width:100%;box-sizing:border-box;
+}
+.component-estimate-header{background:rgba(255,255,255,.045);font-size:.74rem;color:var(--muted);font-weight:600}
+.component-estimate-row{border-top:1px solid var(--line);font-size:.84rem;line-height:1.45}
+.component-estimate-row:first-child{border-top:0}
+.component-estimate-row>span{overflow-wrap:anywhere}
+.component-estimate-row>strong{font-weight:600;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.component-estimate-header>span:not(:first-child){text-align:right}
+.component-estimate-row small{font-weight:400;color:var(--muted)}
+.component-quote-lines>.tiny{padding:14px}
+.component-estimate-year{font-size:1rem;margin:15px 0 10px}
+.component-estimate-year strong{color:#c8a96e;white-space:nowrap}
+#component-estimate-state{margin-top:10px}
+@media(max-width:650px){
+ .component-estimate-header,.component-estimate-row{grid-template-columns:minmax(0,1fr) 82px 82px;column-gap:8px;padding:10px;font-size:.77rem}
+ .component-estimate-header{font-size:.69rem}
+}
+@media(max-width:400px){
+ .component-estimate-header,.component-estimate-row{grid-template-columns:minmax(0,1fr) 74px 74px;font-size:.71rem}
+}
