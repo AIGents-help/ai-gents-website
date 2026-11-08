@@ -31,6 +31,24 @@ export function cancelPendingOfficeProposalSave(){
  if(activeProposalSaveCancel)activeProposalSaveCancel();
  activeProposalSaveCancel=null;
 }
+// A schedule suggestion is shown only for explicit, three-stage percentage terms.
+export function scopeBillingSuggestions(paymentTerms,oneTimeCents){
+ const terms=String(paymentTerms||'');
+ const lines=terms.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+ const matches=lines.map(line=>line.match(/^(\d{1,3})%\s+(.+)$/)).filter(Boolean);
+ if(matches.length!==3||matches.some(m=>Number(m[1])<=0)||matches.reduce((n,m)=>n+Number(m[1]),0)!==100)return [];
+ const total=Number(oneTimeCents);
+ if(!Number.isSafeInteger(total)||total<=0)return [];
+ const cents=matches.map((m,i)=>i===matches.length-1?0:Math.round(total*Number(m[1])/100));
+ cents[2]=total-cents[0]-cents[1];
+ return matches.map((m,i)=>({
+  label:(i===0?'Initial deposit':i===1?'Staging milestone':'Final handoff'),
+  note:m[2].slice(0,210),
+  percent:Number(m[1]),
+  amount_cents:cents[i]
+ })).filter(x=>x.amount_cents>0);
+}
+
 export function scopePackagePage({rows,project,escape,staff}) {
  if(!staff)return '';
  const h=escape,packages=(rows.ag_scope_packages||[]).filter(x=>x.project_id===project.id).sort((a,b)=>b.version-a.version);
@@ -54,6 +72,10 @@ export function scopePackagePage({rows,project,escape,staff}) {
   const matchingInvoices=(rows.ag_invoices||[]).filter(i=>allocations.some(a=>a.invoice_id===i.id));
   const usedCents=matchingInvoices.filter(i=>i.status!=='void').reduce((n,i)=>n+Number(i.amount_cents||0),0);
   const remainingCents=Math.max(0,Number(pkg.estimated_one_time_cents||0)-usedCents);
+  const schedule=scopeBillingSuggestions(pkg.payment_terms,pkg.estimated_one_time_cents);
+  const allocatedLabels=new Set(allocations.map(a=>a.milestone_label));
+  const suggestions=schedule.filter(x=>!allocatedLabels.has(x.label)&&x.amount_cents<=remainingCents);
+  const suggestedButtons=suggestions.map(x=>'<button class="btn alt small" type="button" data-billing-suggestion="'+h(pkg.id)+'" data-milestone-name="'+h(x.label)+'" data-milestone-cents="'+x.amount_cents+'">'+h(x.label)+' · '+x.percent+'% · '+asUsd(x.amount_cents)+'</button>').join('');
   const invoicePreview=allocations.map(a=>{
     const invoice=matchingInvoices.find(i=>i.id===a.invoice_id);
     return '<div class="scope-invoice-line"><span>'+h(a.milestone_label)+'</span><span>'+asUsd(invoice?.amount_cents||0)+'</span><span class="pill">'+h(invoice?.status||'Record unavailable')+'</span></div>';
@@ -64,8 +86,10 @@ export function scopePackagePage({rows,project,escape,staff}) {
    (accepted&&!superseded?'<details class="scope-invoice-drafts"><summary>Prepare approved billing drafts · '+asUsd(remainingCents)+' remaining</summary><div class="scope-invoice-content">'+
      '<p class="tiny muted">Internal invoice draft only. No Stripe invoice, message or payment is created. Review the accepted payment schedule before allocating milestone charges.</p>'+
      (invoicePreview?'<div class="scope-invoice-list">'+invoicePreview+'</div>':'')+
-     (remainingCents>0?'<form data-prepare-scope-invoice="'+h(pkg.id)+'"><label class="form-field">Billing milestone name<input name="milestone_label" required minlength="3" maxlength="120" placeholder="Deposit / Staging / Final handoff"></label>'+
-       '<label class="form-field">Amount (USD)<input type="number" name="amount" required min="0.01" step="0.01" max="'+(remainingCents/100).toFixed(2)+'" value="'+(remainingCents/100).toFixed(2)+'"></label>'+
+     (remainingCents>0?'<div class="scope-payment-reference"><strong>Accepted payment terms</strong><p>'+h(pkg.payment_terms||'No payment schedule specified. Enter an amount only after reviewing the client agreement.')+'</p>'+
+      (suggestedButtons?'<p class="tiny muted">Select a suggested milestone to fill the editable draft. These percentages come from the accepted proposal; no invoice is generated until you save.</p><div class="action-area">'+suggestedButtons+'</div>':'<p class="tiny muted">No automatic amount suggested. Confirm the accepted schedule and previously prepared milestones before entering a charge.</p>')+'</div>'+
+      '<form data-prepare-scope-invoice="'+h(pkg.id)+'"><label class="form-field">Billing milestone name<input name="milestone_label" required minlength="3" maxlength="120" placeholder="Deposit / Staging / Final handoff"></label>'+
+       '<label class="form-field">Amount (USD)<input type="number" name="amount" required min="0.01" step="0.01" max="'+(remainingCents/100).toFixed(2)+'" placeholder="Enter agreed milestone amount"></label>'+
        '<label class="form-field">Planned due date (optional)<input type="date" name="due_date"></label>'+
        '<button class="btn alt small" type="submit">Save internal invoice draft</button></form>':'<p class="tiny muted">The accepted one-time total is fully allocated. Create no further draft charges for this version.</p>')+
      '</div></details>':'')+
@@ -243,6 +267,19 @@ export function scopePackageWire({root,rows,project,supabase,notify,reload,staff
   const text=button.dataset.type==='proposal'?(proposal?.scope||'Proposal unavailable'):button.dataset.type==='build'?toPrompt(pkg):asText(pkg);
   try{await navigator.clipboard.writeText(text);notify(button.dataset.type==='proposal'?'Frozen proposal copied.':'Frozen project document copied.');}
   catch{notify('Clipboard access blocked.');}
+ });
+ section.querySelectorAll('[data-billing-suggestion]').forEach(button=>button.onclick=()=>{
+  const form=section.querySelector('[data-prepare-scope-invoice="'+button.dataset.billingSuggestion+'"]');
+  if(!form)return;
+  const cents=Number(button.dataset.milestoneCents);
+  if(!Number.isSafeInteger(cents)||cents<=0)return;
+  const amount=form.querySelector('[name="amount"]');
+  const label=form.querySelector('[name="milestone_label"]');
+  if(!amount||!label||Number(amount.max)*100<cents)return;
+  amount.value=(cents/100).toFixed(2);
+  label.value=button.dataset.milestoneName;
+  amount.dispatchEvent(new Event('input',{bubbles:true}));
+  notify('Suggested milestone filled. Review the accepted payment terms, amount, and due date before saving.');
  });
  section.querySelectorAll('[data-prepare-scope-invoice]').forEach(form=>form.onsubmit=async event=>{
   event.preventDefault();
