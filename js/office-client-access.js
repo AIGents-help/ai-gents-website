@@ -8,7 +8,7 @@ export function clientAccessPage({rows,escape,pretty}) {
  (clients.length?clients.map(c=>'<div class="item"><div><strong>'+h(c.company)+'</strong><small>'+h(c.contact_name||'No primary contact')+' · '+h(c.contact_email||'No email')+'</small></div><span class="pill">'+h(c.status||'active')+'</span></div>').join(''):'<p class="muted">No client organizations yet.</p>')+'</div>'+
  '<div class="card"><div class="section-head"><div><h3>Client portal access</h3><p class="tiny">Add client access by verified email. The account is assigned only after email verification.</p></div><button class="btn alt" data-access="invite">+ Add client access</button></div>'+
  (invites.length?invites.map(i=>'<div class="item"><div><strong>'+h(i.email)+'</strong><small>'+h(clientName(i.client_id))+' · Created '+stamp(i.created_at)+'</small></div><div class="action-area"><span class="pill">'+(i.accepted_by?'Active':Date.parse(i.expires_at)<Date.now()?'Expired':'Pending verification')+'</span>'+(i.accepted_by?'':'<button type="button" class="btn alt small" data-access="revoke" data-invite="'+h(i.id)+'">Revoke</button>')+'</div></div>').join(''):'<p class="muted">No client access invitations have been recorded.</p>')+
- '<p class="tiny muted" style="margin-top:15px">Adding an access record does not send an email automatically. Until invitation delivery is connected, use the authenticated invitation process in the AI Gents Supabase dashboard. Never share passwords.</p>'+
+ '<p class="tiny muted" style="margin-top:15px">The invitation email is sent through Supabase. If email delivery is unavailable, the pending record is preserved and the secure invitation console can be used.</p>'+
  '<a class="btn alt small" target="_blank" rel="noopener noreferrer" href="https://supabase.com/dashboard/project/apcvfezfmegqqjuonrgl/auth/users">Open secure invitation console ↗</a></div>';
 }
 export function clientAccessWire({root,supabase,rows,userId,escape,reload,notify}) {
@@ -23,9 +23,14 @@ export function clientAccessWire({root,supabase,rows,userId,escape,reload,notify
   el.querySelector('form').onsubmit=async e=>{
    e.preventDefault();const form=e.target,b=form.querySelector('[type=submit]'),v=Object.fromEntries(new FormData(form));
    b.disabled=true;
-   const {error}=await supabase.from('ag_client_invitations').insert({client_id:v.client_id,email:String(v.email).trim().toLowerCase(),created_by:userId});
+   const {data:record,error}=await supabase.from('ag_client_invitations').insert({client_id:v.client_id,email:String(v.email).trim().toLowerCase(),created_by:userId}).select('id,accepted_by').single();
    if(error){notify(error.message);b.disabled=false;return;}
-   el.remove();notify('Access recorded. Send the Supabase invitation if the account does not already exist.');await reload();
+   el.remove();
+   if(record.accepted_by){notify('Verified client account linked successfully.');await reload();return;}
+   const delivery=await supabase.functions.invoke('ag-invite-client',{body:{invitation_id:record.id}});
+   if(delivery.error||delivery.data?.error)notify('Access record created, but the invitation email could not be delivered. Check Supabase email settings.');
+   else notify('Client invitation email sent. Access activates after verification.');
+   await reload();
   };
  }
  root.querySelectorAll('[data-access]').forEach(b=>b.onclick=async()=>{
