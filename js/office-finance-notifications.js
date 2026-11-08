@@ -21,7 +21,7 @@ export function notificationWire({root,supabase,reload,notify,navigateProject,ro
  });
 }
 export function billingPage({rows,staff,escape,clientName,projectName}) {
- const h=escape, invoices=rows.ag_invoices||[],clients=rows.ag_clients||[],projects=rows.ag_projects||[];
+ const h=escape, invoices=rows.ag_invoices||[],clients=rows.ag_clients||[],projects=rows.ag_projects||[],preparations=rows.ag_stripe_invoice_preparations||[];
  const amount=(cents,currency='usd')=>new Intl.NumberFormat('en-US',{style:'currency',currency}).format(Number(cents||0)/100);
  const options=clients.map(c=>'<option value="'+h(c.id)+'">'+h(c.company)+'</option>').join('');
  const pOptions=projects.map(p=>'<option value="'+h(p.id)+'" data-client-id="'+h(p.client_id)+'">'+h(p.title)+'</option>').join('');
@@ -29,7 +29,7 @@ export function billingPage({rows,staff,escape,clientName,projectName}) {
  '<div class="notice"><strong>AI Gents Stripe account verified.</strong> Account acct_1T7vi0JgQWDNmZYh is verified through ChatGPT. Website billing credentials and webhooks still require secure configuration. No invoice can be sent or charged here. <span id="stripe-gateway-status">Checking test gateway…</span></div>'+
  '<section class="card">'+(invoices.length?invoices.map(i=>
  '<div class="item"><div><strong>'+h(i.invoice_number||'Billing draft')+' · '+h(clientName(i.client_id))+'</strong><small>'+h(projectName(i.project_id))+' · '+h(i.status)+' · Due '+h(i.due_date||'not scheduled')+'</small></div><div class="action-area"><strong>'+h(amount(i.amount_cents,i.currency))+'</strong>'+
- (staff&&i.status==='draft'&&!i.external_stripe_invoice_id?'<button class="btn alt small" type="button" data-stripe-test-draft="'+h(i.id)+'" hidden>Prepare TEST Stripe draft</button>':'')+(i.external_stripe_invoice_id&&i.stripe_livemode===false?'<span class="pill">Stripe test draft</span>':'')+(i.status!=='draft'&&typeof i.hosted_invoice_url==='string'&&/^https:\/\//.test(i.hosted_invoice_url)?'<a class="btn alt small" target="_blank" rel="noopener noreferrer" href="'+h(i.hosted_invoice_url)+'">Stripe invoice ↗</a>':'')+'</div></div>'
+ (staff&&i.status==='draft'&&!i.external_stripe_invoice_id&&!preparations.some(p=>p.invoice_id===i.id)?'<button class="btn alt small" type="button" data-stripe-test-draft="'+h(i.id)+'" hidden>Prepare TEST Stripe draft</button>':'')+(i.external_stripe_invoice_id&&i.stripe_livemode===false?'<span class="pill">Stripe test draft</span>':'')+(preparations.some(p=>p.invoice_id===i.id&&p.state==='needs_reconciliation')?'<span class="pill">Reconciliation needed</span>':'')+(preparations.some(p=>p.invoice_id===i.id&&p.state==='started')?'<span class="pill">Preparation pending</span>':'')+(i.status!=='draft'&&typeof i.hosted_invoice_url==='string'&&/^https:\/\//.test(i.hosted_invoice_url)?'<a class="btn alt small" target="_blank" rel="noopener noreferrer" href="'+h(i.hosted_invoice_url)+'">Stripe invoice ↗</a>':'')+'</div></div>'
  ).join(''):'<div class="empty">No billing records yet. You can prepare a draft without sending it.</div>')+'</section>'+
  '<template id="billing-client-options">'+options+'</template><template id="billing-project-options">'+pOptions+'</template>';
 }

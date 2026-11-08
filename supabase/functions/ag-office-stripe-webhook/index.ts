@@ -43,25 +43,16 @@ Deno.serve(async(req)=>{
  if(!invoice||invoice.object!=="invoice"||typeof invoice.id!=="string"||!invoice.id.startsWith("in_"))
   return answer(400,"Invalid invoice event");
  const admin=createClient(URL,SERVICE,{auth:{persistSession:false}});
- const {data:existing}=await admin.from("ag_stripe_event_receipts").select("event_id").eq("event_id",event.id).maybeSingle();
- if(existing)return answer(200,"Already processed");
- const {data:local,error:lookupError}=await admin.from("ag_invoices")
-  .select("id,status,external_stripe_invoice_id").eq("external_stripe_invoice_id",invoice.id)
-  .eq("stripe_account_id",ACCOUNT).eq("stripe_livemode",false).maybeSingle();
- if(lookupError)return answer(500,"Invoice lookup unavailable");
- if(!local)return answer(200,"Not an Office invoice");
- // Never downgrade a paid invoice on out-of-order webhook delivery.
- const next=local.status==="paid"?"paid":status;
- const update:Record<string,unknown>={status:next,stripe_synced_at:new Date().toISOString()};
- if(typeof invoice.number==="string")update.invoice_number=invoice.number;
- if(typeof invoice.hosted_invoice_url==="string" && invoice.hosted_invoice_url.startsWith("https://"))update.hosted_invoice_url=invoice.hosted_invoice_url;
- const {error:updateError}=await admin.from("ag_invoices").update(update).eq("id",local.id);
- if(updateError)return answer(500,"Invoice reconciliation failed");
- const {error:receiptError}=await admin.from("ag_stripe_event_receipts")
- .insert({event_id:event.id,stripe_account_id:ACCOUNT,livemode:false,event_type:event.type,stripe_invoice_id:invoice.id});
- if(receiptError){
-  if(receiptError.code==="23505")return answer(200,"Already processed");
-  return answer(500,"Event receipt not stored");
- }
- return answer(200,"Recorded");
+ // Verify and apply the event and write its replay receipt atomically.
+ // The database checks Stripe customer ownership and protects terminal states.
+ if(typeof invoice.customer!=="string"||typeof invoice.status!=="string")
+  return answer(400,"Missing invoice customer or status");
+ const {data:result,error:rpcError}=await admin.rpc("ag_record_stripe_test_invoice_event",{
+  p_event_id:event.id,p_event_type:event.type,p_invoice_id:invoice.id,
+  p_customer_id:invoice.customer,p_stripe_status:invoice.status,
+  p_invoice_number:typeof invoice.number==="string"?invoice.number:null,
+  p_hosted_url:typeof invoice.hosted_invoice_url==="string"?invoice.hosted_invoice_url:null
+ });
+ if(rpcError)return answer(500,"Could not reconcile invoice event");
+ return answer(200,result==="duplicate"?"Already processed":result==="not_found"?"Not an Office invoice":"Recorded");
 });

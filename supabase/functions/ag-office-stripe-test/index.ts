@@ -65,10 +65,30 @@ Deno.serve(async(req)=>{
    const {error:mappingError}=await admin.from("ag_stripe_customer_links").upsert({client_id:client.id,stripe_account_id:PROJECT,livemode:false,stripe_customer_id:customer},{onConflict:"client_id,stripe_account_id,livemode"});
    if(mappingError)throw new Error("Customer mapping save failed");
   }
-  const draft=await stripe("POST","invoices",form({customer,collection_method:"send_invoice",auto_advance:"false",currency:"usd","metadata[office_invoice_id]":invoice.id,"metadata[office_client_id]":client.id,"description":invoice.description||"AI Gents professional services"}),"ag-office-test-invoice-"+invoice.id);
-  await stripe("POST","invoiceitems",form({customer,invoice:draft.id,amount:Number(invoice.amount_cents),currency:"usd",description:invoice.description||"AI Gents professional services"}),"ag-office-test-item-"+invoice.id);
-  const {error:saveError}=await admin.from("ag_invoices").update({external_stripe_invoice_id:draft.id,stripe_account_id:PROJECT,stripe_livemode:false,stripe_synced_at:new Date().toISOString()}).eq("id",id).is("external_stripe_invoice_id",null);
-  if(saveError)throw new Error("Stripe draft created, but local invoice linking needs reconciliation");
-  return respond(200,{status:"test_draft_created",stripe_invoice_id:draft.id,livemode:false},origin);
+  // Atomic unique preparation claim: repeated clicks cannot create another Stripe invoice.
+  // A failed/ambiguous attempt is reconciled manually rather than blindly replayed.
+  const {error:claimError}=await admin.from("ag_stripe_invoice_preparations")
+   .insert({invoice_id:id,state:"started"});
+  if(claimError){
+   if(claimError.code==="23505")return respond(409,{error:"A preparation attempt already exists. Verify its status before retrying."},origin);
+   throw new Error("Could not reserve this invoice for Stripe preparation");
+  }
+  let stripeInvoiceId:string|null=null;
+  try{
+   const draft=await stripe("POST","invoices",form({customer,collection_method:"send_invoice",auto_advance:"false",currency:"usd","metadata[office_invoice_id]":invoice.id,"metadata[office_client_id]":client.id,"description":invoice.description||"AI Gents professional services"}),"ag-office-test-invoice-"+invoice.id);
+   stripeInvoiceId=draft.id;
+   await admin.from("ag_stripe_invoice_preparations").update({stripe_invoice_id:draft.id}).eq("invoice_id",id);
+   await stripe("POST","invoiceitems",form({customer,invoice:draft.id,amount:Number(invoice.amount_cents),currency:"usd",description:invoice.description||"AI Gents professional services"}),"ag-office-test-item-"+invoice.id);
+   const {data:saved,error:saveError}=await admin.from("ag_invoices").update({external_stripe_invoice_id:draft.id,stripe_account_id:PROJECT,stripe_livemode:false,stripe_synced_at:new Date().toISOString()}).eq("id",id).is("external_stripe_invoice_id",null).select("id").single();
+   if(saveError||!saved)throw new Error("Stripe draft was created, but local linking requires reconciliation");
+   await admin.from("ag_stripe_invoice_preparations").update({state:"linked",completed_at:new Date().toISOString()}).eq("invoice_id",id);
+   return respond(200,{status:"test_draft_created",stripe_invoice_id:draft.id,livemode:false},origin);
+  }catch(err){
+   await admin.from("ag_stripe_invoice_preparations").update({
+    state:"needs_reconciliation",stripe_invoice_id:stripeInvoiceId,
+    last_error:"Stripe preparation was interrupted; verify invoice in Stripe before any retry"
+   }).eq("invoice_id",id);
+   return respond(502,{error:"Test Stripe preparation needs reconciliation. Do not create another invoice."},origin);
+  }
  }catch(err){return respond(502,{error:String(err instanceof Error?err.message:"Stripe preparation failed")},origin);}
 });
