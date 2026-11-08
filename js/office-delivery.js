@@ -5,7 +5,7 @@ export function proposalPage({rows,staff,userId,escape,projectName,clientName}) 
  const blocks=proposals.map(p=>{
   const project=projects.find(pr=>pr.id===p.project_id);
   const ds=decisions.filter(d=>d.proposal_id===p.id);
-  const canApprove=approvers.some(a=>a.user_id===userId&&project?.client_id===a.client_id);
+  const canApprove=!((rows.ag_client_member_access||[]).some(a=>a.user_id===userId&&a.client_id===project?.client_id&&a.access_level==='read'))&&approvers.some(a=>a.user_id===userId&&project?.client_id===a.client_id);
   return '<section class="card" style="margin-bottom:16px"><div class="section-head"><div><p class="eyebrow">'+h(projectName(p.project_id))+'</p><h3>'+h(p.title)+'</h3><p>'+h(money(p.amount_cents,p.currency))+'</p></div><span class="pill">'+h(p.status)+'</span></div><div class="office-proposal-scope">'+h(p.scope)+'</div>'+
    '<div class="office-approval-history"><strong>Client decisions</strong>'+ (ds.length?ds.map(d=>'<p class="tiny">'+h(d.decision.replaceAll('_',' '))+' · '+new Date(d.created_at).toLocaleString()+(d.note?' · '+h(d.note):'')+'</p>').join(''):'<p class="tiny muted">Awaiting review.</p>')+'</div>'+
    (staff&&p.status==='draft'?'<button class="btn alt small" data-publish-proposal="'+h(p.id)+'">Publish to client</button>':'')+
