@@ -139,9 +139,77 @@ export function componentsWire({root,supabase,rows,project,staff,teamRole,userId
    await save('Draft pricing saved; nothing was invoiced or sent.',supabase.from('ag_component_pricing').upsert({component_id:b.dataset.saveComponentPrice,setup_fee_cents,monthly_fee_cents,third_party_monthly_cents,quote_quantity:quantity,updated_by:userId,updated_at:new Date().toISOString()},{onConflict:'component_id'}),b);
   }catch(err){notify(err.message||'Invalid amount');}
  });
+
+ // An internal estimate preview, not a Stripe invoice. Only privileged staff
+ // receive pricing rows and may view this section.
+ const estimate=scope.querySelector('#component-live-estimate');
+ const getPreviewItems=()=>{
+  const saved=(rows.ag_project_components||[]).filter(i=>i.project_id===project.id)
+   .map(i=>({...i,...((rows.ag_component_pricing||[]).find(p=>p.component_id===i.id)||{})}));
+  const checks=[...scope.querySelectorAll('[data-scope-key]')];
+  const preview=[];
+  for(const check of checks){
+   if(!check.checked)continue;
+   const found=saved.find(i=>i.component_key===check.dataset.scopeKey);
+   preview.push(found||{id:null,component_key:check.dataset.scopeKey,component_label:check.dataset.scopeLabel,category:check.dataset.scopeGroup,quote_quantity:1,third_party_monthly_cents:null,...pricingFor(check.dataset.scopeKey)});
+  }
+  preview.push(...saved.filter(i=>i.item_type==='custom'));
+  for(const item of preview){
+   if(!item.id)continue;
+   const editor=[...scope.querySelectorAll('[data-component-pricing]')].find(el=>el.dataset.componentPricing===item.id);
+   if(!editor)continue;
+   const amount=key=>{
+    const raw=editor.querySelector(key)?.value?.trim();
+    if(!raw||!/^\d+(?:\.\d{1,2})?$/.test(raw))return null;
+    const n=Math.round(Number(raw)*100);
+    return Number.isSafeInteger(n)&&n>=0&&n<=999999999?n:null;
+   };
+   const a=amount('[data-price-setup]'),b=amount('[data-price-monthly]'),c=amount('[data-price-external]');
+   const qty=Number(editor.querySelector('[data-price-quantity]')?.value);
+   if(a!==null)item.setup_fee_cents=a;
+   if(b!==null)item.monthly_fee_cents=b;
+   item.third_party_monthly_cents=c;
+   if(Number.isSafeInteger(qty)&&qty>=1&&qty<=1000)item.quote_quantity=qty;
+  }
+  return preview;
+ };
+ let lastPreviewItems=[];
+ const renderEstimate=()=>{
+  if(!estimate)return;
+  lastPreviewItems=getPreviewItems();
+  const totals=quoteTotals(lastPreviewItems);
+  const lines=scope.querySelector('#component-estimate-lines');
+  const formatter=amount=>asUsd(amount);
+  lines.innerHTML=lastPreviewItems.length?'<div class="component-estimate-header"><span>Selected component</span><span>One-time</span><span>Monthly</span></div>'+
+   lastPreviewItems.map(item=>{
+    const qty=Number(item.quote_quantity)||1;
+    return '<div class="component-estimate-row"><span>'+h(item.component_label)+(qty>1?' <small>× '+qty+'</small>':'')+'</span><strong>'+formatter(Number(item.setup_fee_cents||0)*qty)+'</strong><strong>'+formatter(Number(item.monthly_fee_cents||0)*qty)+'</strong></div>';
+   }).join(''):'<p class="tiny muted">No components selected yet. Check items above to build an estimate.</p>';
+  scope.querySelector('#estimate-setup-total').textContent=formatter(totals.once);
+  scope.querySelector('#estimate-monthly-total').textContent=formatter(totals.monthly);
+  scope.querySelector('#estimate-external-total').textContent=formatter(totals.external);
+  scope.querySelector('#estimate-external-unknown').textContent=totals.unknownExternal+' item(s)';
+  scope.querySelector('#estimate-year-total').textContent=formatter(totals.once+totals.monthly*12);
+  const dirty=[...scope.querySelectorAll('[data-component-pricing]')].some(editor=>{
+   const initial=savedQuotePrice.find(p=>p.component_id===editor.dataset.componentPricing);
+   const values=[editor.querySelector('[data-price-setup]')?.value,editor.querySelector('[data-price-monthly]')?.value,editor.querySelector('[data-price-external]')?.value,editor.querySelector('[data-price-quantity]')?.value];
+   const baseline=[(Number(initial?.setup_fee_cents||0)/100).toFixed(2),(Number(initial?.monthly_fee_cents||0)/100).toFixed(2),initial?.third_party_monthly_cents==null?'':(Number(initial.third_party_monthly_cents)/100).toFixed(2),String(initial?.quote_quantity||1)];
+   return values.some((v,i)=>v!==baseline[i]);
+  });
+  const copy=scope.querySelector('#component-copy-quote');
+  if(copy)copy.disabled=!lastPreviewItems.length||dirty;
+  const msg=scope.querySelector('#component-estimate-state');
+  if(msg)msg.textContent=dirty?'Preview includes unsaved changes. Click Save fees on the edited components before copying.':'Estimate reflects selected components and saved pricing. No invoice or payment has been generated.';
+ };
+ const savedQuotePrice=rows.ag_component_pricing||[];
+ if(estimate){
+  scope.addEventListener('input',event=>{if(event.target.closest('[data-component-pricing]'))renderEstimate();});
+  scope.addEventListener('change',event=>{if(event.target.matches('[data-scope-key]')||event.target.closest('[data-component-pricing]'))renderEstimate();});
+  renderEstimate();
+ }
  const copy=scope.querySelector('#component-copy-quote');
  if(copy)copy.onclick=async()=>{
-  try{await navigator.clipboard.writeText(quoteText(project,(rows.ag_project_components||[]).filter(x=>x.project_id===project.id).map(x=>({...x,...((rows.ag_component_pricing||[]).find(p=>p.component_id===x.id)||{})}))));notify('Internal draft estimate copied. Review before sending to clients.');}
+  try{renderEstimate();if(copy.disabled)return;await navigator.clipboard.writeText(quoteText(project,lastPreviewItems));notify('Internal draft estimate copied. Review before sending to clients.');}
   catch{notify('Clipboard blocked by your browser.');}
  };
  scope.querySelectorAll('[data-scope-key]').forEach(c=>c.onchange=async()=>{
