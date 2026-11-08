@@ -240,3 +240,48 @@ form[data-proposal-decision] .btn{white-space:normal}
 .task-evidence-form button{justify-self:start}
 .task-evidence-body .action-area{display:flex;flex-wrap:wrap;gap:10px}
 @media(max-width:600px){.task-evidence>summary{padding:12px}.task-evidence-body{padding:12px}}
+
+/* Client scope acknowledgment — explicit without claiming certified e-signatures */
+.proposal-acknowledge{display:flex;align-items:flex-start;gap:11px;padding:14px 16px;border:1px solid rgba(200,169,110,.48);border-radius:9px;background:rgba(200,169,110,.04);font-size:.9rem;line-height:1.5;margin:12px 0}
+.proposal-acknowledge input[type=checkbox]{width:18px;height:18px;flex:0 0 18px;margin-top:3px;accent-color:#c8a96e}
+.office-approval-history{overflow-wrap:anywhere}
+
+/* Commercial review of potential shared implementation work */
+.component-overlap-alert{margin:12px 0}
+.component-overlap-alert details{border:1px solid rgba(200,169,110,.5);border-radius:9px;padding:12px 15px;background:rgba(200,169,110,.05)}
+.component-overlap-alert summary{cursor:pointer;font-size:.85rem;font-weight:600;line-height:1.5}
+.component-overlap-alert li{font-size:.83rem;line-height:1.6;margin:8px 0}
+.component-overlap-alert ul{margin:10px 0 8px;padding-left:20px}
+
+/* Owner-only project readiness scorecard */
+.office-readiness{margin-top:24px}
+.office-readiness .section-head{align-items:center;flex-wrap:wrap;gap:12px}
+.office-readiness-meter{height:8px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden;margin:18px 0 20px}
+.office-readiness-meter span{display:block;height:100%;border-radius:999px;background:#c8a96e}
+.office-readiness-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:22px;row-gap:0;margin:8px 0 18px}
+.office-readiness-step{display:flex;align-items:flex-start;gap:12px;border-top:1px solid var(--line);padding:13px 0;min-width:0}
+.office-readiness-step strong{font-size:.9rem;overflow-wrap:anywhere}
+.office-readiness-step p{margin:4px 0 0;line-height:1.5;overflow-wrap:anywhere}
+.readiness-icon{display:flex;align-items:center;justify-content:center;flex:0 0 25px;height:25px;border:1px solid var(--line);border-radius:50%;font-weight:700;font-size:.86rem}
+.readiness-icon.good{color:#c8a96e;border-color:#c8a96e}
+.readiness-icon.pending{color:var(--muted)}
+.office-readiness .action-area{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+@media(max-width:780px){.office-readiness-list{grid-template-columns:1fr}}
+
+/* Retain the AI Gents catalog benchmark when an individual quote is edited. */
+.component-pricing-wrapper{max-width:100%;min-width:0}
+.component-benchmark{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:12px 0 8px;padding:11px 13px;border:1px solid rgba(200,169,110,.4);border-radius:8px;background:rgba(200,169,110,.05)}
+.component-benchmark>div{display:flex;flex-direction:column;gap:5px;min-width:0}
+.component-benchmark span{font-size:.76rem;color:var(--muted);line-height:1.45}
+.component-benchmark strong{font-size:.91rem;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.component-benchmark button{flex:0 1 auto;white-space:normal}
+.component-custom-benchmark{margin:12px 0 8px}
+.component-benchmark-comparison{border-top:1px solid var(--line);margin:15px 0 8px;padding-top:14px}
+.component-compare-head{display:flex;justify-content:space-between;gap:16px;font-size:.86rem;padding:7px 0;align-items:baseline}
+.component-compare-head strong{white-space:nowrap;font-variant-numeric:tabular-nums}
+.component-benchmark-comparison p{margin:8px 0 12px;line-height:1.55}
+.component-benchmark-toggle{display:flex;align-items:flex-start;gap:9px;font-size:.81rem;line-height:1.45;margin:12px 0 16px}
+.component-benchmark-toggle input{height:17px;width:17px;flex:0 0 17px;margin-top:2px;accent-color:#c8a96e}
+@media(max-width:540px){.component-benchmark{align-items:stretch}.component-benchmark button{width:100%}.component-compare-head{flex-wrap:wrap}}
+
+.component-estimate-row .reference-line{display:block;font-weight:400;color:var(--muted);margin-top:5px;line-height:1.45;font-size:.74rem;white-space:normal;overflow-wrap:anywhere}
