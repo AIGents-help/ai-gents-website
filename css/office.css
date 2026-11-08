@@ -32,3 +32,9 @@
 .studio-location{margin:3px 0 8px;color:#c8a96e}
 .studio-feedback .studio-location[hidden]{display:none}
 @media(max-width:540px){.studio-upload{margin:8px 0 0}}
+
+/* Responsive delivery controls and account settings */
+.item .small-status{width:auto;min-width:135px;max-width:170px;font-size:13px;padding:9px}
+#password-form{max-width:430px}
+#password-form .btn{margin-top:10px}
+@media(max-width:550px){.item .small-status{min-width:110px}.item{align-items:flex-start}.item .action-area{justify-content:flex-end}}
