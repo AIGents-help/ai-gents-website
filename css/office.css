@@ -206,3 +206,19 @@ form[data-proposal-decision] .btn{white-space:normal}
 @media(max-width:400px){
  .component-estimate-header,.component-estimate-row{grid-template-columns:minmax(0,1fr) 74px 74px;font-size:.71rem}
 }
+
+/* Proposal-to-project scope packages — compact management surfaces */
+.scope-packages{margin-top:24px}
+.scope-packages .section-head{gap:12px;flex-wrap:wrap}
+.scope-package-create{border:1px solid rgba(200,169,110,.42);border-radius:10px;margin:16px 0 22px}
+.scope-package-create>summary{cursor:pointer;padding:16px 18px;font-weight:600;list-style:revert;line-height:1.5}
+.scope-package-create form{border-top:1px solid var(--line);padding:16px 18px 20px;display:grid;gap:13px}
+.scope-package-create textarea{width:100%;box-sizing:border-box;line-height:1.55;letter-spacing:0}
+.scope-package-create input{width:100%;max-width:100%;box-sizing:border-box}
+.scope-package-create button{justify-self:start;max-width:100%}
+.scope-versions-title{font-size:1.05rem;margin:20px 0 12px}
+.scope-version{border:1px solid var(--line);padding:16px;border-radius:11px;margin:12px 0;min-width:0}
+.scope-version strong,.scope-version p{overflow-wrap:anywhere}
+.scope-actions{display:flex;flex-wrap:wrap;gap:9px;margin:14px 0}
+.scope-actions button{font-size:.81rem;white-space:normal}
+@media(max-width:570px){.scope-package-create form{padding:13px}.scope-package-create>summary{padding:13px}.scope-version{padding:13px}.scope-actions button{flex:1 1 135px}}
