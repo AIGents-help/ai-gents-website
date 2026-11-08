@@ -24,6 +24,7 @@ export function studioPage({rows,staff,userId,escape,projectName,clientName}) {
  const projectOptions=projects.map(p=>'<option value="'+h(p.id)+'">'+h(clientName(p.client_id)+' / '+p.title)+'</option>').join('');
  return '<div class="section-head"><div><h2>Design Studio</h2><p>Compare concepts, discuss revisions, and approve a precise version.</p></div>'+(staff?'<button class="btn" data-studio-action="new-review">+ New design review</button>':'')+'</div>'+
  (staff?'<p class="tiny muted">Only published reviews and published versions are shown to clients. Assign final approvers from the client organization separately.</p>':'<p class="tiny muted">All reviewers can comment. Final approval is reserved for designated approvers.</p>')+
+ (staff?'<div class="card" style="margin-bottom:20px"><div class="section-head"><div><h3>Authorized client approvers</h3><p class="tiny">Choose a client and an existing portal member. Only listed approvers can formally approve.</p></div><button class="btn alt small" data-studio-action="new-approver">Assign approver</button></div>'+(approvers.length?approvers.map(a=>'<div class="item"><div><strong>'+h(clientName(a.client_id))+'</strong><small>User: '+h(a.user_id)+'</small></div><button class="btn alt small" data-studio-action="remove-approver" data-client="'+h(a.client_id)+'" data-user="'+h(a.user_id)+'">Remove</button></div>').join(''):'<p class="tiny muted">No approvers assigned.</p>')+'</div>':'')+
  '<div class="studio-stack">'+(cards||'<section class="card">'+(staff?'No design reviews yet. Create a review and add a visual version.':'Your visual samples will appear here when they are ready for review.')+'</section>')+'</div>'+
  '<template id="studio-project-options">'+projectOptions+'</template>';
 }
@@ -42,6 +43,24 @@ export function studioWire({root,supabase,rows,staff,userId,escape,reload,notify
  root.querySelectorAll('[data-studio-action]').forEach(b=>b.onclick=()=>{
   if(!staff)return;
   const action=b.dataset.studioAction;
+  if(action==='remove-approver'){
+   if(!confirm('Revoke final approval rights for this client member?'))return;
+   supabase.from('ag_client_approvers').delete().eq('client_id',b.dataset.client).eq('user_id',b.dataset.user).then(({error})=>{if(error)notify(error.message);else reload();});
+   return;
+  }
+  if(action==='new-approver'){
+   const clients=rows.ag_clients||[],members=rows.ag_client_users||[],existing=rows.ag_client_approvers||[];
+   const choices=members.filter(m=>!existing.some(a=>a.client_id===m.client_id&&a.user_id===m.user_id));
+   if(!choices.length){notify('Add an authenticated user to a client organization before assigning approval authority.');return;}
+   const options=choices.map(m=>'<option value="'+h(m.client_id+'|'+m.user_id)+'">'+h((clients.find(c=>c.id===m.client_id)?.company||'Client')+' — '+m.user_id)+'</option>').join('');
+   modal('Assign final approver','<label class="form-field">Existing client member<select name="membership" required>'+options+'</select></label>',async v=>{
+    const [client_id,user_id]=String(v.membership||'').split('|');
+    if(!client_id||!user_id)return false;
+    const {error}=await supabase.from('ag_client_approvers').insert({client_id,user_id});
+    if(error){notify(error.message);return false;}return true;
+   });
+   return;
+  }
   if(action==='new-review'){
    const opts=(root.querySelector('#studio-project-options')?.innerHTML||'');
    modal('New design review','<label class="form-field">Project<select name="project_id" required><option value="">Choose project</option>'+opts+'</select></label><label class="form-field">Review title<input name="title" required maxlength="150"></label><label class="form-field">Description<textarea name="description"></textarea></label><label class="form-field">Visibility<select name="status"><option value="draft">Internal draft</option><option value="published">Publish to client</option></select></label>',async v=>{
