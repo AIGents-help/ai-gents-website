@@ -52,3 +52,16 @@ form[data-proposal-decision] .btn{white-space:normal}
 /* Notification filters must hide rows even when flex layouts apply */
 [data-alert-row][hidden]{display:none!important}
 [data-filter-alerts][aria-pressed="true"]{border-color:var(--gold);color:var(--gold)}
+
+/* Project progress reporting */
+.progress-provider{border:1px solid var(--line);border-radius:10px;padding:15px;margin:12px 0;overflow-wrap:anywhere}
+.progress-provider .eyebrow{margin-top:14px;margin-bottom:7px}
+.progress-provider p{line-height:1.55}
+.progress-provider a{color:var(--gold);text-decoration:underline;text-underline-offset:3px}
+.progress-report{border:1px solid var(--line);border-radius:10px;padding:13px 15px;margin:11px 0}
+.progress-report summary{cursor:pointer;overflow-wrap:anywhere}
+.progress-report-content{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit;font-size:14px;line-height:1.7;margin:18px 0 4px;color:var(--text)}
+#progress-link-form{border-top:1px solid var(--line);margin-top:20px;padding-top:16px}
+#progress-tech{min-height:70px}
+#progress-submit-form textarea{min-height:240px;line-height:1.65;letter-spacing:0}
+@media(max-width:650px){.progress-provider{padding:12px}.progress-report-content{font-size:13px}}
