@@ -25,12 +25,19 @@ const DEFAULT_PAYMENT_TERMS = [
  'Third-party subscriptions, transaction fees and applicable taxes are additional unless expressly included. Changes to scope, price, or milestone schedule require written approval.'
 ].join('\n\n');
 
+let activeProposalSaveCancel=null;
+export const hasUnsavedOfficeProposalDraft=()=>document.querySelector('#scope-package-form')?.dataset.unsaved==='true';
+export function cancelPendingOfficeProposalSave(){
+ if(activeProposalSaveCancel)activeProposalSaveCancel();
+ activeProposalSaveCancel=null;
+}
 export function scopePackagePage({rows,project,escape,staff}) {
  if(!staff)return '';
  const h=escape,packages=(rows.ag_scope_packages||[]).filter(x=>x.project_id===project.id).sort((a,b)=>b.version-a.version);
  const proposals=rows.ag_proposals||[],decisions=rows.ag_proposal_decisions||[],tasks=rows.ag_scope_delivery_tasks||[];
  const itemCount=(rows.ag_project_components||[]).filter(x=>x.project_id===project.id).length;
  const brief=(rows.ag_project_build_briefs||[]).find(x=>x.project_id===project.id);
+ const workingDraft=(rows.ag_project_proposal_drafts||[]).find(x=>x.project_id===project.id);
  const ready=itemCount>0&&!!brief?.business_description?.trim();
  const display=packages.map(pkg=>{
   const proposal=proposals.find(p=>p.id===pkg.proposal_id);
@@ -65,20 +72,114 @@ export function scopePackagePage({rows,project,escape,staff}) {
    '<p class="tiny muted">'+(completedTasks?verifiedTasks+' / '+completedTasks+' mapped tasks marked done. ':'')+(superseded?'This version has been superseded; a new version requires review and acceptance. ':'')+'Publish the related draft on the Proposals tab. Client acceptance is recorded there; no client is contacted automatically by creating this package.</p></article>';
  }).join('');
  return '<section class="card scope-packages" id="scope-packages"><div class="section-head"><div><h3>Proposal → Build → Delivery</h3><p>One frozen scope version powers all three outputs. Editing checked items later does not silently change an existing proposal.</p></div></div>'+
- '<details class="scope-package-create"><summary>Create a new scope and proposal draft</summary><form id="scope-package-form"><label class="form-field">Proposal name<input required maxlength="160" minlength="3" name="title" value="'+h(project.title+' — Proprietary Platform')+'"></label><label class="form-field">Assumptions and exclusions<textarea name="assumptions" rows="11" maxlength="3500" aria-describedby="scope-assumptions-guidance">'+h(DEFAULT_ASSUMPTIONS)+'</textarea><small class="tiny muted" id="scope-assumptions-guidance">Suggested starting terms. Edit for this project before preparing the proposal; obtain legal review where appropriate.</small></label><label class="form-field">Payment terms<textarea name="payment_terms" rows="8" maxlength="3500" aria-describedby="scope-payment-guidance">'+h(DEFAULT_PAYMENT_TERMS)+'</textarea><small class="tiny muted" id="scope-payment-guidance">Example milestone schedule—fully editable. No automatic invoice or charge is created.</small></label><label class="form-field">One-time discount ($)<input type="number" name="discount" min="0" max="9999999.99" step="0.01" value="0"></label><button type="submit" class="btn" '+(!ready?'disabled':'')+'>Freeze scope and create draft proposal</button><p class="tiny muted">'+(ready?'This creates an internal draft only. No email, account, invoice, or deployment is created.':'Select and price at least one component, then save the business description first.')+'</p></form></details>'+
+ '<details class="scope-package-create"><summary>Prepare client proposal</summary><form id="scope-package-form"><p class="tiny muted">These details are saved privately to this project while you work. Nothing is sent to the client until you publish a completed proposal.</p><label class="form-field">Proposal name<input required maxlength="160" minlength="3" name="title" value="'+h(workingDraft?.title??(project.title+' — Proprietary Platform'))+'"></label><label class="form-field">Assumptions and exclusions<textarea name="assumptions" rows="11" maxlength="3500" aria-describedby="scope-assumptions-guidance" >'+h(workingDraft?.assumptions??DEFAULT_ASSUMPTIONS)+'</textarea><small class="tiny muted" id="scope-assumptions-guidance">Suggested starting terms. Edit for this project before preparing the proposal; obtain legal review where appropriate.</small></label><label class="form-field">Payment terms<textarea name="payment_terms" rows="8" maxlength="3500" aria-describedby="scope-payment-guidance" >'+h(workingDraft?.payment_terms??DEFAULT_PAYMENT_TERMS)+'</textarea><small class="tiny muted" id="scope-payment-guidance">Example milestone schedule—fully editable. No automatic invoice or charge is created.</small></label><label class="form-field">One-time discount ($)<input type="number" name="discount" min="0" max="9999999.99" step="0.01" value="'+h((Number(workingDraft?.discount_cents||0)/100).toFixed(2))+'"></label><div class="scope-proposal-actions"><button type="button" class="btn alt small" id="scope-save-working-draft">Save proposal details</button><button type="button" class="btn alt small" id="scope-preview-working-draft">Preview offer</button><span class="tiny muted" id="scope-draft-save-status" role="status">'+(workingDraft?'Saved previously · edit to update':'Standard starting terms · not yet saved')+'</span></div><div id="scope-working-preview" hidden></div><button type="submit" class="btn" '+(!ready?'disabled':'')+'>Freeze scope and create draft proposal</button><p class="tiny muted">'+(ready?'This creates an internal draft only. No email, account, invoice, or deployment is created.':'Select and price at least one component, then save the business description first.')+'</p></form></details>'+
  '<div class="scope-actions"><button class="btn alt small" type="button" data-scope-open-proposals>Open Proposals & Client Approval</button></div>'+ 
  '<h4 class="scope-versions-title">Version history</h4>'+(display||'<p class="tiny muted">No frozen scope versions yet. Finish the checklist and create an internal proposal draft.</p>')+
  '<p class="tiny muted">The frozen proposal is published separately under Proposals. A client acceptance is not a legal e-signature or permission to charge; deployment and provider expenses still require owner authorization.</p></section>';
 }
-export function scopePackageWire({root,rows,project,supabase,notify,reload,staff}){
+export function scopePackageWire({root,rows,project,supabase,notify,reload,staff,userId}){
  if(!staff)return;
  const section=root.querySelector('#scope-packages');if(!section)return;
  const form=section.querySelector('#scope-package-form');
+ const draftStatus=section.querySelector('#scope-draft-save-status');
+ let lastSavedDraft=null,saveTimer=null,saveInFlight=null;
+ activeProposalSaveCancel=()=>{if(saveTimer){clearTimeout(saveTimer);saveTimer=null;}};
+ const values=()=>{
+  const d=Object.fromEntries(new FormData(form));
+  return {title:String(d.title||'').trim(),assumptions:String(d.assumptions||'').trim(),payment_terms:String(d.payment_terms||'').trim(),discount:String(d.discount??'').trim()};
+ };
+ const toCents=v=>{
+  const raw=String(v??'').trim();
+  if(!/^\d+(?:\.\d{1,2})?$/.test(raw))return null;
+  const number=Number(raw);
+  return Number.isFinite(number)&&number>=0&&number<=9999999.99?Math.round(number*100):null;
+ };
+ const validDraft=v=>v.title.length>=3&&v.title.length<=160&&
+   v.assumptions.length<=3500&&v.payment_terms.length<=3500&&toCents(v.discount)!==null;
+ const serial=v=>JSON.stringify(v);
+ if(form){
+  lastSavedDraft=(rows.ag_project_proposal_drafts||[]).some(d=>d.project_id===project.id)?serial(values()):null;
+ }
+ const updateDraftStatus=()=>{
+  if(!form)return;
+  const changed=lastSavedDraft!==serial(values());
+  form.dataset.unsaved=changed?'true':'false';
+  if(draftStatus)draftStatus.textContent=changed?'Unsaved changes — saving when you finish typing':'Proposal details saved for this project';
+ };
+ const saveDraft=async(force=false)=>{
+  if(!form||!staff)return false;
+  if(saveTimer){clearTimeout(saveTimer);saveTimer=null;}
+  if(saveInFlight)await saveInFlight;
+  const snapshot=values();
+  if(!validDraft(snapshot)){
+   if(draftStatus)draftStatus.textContent='Complete the proposal name and use a valid discount before saving.';
+   return false;
+  }
+  if(!force&&serial(snapshot)===lastSavedDraft)return true;
+  if(draftStatus)draftStatus.textContent='Saving proposal details…';
+  const task=(async()=>{
+   const {error}=await supabase.from('ag_project_proposal_drafts').upsert({
+    project_id:project.id,title:snapshot.title,
+    assumptions:snapshot.assumptions,payment_terms:snapshot.payment_terms,
+    discount_cents:toCents(snapshot.discount),updated_by:userId
+   },{onConflict:'project_id'});
+   if(error){if(draftStatus)draftStatus.textContent='Save failed — '+error.message;return false;}
+   lastSavedDraft=serial(snapshot);
+   updateDraftStatus();
+   return true;
+  })();
+  saveInFlight=task;
+  try{return await task;}finally{if(saveInFlight===task)saveInFlight=null;}
+ };
+ if(form){
+  form.addEventListener('input',()=>{
+   updateDraftStatus();
+   if(saveTimer)clearTimeout(saveTimer);
+   saveTimer=setTimeout(()=>{void saveDraft();},1100);
+   const preview=section.querySelector('#scope-working-preview');
+   if(preview&&!preview.hidden)renderDraftPreview();
+  });
+  form.addEventListener('change',()=>{
+   if(saveTimer)clearTimeout(saveTimer);
+   saveTimer=setTimeout(()=>{void saveDraft();},250);
+  });
+  section.querySelector('#scope-save-working-draft')?.addEventListener('click',async()=>{
+   const ok=await saveDraft(true);
+   notify(ok?'Proposal details saved privately for this project.':'Proposal details were not saved; check the fields and retry.');
+  });
+ }
+ const renderDraftPreview=()=>{
+  const preview=section.querySelector('#scope-working-preview');
+  if(!preview||!form)return;
+  const d=values(),components=(rows.ag_project_components||[]).filter(c=>c.project_id===project.id);
+  const pricing=rows.ag_component_pricing||[];
+  const lines=components.map(c=>{
+   const p=pricing.find(r=>r.component_id===c.id),qty=Number(p?.quote_quantity)||1;
+   return {label:c.component_label,qty,setup:Number(p?.setup_fee_cents||0)*qty,monthly:Number(p?.monthly_fee_cents||0)*qty,missing:!p};
+  });
+  const one=lines.reduce((sum,l)=>sum+l.setup,0),monthly=lines.reduce((sum,l)=>sum+l.monthly,0);
+  const discount=toCents(d.discount);
+  preview.innerHTML='<div class="scope-preview-card"><h4>Internal proposal preview — not sent</h4>'+
+   '<p><strong>'+escape(d.title||'Untitled proposal')+'</strong></p>'+
+   '<p class="tiny muted">Project: '+escape(project.title)+' · '+lines.length+' selected component(s)</p>'+
+   '<div class="scope-preview-items">'+lines.map(l=>'<div><span>'+escape(l.label)+(l.qty>1?' × '+l.qty:'')+'</span><span>'+asUsd(l.setup)+'</span><span>'+asUsd(l.monthly)+'/mo</span></div>').join('')+'</div>'+
+   '<div class="scope-preview-totals"><strong>Setup subtotal: '+asUsd(one)+'</strong><span>Discount: '+(discount===null?'Invalid':asUsd(discount))+'</span><strong>Estimated one-time offer: '+(discount===null||discount>one?'Review discount':asUsd(one-discount))+'</strong><span>AI Gents recurring: '+asUsd(monthly)+'/mo</span></div>'+
+   '<details><summary>Review assumptions and payment terms</summary><h5>Assumptions and exclusions</h5><p class="scope-preview-terms">'+escape(d.assumptions)+'</p><h5>Payment terms</h5><p class="scope-preview-terms">'+escape(d.payment_terms)+'</p></details>'+
+   (lines.some(l=>l.missing)?'<p class="tiny muted">At least one selected component is missing saved pricing. Save component fees first.</p>':'')+
+   '<p class="tiny muted">This is an internal preview from the current project screen, not an accepted contract, invoice, or published proposal.</p></div>';
+ };
+ section.querySelector('#scope-preview-working-draft')?.addEventListener('click',()=>{
+  const preview=section.querySelector('#scope-working-preview');
+  if(!preview)return;
+  preview.hidden=!preview.hidden;
+  if(!preview.hidden)renderDraftPreview();
+ });
+
  section.querySelector('[data-scope-open-proposals]')?.addEventListener('click',()=>root.querySelector('[data-view="proposals"]')?.click());
  const packages=rows.ag_scope_packages||[];
  const toDollars=v=>{
   const raw=String(v??'').trim();
-  if(!/^\\d+(?:\\.\\d{1,2})?$/.test(raw))return null;
+  if(!/^\d+(?:\.\d{1,2})?$/.test(raw))return null;
   const n=Number(raw);
   return Number.isFinite(n)&&n>=0&&n<=9999999.99?Math.round(n*100):null;
  };
@@ -100,6 +201,7 @@ export function scopePackageWire({root,rows,project,supabase,notify,reload,staff
  if(form)form.onsubmit=async e=>{
   e.preventDefault();
   const v=Object.fromEntries(new FormData(form));
+  if(!await saveDraft()){notify('Save proposal details first. No proposal was created.');return;}
   const discount=toDollars(v.discount);
   if(discount===null){notify('Enter a valid discount.');return;}
   if(root.querySelector('#component-live-estimate')?.dataset.pendingChanges==='true'){
@@ -149,7 +251,7 @@ export function scopePackageWire({root,rows,project,supabase,notify,reload,staff
   if(!pkg)return;
   const values=Object.fromEntries(new FormData(form));
   const amountString=String(values.amount||'').trim();
-  if(!/^\\d+(?:\\.\\d{1,2})?$/.test(amountString)){notify('Enter a valid USD amount with no more than two decimals.');return;}
+  if(!/^\d+(?:\.\d{1,2})?$/.test(amountString)){notify('Enter a valid USD amount with no more than two decimals.');return;}
   const amount=Math.round(Number(amountString)*100);
   if(!Number.isSafeInteger(amount)||amount<=0){notify('Enter a positive milestone amount.');return;}
   const label=String(values.milestone_label||'').trim();

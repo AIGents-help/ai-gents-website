@@ -351,3 +351,24 @@ form[data-proposal-decision] .btn{white-space:normal}
 .office-client-project-link small{font-size:.76rem;color:var(--muted)}
 .office-client-project-link>span:last-child{color:#c8a96e;font-size:.8rem;white-space:nowrap}
 @media(max-width:580px){.office-client-project-links{margin-left:3px;padding-left:10px}.office-client-project-link{flex-wrap:wrap}.office-client-project-link>span:last-child{margin-left:auto}}
+
+/* Internal proposal working draft: clear save status and offer preview */
+#scope-package-form>.tiny.muted{max-width:70ch}
+.scope-proposal-actions{display:flex;align-items:center;flex-wrap:wrap;gap:10px;padding:6px 0 0}
+.scope-proposal-actions button{white-space:normal}
+.scope-proposal-actions #scope-draft-save-status{flex:1 1 180px;line-height:1.5}
+#scope-working-preview[hidden]{display:none!important}
+.scope-preview-card{margin:12px 0 18px;border:1px solid rgba(200,169,110,.45);background:rgba(200,169,110,.035);border-radius:11px;padding:16px;min-width:0}
+.scope-preview-card h4{font-size:1.03rem;margin:0 0 10px}
+.scope-preview-items{border:1px solid var(--line);border-radius:8px;overflow:hidden;margin:15px 0}
+.scope-preview-items>div{display:grid;grid-template-columns:minmax(0,1fr) minmax(94px,auto) minmax(94px,auto);gap:12px;padding:10px 12px;border-top:1px solid var(--line);font-size:.81rem;line-height:1.5;align-items:center}
+.scope-preview-items>div:first-child{border-top:0}
+.scope-preview-items>div>span{overflow-wrap:anywhere}
+.scope-preview-items>div>span:not(:first-child){text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.scope-preview-totals{display:grid;gap:8px;padding:10px 0 16px;font-size:.9rem}
+.scope-preview-totals>*{overflow-wrap:anywhere}
+.scope-preview-card details{border-top:1px solid var(--line);padding:12px 0;margin:0 0 12px}
+.scope-preview-card details summary{cursor:pointer;font-weight:600}
+.scope-preview-terms{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.7;font-size:.83rem}
+.scope-preview-card h5{font-size:.84rem;margin:16px 0 7px}
+@media(max-width:650px){.scope-preview-items>div{grid-template-columns:minmax(0,1fr) 85px 85px;gap:6px;padding:9px 7px;font-size:.75rem}.scope-proposal-actions button{flex:1 1 165px}.scope-preview-card{padding:12px}}
