@@ -101,6 +101,10 @@ export function componentsWire({root,supabase,rows,project,staff,teamRole,userId
  };
  const write=staff||!!teamRole&&(rows.ag_team_assignments||[]).some(a=>a.user_id===userId&&a.project_id===project.id&&a.access_level==='write');
  const save=async(prompt,op,element)=>{
+  if(hasUnsavedOfficeQuote()){
+   notify('Save or discard your unsaved estimate changes before updating another project field.');
+   return;
+  }
   if(element)element.disabled=true;
   const {error}=await op;
   if(error){notify(error.message);if(element)element.disabled=false;return;}
@@ -115,6 +119,7 @@ export function componentsWire({root,supabase,rows,project,staff,teamRole,userId
    await save('Business brief saved.',supabase.from('ag_project_build_briefs').upsert({project_id:project.id,...getBrief(),updated_by:userId,updated_at:new Date().toISOString()},{onConflict:'project_id'}),button);
   };
   scope.querySelector('#component-generate-prompt').onclick=async()=>{
+   if(hasUnsavedOfficeQuote()){notify('Save the estimate changes before generating a new build prompt.');return;}
    const brief=getBrief();
    if(!String(brief.business_description||'').trim()){notify('Describe the business first.');buildForm.elements.business_description.focus();return;}
    const selected=(rows.ag_project_components||[]).filter(x=>x.project_id===project.id);
@@ -380,6 +385,11 @@ export function componentsWire({root,supabase,rows,project,staff,teamRole,userId
  });
  scope.querySelectorAll('[data-component-status]').forEach(s=>s.onchange=async()=>{
   if(!write)return;
+  if(hasUnsavedOfficeQuote()){
+   const item=(rows.ag_project_components||[]).find(x=>x.id===s.dataset.componentStatus);
+   if(item)s.value=item.status;
+   notify('Save or discard your estimate changes before changing delivery status.');return;
+  }
   if(s.value==='completed'&&!confirm('Confirm this component has actually been delivered and verified?')){await refreshWithoutJump();return;}
   await save('Delivery status updated.',supabase.from('ag_project_components').update({status:s.value,updated_by:userId}).eq('id',s.dataset.componentStatus),s);
  });
@@ -391,6 +401,7 @@ export function componentsWire({root,supabase,rows,project,staff,teamRole,userId
  scope.querySelectorAll('[data-remove-component]').forEach(b=>b.onclick=async()=>{
   if(!staff)return;
   const entry=(rows.ag_project_components||[]).find(x=>x.id===b.dataset.removeComponent);
+  if(hasUnsavedOfficeQuote()){notify('Save or discard your estimate edits before removing a component.');return;}
   if(!confirm('Remove custom component '+(entry?.component_label||'')+' from scope?'))return;
   await save('Custom component removed.',supabase.from('ag_project_components').delete().eq('id',b.dataset.removeComponent),b);
  });
