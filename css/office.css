@@ -240,3 +240,8 @@ form[data-proposal-decision] .btn{white-space:normal}
 .task-evidence-form button{justify-self:start}
 .task-evidence-body .action-area{display:flex;flex-wrap:wrap;gap:10px}
 @media(max-width:600px){.task-evidence>summary{padding:12px}.task-evidence-body{padding:12px}}
+
+/* Client scope acknowledgment — explicit without claiming certified e-signatures */
+.proposal-acknowledge{display:flex;align-items:flex-start;gap:11px;padding:14px 16px;border:1px solid rgba(200,169,110,.48);border-radius:9px;background:rgba(200,169,110,.04);font-size:.9rem;line-height:1.5;margin:12px 0}
+.proposal-acknowledge input[type=checkbox]{width:18px;height:18px;flex:0 0 18px;margin-top:3px;accent-color:#c8a96e}
+.office-approval-history{overflow-wrap:anywhere}
