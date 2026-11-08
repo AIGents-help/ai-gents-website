@@ -6,12 +6,13 @@ import {notificationPage,notificationWire,billingPage,billingWire} from '/js/off
 import {progressPage,progressWire} from '/js/office-progress.js';
 import {teamPage,teamWire} from '/js/office-team.js';
 import {clientFollowupPage,clientFollowupWire} from '/js/office-client-followup.js';
-import {componentsPage,componentsWire} from '/js/office-components.js';
+import {componentsPage,componentsWire,hasUnsavedOfficeQuote} from '/js/office-components.js';
 import {scopePackagePage,scopePackageWire} from '/js/office-scope-package.js';
 import {deliveryEvidencePanel,deliveryEvidenceWire} from '/js/office-delivery-evidence.js';
 import {projectReadinessPage,projectReadinessWire} from '/js/office-project-readiness.js';
 const supabase=createClient('https://apcvfezfmegqqjuonrgl.supabase.co','sb_publishable_zV6w0DBZzfe4oX2OCSYZmg_dp1OvBn0',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 const root=document.getElementById('office-app');
+window.addEventListener('beforeunload',event=>{if(hasUnsavedOfficeQuote()){event.preventDefault();event.returnValue='';}});
 let session=null,staff=false,officeRole=null,teamRole=null,view=new URLSearchParams(location.search).get('view')==='profile'?'profile':'overview',activeProject=null,data={},loading=false,flash='',failure='',recoveryMode=false;
 const keys=['ag_clients','ag_projects','ag_milestones','ag_messages','ag_tasks','ag_documents','ag_invoices','ag_review_items','ag_review_versions','ag_review_comments','ag_review_decisions','ag_client_approvers','ag_client_users','ag_client_invitations','ag_project_activity','ag_proposals','ag_proposal_decisions','ag_notifications','ag_stripe_invoice_preparations','ag_project_integrations','ag_project_progress_reports','ag_team_members','ag_team_assignments','ag_client_member_access','ag_project_components','ag_component_pricing','ag_project_build_briefs','ag_scope_packages','ag_scope_delivery_tasks','ag_task_verifications','ag_scope_invoice_allocations'];
 const titles={overview:'Overview',clients:'Clients',team:'Team & Access',projects:'Projects',progress:'Progress Updates',studio:'Design Studio',proposals:'Proposals',tasks:'Tasks',messages:'Messages',documents:'Documents',invoices:'Billing',notifications:'Notifications',profile:'My Account'};
@@ -119,8 +120,9 @@ function editProject(){
  };
 }
 function wire(){
- root.querySelectorAll('[data-view]').forEach(x=>x.onclick=()=>{view=x.dataset.view;activeProject=null;flash='';failure='';render();});
- root.querySelectorAll('[data-project]').forEach(x=>x.onclick=()=>{activeProject=x.dataset.project;view='projects';flash='';render();});
+ const canLeaveQuote=()=>!hasUnsavedOfficeQuote()||confirm('You have unsaved quote changes. Leave this project and discard those edits?');
+ root.querySelectorAll('[data-view]').forEach(x=>x.onclick=()=>{if(!canLeaveQuote())return;view=x.dataset.view;activeProject=null;flash='';failure='';render();});
+ root.querySelectorAll('[data-project]').forEach(x=>x.onclick=()=>{if(x.dataset.project!==activeProject&&!canLeaveQuote())return;activeProject=x.dataset.project;view='projects';flash='';render();});
  root.querySelectorAll('[data-task]').forEach(x=>x.onchange=e=>update('ag_tasks',x.dataset.task,{status:e.target.value}));
  if(view==='tasks'&&(staff||teamRole))deliveryEvidenceWire({root,rows:data,staff,userId:session.user.id,supabase,reload,notify:notifyOffice});
  const personal=root.querySelector('#profile-details-form');
