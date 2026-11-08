@@ -14,7 +14,7 @@ const DEFAULT_ASSUMPTIONS = [
  'Exclusions unless explicitly listed: Ongoing content creation, major copywriting, data migration, paid advertising, legal/compliance certification, extensive training, post-launch feature development, and integrations outside approved scope.',
  'Third-party services: Hosting, domain renewals, payment processing, email platforms, software subscriptions, usage fees, and taxes are separate unless expressly included. No new account or paid service is authorized by this proposal alone.',
  'Ownership and support: Domain/account ownership, access handoff, post-launch support, maintenance and any source-code/IP transfer are governed by the final written agreement.'
-].join('\\n\\n');
+].join('\n\n');
 
 const DEFAULT_PAYMENT_TERMS = [
  '40% deposit upon acceptance of the proposal and before scheduled implementation begins.',
@@ -23,7 +23,7 @@ const DEFAULT_PAYMENT_TERMS = [
  'Invoices are payable within 15 calendar days of issue unless otherwise agreed in writing.',
  'Any recurring AI Gents management/support charges begin only on the agreed service start date and are billed monthly under a separate approved recurring-services arrangement.',
  'Third-party subscriptions, transaction fees and applicable taxes are additional unless expressly included. Changes to scope, price, or milestone schedule require written approval.'
-].join('\\n\\n');
+].join('\n\n');
 
 export function scopePackagePage({rows,project,escape,staff}) {
  if(!staff)return '';
