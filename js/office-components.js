@@ -276,6 +276,11 @@ export function componentsWire({root,supabase,rows,project,staff,teamRole,userId
   scope.querySelector('#estimate-year-total').textContent=formatter(totals.once+totals.monthly*12);
   const changedEditors=[...scope.querySelectorAll('[data-component-pricing]')].filter(hasEditedPrices);
   const dirty=changedEditors.length>0;
+  let invalid=0;
+  for(const editor of changedEditors){
+   try{readEditorChange(editor);editor.removeAttribute('data-invalid-price');}
+   catch{invalid++;editor.setAttribute('data-invalid-price','true');}
+  }
   estimate.dataset.pendingChanges=dirty?'true':'false';
   const batch=scope.querySelector('#component-save-all-fees');
   const discard=scope.querySelector('#component-discard-fees');
@@ -283,11 +288,11 @@ export function componentsWire({root,supabase,rows,project,staff,teamRole,userId
   const countLabel=scope.querySelector('#component-batch-count');
   if(countLabel)countLabel.textContent=dirty?changedEditors.length+' component'+(changedEditors.length===1?'':'s')+' with unsaved changes':'No unsaved fee changes';
   const pending=[...scope.querySelectorAll('[data-scope-key]')].some(c=>c.disabled);
-  if(batch)batch.disabled=!dirty||pending;
+  if(batch)batch.disabled=!dirty||pending||invalid>0;
   const copy=scope.querySelector('#component-copy-quote');
   if(copy)copy.disabled=!lastPreviewItems.length||dirty||pending;
   const msg=scope.querySelector('#component-estimate-state');
-  if(msg)msg.textContent=pending?'Scope update in progress. Totals are provisional until saved.':dirty?'Preview includes unsaved changes. Use Save estimate changes below, or Save quoted fees in a component.':'Estimate reflects selected components and saved pricing. No invoice or payment has been generated.';
+  if(msg)msg.textContent=pending?'Scope update in progress. Totals are provisional until saved.':invalid?'Correct '+invalid+' invalid component amount'+(invalid===1?'':'s')+' or quantity before saving. Totals are provisional.':dirty?'Preview includes unsaved changes. Use Save estimate changes below, or Save quoted fees in a component.':'Estimate reflects selected components and saved pricing. No invoice or payment has been generated.';
  };
  if(estimate){
   // Edit from either location without rebuilding the active input DOM (which
