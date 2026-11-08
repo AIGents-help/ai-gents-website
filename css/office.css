@@ -381,3 +381,16 @@ form[data-proposal-decision] .btn{white-space:normal}
 .proposal-next-action p{margin:7px 0 9px;line-height:1.55;overflow-wrap:anywhere}
 .proposal-next-action button{margin-top:5px}
 @media(max-width:610px){.proposal-next-action{padding:12px}.proposal-next-action button{width:100%}}
+
+/* Client relationships: verified approver readiness and quick assignment */
+.office-client-approvers{margin:12px 0 3px 14px;padding:13px 0 2px 16px;border-left:2px solid rgba(200,169,110,.35)}
+.office-client-approvers .section-head{margin-bottom:10px}
+.office-client-approvers .section-head strong{font-size:.9rem}
+.office-client-approvers .section-head p{margin:4px 0}
+.office-client-approver-row{display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:1px solid var(--line);padding:10px 0}
+.office-client-approver-row>div{display:flex;flex-direction:column;gap:4px;min-width:0}
+.office-client-approver-row strong{font-size:.83rem;overflow-wrap:anywhere}
+.office-client-approver-row small{font-size:.74rem;color:var(--muted);line-height:1.5}
+.office-client-approver-row button{flex:0 0 auto;white-space:normal}
+.office-client-approver-row button:disabled{opacity:.45;cursor:not-allowed}
+@media(max-width:580px){.office-client-approvers{margin-left:3px;padding-left:10px}.office-client-approver-row{flex-wrap:wrap}.office-client-approver-row button{width:100%;flex:1 1 100%}}

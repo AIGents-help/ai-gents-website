@@ -1,6 +1,6 @@
 // Client access and delivery operations. Database RLS is authoritative.
 export function clientAccessPage({rows,escape,pretty,owner}) {
- const h=escape, clients=rows.ag_clients||[], projects=rows.ag_projects||[], invites=rows.ag_client_invitations||[], permissions=rows.ag_client_member_access||[];
+ const h=escape, clients=rows.ag_clients||[], projects=rows.ag_projects||[], invites=rows.ag_client_invitations||[], permissions=rows.ag_client_member_access||[], members=rows.ag_client_users||[], approvers=rows.ag_client_approvers||[];
  const clientName=id=>clients.find(c=>c.id===id)?.company||'Client';
  const stamp=s=>s?new Date(s).toLocaleDateString():'—';
  return '<div class="section-head"><div><h2>Client relationships</h2><p>One organization record, one secure client workspace.</p></div><button class="btn" data-action="new-client">+ New client</button></div>'+
@@ -11,6 +11,17 @@ export function clientAccessPage({rows,escape,pretty,owner}) {
     '<div class="office-client-project-links"><p class="tiny muted">'+linked.length+' connected project'+(linked.length===1?'':'s')+'</p>'+
     (linked.length?linked.map(p=>'<button type="button" class="office-client-project-link" data-project="'+h(p.id)+'"><span><strong>'+h(p.title)+'</strong><small>'+h(pretty(p.status||'discovery'))+' · '+h(String(p.progress??0))+'% complete</small></span><span aria-hidden="true">Open project →</span></button>').join(''):
       '<p class="tiny muted">No project connected to this client yet. Create a project and select this organization.</p>')+
+    '</div><div class="office-client-approvers"><div class="section-head"><div><strong>Client decision-makers</strong><p class="tiny muted">Verified client accounts only. Read & respond permission is required to approve proposals.</p></div></div>'+
+    (members.filter(m=>m.client_id===c.id).length?members.filter(m=>m.client_id===c.id).map(m=>{
+      const invitation=invites.find(i=>i.client_id===c.id&&i.accepted_by===m.user_id);
+      const readonly=permissions.some(p=>p.client_id===c.id&&p.user_id===m.user_id&&p.access_level==='read');
+      const approved=approvers.some(a=>a.client_id===c.id&&a.user_id===m.user_id);
+      const ready=approved&&!readonly;
+      return '<div class="office-client-approver-row"><div><strong>'+h(invitation?.email||'Verified portal member')+'</strong><small>'+h(readonly?'Read-only access':ready?'Authorized to approve proposals':approved?'Approver assignment inactive':'Read & respond · Not an approver')+'</small></div>'+
+        (approved?'<button class="btn alt small" type="button" data-client-approver-action="remove" data-client-approver-client="'+h(c.id)+'" data-client-approver-user="'+h(m.user_id)+'">Remove approver</button>':
+          '<button class="btn alt small" type="button" data-client-approver-action="assign" data-client-approver-client="'+h(c.id)+'" data-client-approver-user="'+h(m.user_id)+'" '+(readonly?'disabled title="Change this client to Read & respond before assigning approval rights"':'')+'>Assign approver</button>')+
+       '</div>';
+    }).join(''):'<p class="tiny muted">No verified portal users connected. Add client access below; approver assignment becomes available after verification.</p>')+
     '</div></section>';
  }).join(''):'<p class="muted">No client organizations yet.</p>')+'</div>'+
  '<div class="card"><div class="section-head"><div><h3>Client portal access</h3><p class="tiny">Add client access by verified email. The account is assigned only after email verification.</p></div><button class="btn alt" data-access="invite">+ Add client access</button></div>'+
@@ -20,6 +31,24 @@ export function clientAccessPage({rows,escape,pretty,owner}) {
 }
 export function clientAccessWire({root,supabase,rows,userId,escape,reload,notify,owner}) {
  const h=escape,clients=rows.ag_clients||[];
+ root.querySelectorAll('[data-client-approver-action]').forEach(button=>button.onclick=async()=>{
+  const action=button.dataset.clientApproverAction;
+  const client_id=button.dataset.clientApproverClient,user_id=button.dataset.clientApproverUser;
+  if(!['assign','remove'].includes(action)||!clients.some(c=>c.id===client_id))return;
+  if(action==='assign'&&!((rows.ag_client_users||[]).some(m=>m.client_id===client_id&&m.user_id===user_id)))return;
+  if(action==='assign'&&(rows.ag_client_member_access||[]).some(p=>p.client_id===client_id&&p.user_id===user_id&&p.access_level==='read')){
+   notify('Change client permission to Read & respond before granting approval rights.');return;
+  }
+  if(!confirm(action==='assign'?'Authorize this verified client member to approve proposals for this organization?':'Remove this member’s proposal approval rights?'))return;
+  button.disabled=true;
+  const response=action==='assign'?
+   await supabase.from('ag_client_approvers').insert({client_id,user_id}).select('user_id').single():
+   await supabase.from('ag_client_approvers').delete().eq('client_id',client_id).eq('user_id',user_id).select('user_id').single();
+  if(response.error||!response.data){notify(response.error?.message||'Unable to update client approver.');button.disabled=false;return;}
+  notify(action==='assign'?'Client approver authorized.':'Approval authorization removed.');
+  await reload();
+ });
+
  function dialog(){
   if(!clients.length){notify('Create the client organization before granting access.');return;}
   const options=clients.map(c=>'<option value="'+h(c.id)+'">'+h(c.company)+'</option>').join('');
