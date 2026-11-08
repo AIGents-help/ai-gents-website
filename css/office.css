@@ -222,3 +222,21 @@ form[data-proposal-decision] .btn{white-space:normal}
 .scope-actions{display:flex;flex-wrap:wrap;gap:9px;margin:14px 0}
 .scope-actions button{font-size:.81rem;white-space:normal}
 @media(max-width:570px){.scope-package-create form{padding:13px}.scope-package-create>summary{padding:13px}.scope-version{padding:13px}.scope-actions button{flex:1 1 135px}}
+
+/* Approved-scope delivery: evidence and staff verification */
+.task-evidence{border:1px solid var(--line);border-radius:10px;margin:0 0 16px;padding:0;background:rgba(200,169,110,.025);min-width:0}
+.task-evidence>summary{display:flex;justify-content:space-between;align-items:center;gap:12px;cursor:pointer;padding:12px 16px;list-style:none;font-size:.88rem;font-weight:600}
+.task-evidence>summary::-webkit-details-marker{display:none}
+.task-evidence>summary:before{content:"▸";color:#c8a96e}
+.task-evidence[open]>summary:before{content:"▾"}
+.task-evidence>summary>span:first-child{flex:1}
+.task-evidence .pill{white-space:normal;text-align:right}
+.task-evidence-body{padding:14px 16px 18px;border-top:1px solid var(--line)}
+.task-evidence-record{background:rgba(255,255,255,.025);border:1px solid var(--line);border-radius:8px;padding:12px;margin:12px 0;overflow-wrap:anywhere}
+.task-evidence-record p{line-height:1.6;margin:8px 0}
+.task-evidence-form{display:grid;gap:12px;margin:14px 0}
+.task-evidence-form input,.task-evidence-form textarea{box-sizing:border-box;max-width:100%;width:100%}
+.task-evidence-form textarea{line-height:1.55;letter-spacing:0}
+.task-evidence-form button{justify-self:start}
+.task-evidence-body .action-area{display:flex;flex-wrap:wrap;gap:10px}
+@media(max-width:600px){.task-evidence>summary{padding:12px}.task-evidence-body{padding:12px}}
