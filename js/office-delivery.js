@@ -1,15 +1,21 @@
+import {openProposalPrint} from '/js/office-proposal-print.js';
 // Proposals and client deliverables; Supabase RLS enforces project membership.
 export function proposalPage({rows,staff,userId,escape,projectName,clientName}) {
  const h=escape,proposals=rows.ag_proposals||[],decisions=rows.ag_proposal_decisions||[],projects=rows.ag_projects||[],approvers=rows.ag_client_approvers||[];
  const money=(n,c)=>n==null?'Pricing to be confirmed':new Intl.NumberFormat('en-US',{style:'currency',currency:c||'usd'}).format(Number(n)/100);
+ const scopePackages=rows.ag_scope_packages||[];
  const blocks=proposals.map(p=>{
   const project=projects.find(pr=>pr.id===p.project_id);
-  const ds=decisions.filter(d=>d.proposal_id===p.id);
+  const ds=decisions.filter(d=>d.proposal_id===p.id).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+  const scopeVersion=scopePackages.find(pkg=>pkg.proposal_id===p.id);
+  const superseded=!!scopeVersion&&scopePackages.some(pkg=>pkg.project_id===scopeVersion.project_id&&pkg.version>scopeVersion.version);
+  const hasDecision=ds.length>0;
   const canApprove=!((rows.ag_client_member_access||[]).some(a=>a.user_id===userId&&a.client_id===project?.client_id&&a.access_level==='read'))&&approvers.some(a=>a.user_id===userId&&project?.client_id===a.client_id);
   return '<section class="card" style="margin-bottom:16px"><div class="section-head"><div><p class="eyebrow">'+h(projectName(p.project_id))+'</p><h3>'+h(p.title)+'</h3><p>'+h(money(p.amount_cents,p.currency))+'</p></div><span class="pill">'+h(p.status)+'</span></div><div class="office-proposal-scope">'+h(p.scope)+'</div>'+
+   '<div class="action-area" style="margin:12px 0"><button type="button" class="btn alt small" data-print-proposal="'+h(p.id)+'">Review / Print / Save PDF</button>'+(superseded?'<span class="pill">Superseded by a newer scope version</span>':'')+'</div>'+
    '<div class="office-approval-history"><strong>Client decisions</strong>'+ (ds.length?ds.map(d=>'<p class="tiny">'+h(d.decision.replaceAll('_',' '))+' · '+new Date(d.created_at).toLocaleString()+(d.note?' · '+h(d.note):'')+'</p>').join(''):'<p class="tiny muted">Awaiting review.</p>')+'</div>'+
    (staff&&p.status==='draft'?'<button class="btn alt small" data-publish-proposal="'+h(p.id)+'">Publish to client</button>':'')+
-   (!staff&&canApprove&&p.status==='published'?'<form data-proposal-decision="'+h(p.id)+'"><label class="form-field">Comments (required for revisions)<textarea name="note" maxlength="6000"></textarea></label><div class="action-area"><button class="btn alt small" name="decision" value="changes_requested">Request changes</button><button class="btn small" name="decision" value="accepted">Accept proposal</button></div></form>':'')+
+   (!staff&&canApprove&&!hasDecision&&!superseded&&p.status==='published'?'<form data-proposal-decision="'+h(p.id)+'"><label class="form-field">Comments (required for revisions)<textarea name="note" maxlength="6000"></textarea></label><div class="action-area"><button class="btn alt small" name="decision" value="changes_requested">Request changes</button><button class="btn small" name="decision" value="accepted">Accept proposal</button></div></form>':'')+
   '</section>';
  }).join('');
  const options=projects.map(p=>'<option value="'+h(p.id)+'">'+h(clientName(p.client_id)+' / '+p.title)+'</option>').join('');
@@ -24,6 +30,14 @@ export function deliverablesPage({rows,staff,escape,projectName,clientName}) {
  '<template id="deliverable-project-options">'+projects.map(p=>'<option value="'+h(p.id)+'">'+h(clientName(p.client_id)+' / '+p.title)+'</option>').join('')+'</template>';
 }
 export function proposalWire({root,supabase,rows,staff,userId,escape,reload,notify}){
+ root.querySelectorAll('[data-print-proposal]').forEach(button=>button.onclick=()=>{
+  const proposal=(rows.ag_proposals||[]).find(x=>x.id===button.dataset.printProposal);
+  if(!proposal)return;
+  const project=(rows.ag_projects||[]).find(x=>x.id===proposal.project_id);
+  const client=(rows.ag_clients||[]).find(x=>x.id===project?.client_id);
+  const packageSnapshot=staff?(rows.ag_scope_packages||[]).find(x=>x.proposal_id===proposal.id):null;
+  if(!openProposalPrint({proposal,project,client,packageSnapshot}))notify('Enable popups for The Office to print or save the proposal.');
+ });
  const h=escape;
  const modal=(title,body,onSave)=>{
   const overlay=document.createElement('div');overlay.className='dialog';
