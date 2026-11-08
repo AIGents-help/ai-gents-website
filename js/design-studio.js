@@ -13,12 +13,12 @@ export function studioPage({rows,staff,userId,escape,projectName,clientName}) {
    const canApprove=approvers.some(a=>a.user_id===userId&&projects.some(p=>p.id===item.project_id&&p.client_id===a.client_id));
    return '<article class="studio-version"><div class="studio-preview">'+(image?'<img src="'+h(url)+'" alt="'+h(v.label)+'" loading="lazy">':safeLink?'<div class="studio-visual-icon">↗<small>'+h(v.preview_type.toUpperCase())+' PREVIEW</small></div>':'<div class="studio-visual-icon">◈<small>Preview pending</small></div>')+'</div>'+
    '<div class="studio-version-body"><div class="section-head"><div><strong>'+h(v.label)+'</strong><p class="tiny">Version '+v.version_number+' · '+h(v.status)+'</p></div>'+badge(v.status)+'</div><p class="tiny">'+h(v.notes||'')+'</p>'+
-   (safeLink?'<a class="btn alt small" target="_blank" rel="noopener noreferrer" href="'+h(url)+'">Open visual sample ↗</a>':'')+
+   (safeLink?'<a class="btn alt small" target="_blank" rel="noopener noreferrer" href="'+h(url)+'">Open visual sample ↗</a>':'')+(staff&&v.status==='draft'?'<button class="btn alt small" style="margin-left:8px" data-studio-action="publish-version" data-version-id="'+h(v.id)+'">Publish version</button>':'')+
    '<div class="studio-decisions"><strong>Recorded decisions</strong>'+(vdec.length?vdec.map(d=>'<p class="tiny">'+h(d.decision.replaceAll('_',' '))+' · '+new Date(d.created_at).toLocaleString()+(d.note?' · '+h(d.note):'')+'</p>').join(''):'<p class="tiny">Awaiting client review</p>')+'</div>'+
    (v.status==='published'&&item.status==='published'?'<form class="studio-feedback" data-version="'+h(v.id)+'"><label class="form-field">Feedback<textarea name="note" maxlength="6000" placeholder="Describe the change or decision…"></textarea></label><div class="action-area"><button class="btn alt small" name="action" value="comment">Send feedback</button>'+(canApprove?'<button class="btn alt small" name="action" value="changes_requested">Request changes</button><button class="btn small" name="action" value="approved">Approve version</button>':'')+'</div>'+(own?'<p class="tiny">Your decision: '+h(own.decision.replaceAll('_',' '))+'</p>':'')+'</form>':'')+
    '<div class="studio-comments"><strong>Discussion</strong>'+(comments.filter(c=>c.version_id===v.id).map(c=>'<p class="tiny">'+h(c.body)+' <span class="muted">· '+new Date(c.created_at).toLocaleDateString()+'</span></p>').join('')||'<p class="tiny">No feedback yet.</p>')+'</div></div></article>';
   }).join('')+'</div>':'<p class="muted">No versions have been added yet.</p>')+
-  (staff?'<div class="studio-add-version"><button class="btn alt small" data-studio-action="new-version" data-review="'+h(item.id)+'">+ Add version</button></div>':'')+
+  (staff?'<div class="studio-add-version"><button class="btn alt small" data-studio-action="new-version" data-review="'+h(item.id)+'">+ Add version</button> '+(item.status==='draft'?'<button class="btn alt small" data-studio-action="publish-review" data-review="'+h(item.id)+'">Publish review</button>':'')+'</div>':'')+
   '</section>';
  }).join('');
  const projectOptions=projects.map(p=>'<option value="'+h(p.id)+'">'+h(clientName(p.client_id)+' / '+p.title)+'</option>').join('');
@@ -43,6 +43,14 @@ export function studioWire({root,supabase,rows,staff,userId,escape,reload,notify
  root.querySelectorAll('[data-studio-action]').forEach(b=>b.onclick=()=>{
   if(!staff)return;
   const action=b.dataset.studioAction;
+  if(action==='publish-review'||action==='publish-version'){
+   if(!confirm('Publish this design content to authorized client portal users?'))return;
+   const table=action==='publish-review'?'ag_review_items':'ag_review_versions';
+   const id=action==='publish-review'?b.dataset.review:b.dataset.versionId;
+   const fields=action==='publish-review'?{status:'published'}:{status:'published',published_at:new Date().toISOString()};
+   supabase.from(table).update(fields).eq('id',id).then(({error})=>{if(error)notify(error.message);else reload();});
+   return;
+  }
   if(action==='remove-approver'){
    if(!confirm('Revoke final approval rights for this client member?'))return;
    supabase.from('ag_client_approvers').delete().eq('client_id',b.dataset.client).eq('user_id',b.dataset.user).then(({error})=>{if(error)notify(error.message);else reload();});
