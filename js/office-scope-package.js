@@ -54,16 +54,51 @@ export function scopePackageWire({root,rows,project,supabase,notify,reload,staff
  const form=section.querySelector('#scope-package-form');
  section.querySelector('[data-scope-open-proposals]')?.addEventListener('click',()=>root.querySelector('[data-view="proposals"]')?.click());
  const packages=rows.ag_scope_packages||[];
- const toDollars=v=>{const n=Number(v);return Number.isFinite(n)&&n>=0&&Number.isSafeInteger(Math.round(n*100))?Math.round(n*100):null;};
+ const toDollars=v=>{
+  const raw=String(v??'').trim();
+  if(!/^\\d+(?:\\.\\d{1,2})?$/.test(raw))return null;
+  const n=Number(raw);
+  return Number.isFinite(n)&&n>=0&&n<=9999999.99?Math.round(n*100):null;
+ };
+ const snapshotQuote=()=>{
+  const components=(rows.ag_project_components||[]).filter(c=>c.project_id===project.id);
+  const prices=rows.ag_component_pricing||[];
+  return components.map(c=>{
+   const p=prices.find(item=>item.component_id===c.id);
+   return {
+    id:c.id,key:c.component_key,status:c.status,
+    updated_at:p?.updated_at||null,
+    setup_fee_cents:p?.setup_fee_cents??null,
+    monthly_fee_cents:p?.monthly_fee_cents??null,
+    third_party_monthly_cents:p?.third_party_monthly_cents??null,
+    quote_quantity:p?.quote_quantity??null
+   };
+  }).sort((a,b)=>a.id.localeCompare(b.id));
+ };
  if(form)form.onsubmit=async e=>{
   e.preventDefault();
   const v=Object.fromEntries(new FormData(form));
   const discount=toDollars(v.discount);
   if(discount===null){notify('Enter a valid discount.');return;}
+  if(root.querySelector('#component-live-estimate')?.dataset.pendingChanges==='true'){
+   notify('Save or discard pending estimate changes before freezing the proposal.');
+   root.querySelector('#component-live-estimate').open=true;
+   return;
+  }
+  const current=snapshotQuote();
+  if(!current.length||current.some(item=>!item.updated_at)){
+   notify('Some components have no saved pricing. Save their fees before preparing a proposal.');
+   return;
+  }
   if(!confirm('Freeze current saved component prices and create a new internal proposal draft? The new version will not change automatically when you edit the checklist.'))return;
   const button=form.querySelector('[type=submit]');button.disabled=true;
-  const {data,error}=await supabase.rpc('ag_prepare_scope_package',{p_project_id:project.id,p_title:String(v.title||'').trim(),p_assumptions:String(v.assumptions||'').trim(),p_payment_terms:String(v.payment_terms||'').trim(),p_discount_cents:discount});
-  if(error||!data){notify(error?.message||'Could not prepare scope version. Confirm all components have saved prices.');button.disabled=false;return;}
+  const {data,error}=await supabase.rpc('ag_prepare_scope_package',{p_project_id:project.id,p_title:String(v.title||'').trim(),p_assumptions:String(v.assumptions||'').trim(),p_payment_terms:String(v.payment_terms||'').trim(),p_discount_cents:discount,p_expected_quote:current});
+  if(error||!data){
+   const issue=error?.message||'Could not prepare scope version.';
+   notify(issue+' No proposal was created. Refresh the project and review saved prices before retrying.');
+   button.disabled=false;
+   return;
+  }
   notify('Frozen scope and draft proposal created. Go to Proposals to review and publish.');await reload();
  };
  const asText=pkg=>{
