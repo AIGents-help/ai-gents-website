@@ -1,0 +1,86 @@
+// AI Gents project scope: standard component catalog + custom scope.
+// A checked component means "requested/in scope"; delivery status is tracked separately.
+// Nothing here provisions a service, account, repository, deployment, or subscription.
+export const CATALOG=[
+ {group:'Experience',items:[
+  ['website','Public website / landing pages'],['branding','Brand identity & design system'],['responsive','Mobile-responsive design'],['content','Content & page management'],['forms','Lead capture & digital forms'],['portal','Customer / member portal'],['login','User login & profiles'],['roles','User roles and permissions'],['accessibility','Accessibility review'],['seo','Search optimization & indexing'],['analytics','Visitor analytics & conversion tracking']]},
+ {group:'Operations',items:[
+  ['admin','Admin control dashboard'],['crm','CRM & contact management'],['pipeline','Sales / lead pipeline'],['workflow','Workflow & approvals'],['tasks','Tasks & project management'],['documents','Documents & file storage'],['scheduling','Calendar / bookings'],['notifications','Notifications & activity alerts'],['reporting','Reports & KPI dashboards'],['automation','Business process automation'],['ai_assistant','AI assistant / guided workflows'],['integrations','External system integrations']]},
+ {group:'Commerce',items:[
+  ['stripe','Stripe payment processing'],['invoices','Invoices / billing'],['subscriptions','Recurring memberships / subscriptions'],['checkout','Checkout / customer payments'],['catalog','Products / services catalog'],['tax','Tax / financial compliance review']]},
+ {group:'Infrastructure',items:[
+  ['supabase','Supabase database / authentication'],['github','GitHub repository / version control'],['vercel','Vercel deployment / hosting'],['domain','Domain and DNS configuration'],['storage','Private storage and backups'],['security','Security / permissions / audit'],['monitoring','Error monitoring / uptime'],['handoff','Admin training and handoff']]},
+ {group:'Marketing',items:[
+  ['resend','Resend transactional email'],['kit','Kit email campaigns'],['smartlead','Smartlead outreach campaigns'],['newsletter','Newsletter / subscriber management'],['email_templates','Branded email templates'],['reviews','Reviews / testimonials'],['social','Social / publishing integrations'],['consent','Consent / unsubscribe / deliverability controls']]}
+];
+export function componentsPage({rows,project,escape,staff,teamRole,userId}){
+ const h=escape,items=(rows.ag_project_components||[]).filter(x=>x.project_id===project.id),
+ assignments=rows.ag_team_assignments||[];
+ const canUpdate=staff||!!teamRole&&assignments.some(a=>a.project_id===project.id&&a.user_id===userId&&a.access_level==='write');
+ const counts={selected:items.length,done:items.filter(x=>x.status==='completed').length,blocked:items.filter(x=>x.status==='blocked').length};
+ const statusLabel={planned:'Not started',in_progress:'In progress',blocked:'Blocked',completed:'Completed'};
+ const selectedItems=items.map(x=>x.component_key);
+ const renderItem=(key,label,group,existing)=>{
+  const checked=!!existing;
+  const input=staff?'<input type="checkbox" data-scope-key="'+h(key)+'" data-scope-label="'+h(label)+'" data-scope-group="'+h(group)+'" '+(checked?'checked':'')+' aria-label="Include '+h(label)+'">':'<span class="pill">'+(checked?'Included':'Not selected')+'</span>';
+  const status=checked?'<select class="small-status" data-component-status="'+h(existing.id)+'" aria-label="Delivery status of '+h(label)+'" '+(!canUpdate?'disabled':'')+'>'+Object.entries(statusLabel).map(([value,text])=>'<option value="'+value+'" '+(existing.status===value?'selected':'')+'>'+text+'</option>').join('')+'</select>':'<span class="tiny muted">Not in scope</span>';
+  const note=checked&&staff?'<details class="component-notes"><summary>Notes</summary><textarea rows="2" maxlength="3000" aria-label="Notes for '+h(label)+'" data-component-notes="'+h(existing.id)+'" placeholder="Requirements, dependencies or acceptance criteria">'+h(existing.notes||'')+'</textarea><button type="button" class="btn alt small" data-component-save-note="'+h(existing.id)+'">Save note</button></details>':checked&&existing.notes?'<p class="tiny muted">'+h(existing.notes)+'</p>':'';
+  return '<div class="component-line '+(checked?'is-scoped':'')+'"><div class="component-main"><label class="component-label">'+input+'<span>'+h(label)+'</span></label>'+status+'</div>'+note+'</div>';
+ };
+ const sections=CATALOG.map(g=>'<section class="component-group"><h4>'+h(g.group)+'</h4>'+g.items.map(([key,label])=>renderItem(key,label,g.group,items.find(x=>x.component_key===key&&x.item_type==='standard'))).join('')+'</section>').join('');
+ const custom=items.filter(x=>x.item_type==='custom');
+ return '<section class="card component-checklist" id="project-component-scope">'+
+ '<div class="section-head"><div><h3>Project components & scope</h3><p>Choose requested standard components, add custom requirements, then track actual completion separately.</p></div></div>'+
+ '<div class="grid component-summary"><div class="card"><p class="eyebrow">In scope</p><div class="stat">'+counts.selected+'</div></div><div class="card"><p class="eyebrow">Completed</p><div class="stat">'+counts.done+' / '+counts.selected+'</div></div><div class="card"><p class="eyebrow">Blocked</p><div class="stat">'+counts.blocked+'</div></div></div>'+
+ '<p class="tiny muted">A checked box means the client wants this component or it is included in the agreed scope. It does <strong>not</strong> mean the service is connected, purchased, deployed or working. Only mark Completed after verifying delivery.</p>'+
+ '<div class="component-groups">'+sections+'</div>'+
+ '<section class="component-group"><h4>Custom components</h4>'+
+ (custom.length?custom.map(x=>'<div class="component-line is-scoped"><div class="component-main"><strong>'+h(x.component_label)+'</strong><div class="action-area"><select class="small-status" data-component-status="'+h(x.id)+'" aria-label="Custom component status" '+(!canUpdate?'disabled':'')+'>'+Object.entries(statusLabel).map(([value,label])=>'<option value="'+value+'" '+(x.status===value?'selected':'')+'>'+label+'</option>').join('')+'</select>'+(staff?'<button type="button" class="btn alt small" data-remove-component="'+h(x.id)+'">Remove</button>':'')+'</div></div>'+(staff?'<details class="component-notes"><summary>Notes</summary><textarea rows="2" maxlength="3000" data-component-notes="'+h(x.id)+'">'+h(x.notes||'')+'</textarea><button type="button" class="btn alt small" data-component-save-note="'+h(x.id)+'">Save note</button></details>':x.notes?'<p class="tiny muted">'+h(x.notes)+'</p>':'')+'</div>').join(''):'<p class="tiny muted">No custom components selected.</p>')+
+ (staff?'<form id="custom-component-form" class="custom-component-form"><label class="form-field">Add a unique requirement<input name="label" required maxlength="150" minlength="2" placeholder="Describe the custom feature or integration"></label><button class="btn alt small" type="submit">+ Add custom</button></form>':'')+'</section>'+
+ '<p class="tiny muted">Only AI Gents internal staff can change the agreed scope. Assigned employees and contractors with Write access can update delivery statuses but cannot add or remove components.</p></section>';
+}
+export function componentsWire({root,supabase,rows,project,staff,teamRole,userId,reload,notify}){
+ const scope=root.querySelector('#project-component-scope');if(!scope)return;
+ const write=staff||!!teamRole&&(rows.ag_team_assignments||[]).some(a=>a.user_id===userId&&a.project_id===project.id&&a.access_level==='write');
+ const save=async(prompt,op,element)=>{
+  if(element)element.disabled=true;
+  const {error}=await op;
+  if(error){notify(error.message);if(element)element.disabled=false;return;}
+  notify(prompt);await reload();
+ };
+ scope.querySelectorAll('[data-scope-key]').forEach(c=>c.onchange=async()=>{
+  if(!staff){c.checked=!c.checked;return;}
+  const key=c.dataset.scopeKey;
+  const existing=(rows.ag_project_components||[]).find(x=>x.project_id===project.id&&x.component_key===key);
+  if(c.checked){
+   await save('Component added to project scope.',supabase.from('ag_project_components').insert({project_id:project.id,component_key:key,component_label:c.dataset.scopeLabel,category:c.dataset.scopeGroup,item_type:'standard',status:'planned',created_by:userId,updated_by:userId}),c);
+  }else{
+   if(existing?.status==='completed'&&!confirm('This component is marked completed. Remove it from the agreed project scope?')){c.checked=true;return;}
+   if(!existing){await reload();return;}
+   await save('Component removed from scope.',supabase.from('ag_project_components').delete().eq('id',existing.id),c);
+  }
+ });
+ scope.querySelectorAll('[data-component-status]').forEach(s=>s.onchange=async()=>{
+  if(!write)return;
+  if(s.value==='completed'&&!confirm('Confirm this component has actually been delivered and verified?')){await reload();return;}
+  await save('Delivery status updated.',supabase.from('ag_project_components').update({status:s.value,updated_by:userId}).eq('id',s.dataset.componentStatus),s);
+ });
+ scope.querySelectorAll('[data-component-save-note]').forEach(b=>b.onclick=async()=>{
+  if(!staff)return;
+  const note=scope.querySelector('[data-component-notes="'+b.dataset.componentSaveNote+'"]');
+  await save('Requirements note saved.',supabase.from('ag_project_components').update({notes:note.value,updated_by:userId}).eq('id',b.dataset.componentSaveNote),b);
+ });
+ scope.querySelectorAll('[data-remove-component]').forEach(b=>b.onclick=async()=>{
+  if(!staff)return;
+  const entry=(rows.ag_project_components||[]).find(x=>x.id===b.dataset.removeComponent);
+  if(!confirm('Remove custom component '+(entry?.component_label||'')+' from scope?'))return;
+  await save('Custom component removed.',supabase.from('ag_project_components').delete().eq('id',b.dataset.removeComponent),b);
+ });
+ const form=scope.querySelector('#custom-component-form');
+ if(form)form.onsubmit=async e=>{
+  e.preventDefault();const label=String(new FormData(form).get('label')||'').trim();
+  if(label.length<2||label.length>150){notify('Enter a custom component name of 2–150 characters.');return;}
+  const key='custom_'+crypto.randomUUID().replaceAll('-','');
+  await save('Custom component added.',supabase.from('ag_project_components').insert({project_id:project.id,component_key:key,component_label:label,category:'Custom',item_type:'custom',created_by:userId,updated_by:userId}),form.querySelector('[type=submit]'));
+ };
+}
