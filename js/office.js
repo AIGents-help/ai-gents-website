@@ -3,7 +3,7 @@ import { studioPage, studioWire } from '/js/design-studio.js';
 const supabase=createClient('https://apcvfezfmegqqjuonrgl.supabase.co','sb_publishable_zV6w0DBZzfe4oX2OCSYZmg_dp1OvBn0',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 const root=document.getElementById('office-app');
 let session=null,staff=false,view='overview',activeProject=null,data={},loading=false,flash='',failure='';
-const keys=['ag_clients','ag_projects','ag_milestones','ag_messages','ag_tasks','ag_documents','ag_invoices','ag_review_items','ag_review_versions','ag_review_comments','ag_review_decisions','ag_client_approvers'];
+const keys=['ag_clients','ag_projects','ag_milestones','ag_messages','ag_tasks','ag_documents','ag_invoices','ag_review_items','ag_review_versions','ag_review_comments','ag_review_decisions','ag_client_approvers','ag_client_users'];
 const titles={overview:'Overview',clients:'Clients',projects:'Projects',studio:'Design Studio',tasks:'Tasks',messages:'Messages',documents:'Documents',invoices:'Billing'};
 const pretty=s=>String(s||'—').replaceAll('_',' ').replace(/\b\w/g,c=>c.toUpperCase());
 const safe=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
