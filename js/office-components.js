@@ -1,3 +1,4 @@
+import {sharedImplementationWarnings} from '/js/office-scope-overlap.js';
 import {buildCommandCenterPrompt} from '/js/office-build-prompt.js';
 import {pricingFor,asUsd,quoteTotals,quoteText} from '/js/office-component-pricing.js';
 // AI Gents project scope: standard component catalog + custom scope.
@@ -54,6 +55,7 @@ export function componentsPage({rows,project,escape,staff,teamRole,userId}){
  '<div class="component-quote-lines" id="component-estimate-lines"></div>'+
  '<div class="component-quote-values"><div><span>One-time implementation</span><strong id="estimate-setup-total">'+asUsd(totals.once)+'</strong></div><div><span>AI Gents / month</span><strong id="estimate-monthly-total">'+asUsd(totals.monthly)+'</strong></div><div><span>Third-party / month (known)</span><strong id="estimate-external-total">'+asUsd(totals.external)+'</strong></div><div><span>Provider costs TBD</span><strong id="estimate-external-unknown">'+totals.unknownExternal+' item(s)</strong></div></div>'+
  '<p class="component-estimate-year">Estimated first-year AI Gents fees: <strong id="estimate-year-total">'+asUsd(totals.once+totals.monthly*12)+'</strong></p>'+
+ '<div class="component-overlap-alert" id="component-overlap-alert" role="note"></div>'+ 
  '<p class="tiny muted" id="component-estimate-state" role="status">Figures update as components are selected and fees are edited. Save fees to persist changes before copying or sending a proposal.</p>'+
  '<p class="tiny muted">Third-party plans and processing fees are separate. Confirm scope overlap, taxes, and final pricing before issuing an approved client proposal or invoice.</p></section>':'')+
  (staff?'<details class="component-build-generator" data-accordion-key="generator" id="command-center-generator"><summary><span>Generate Client Command Center Build Prompt</span><span class="pill">'+items.length+' selected</span></summary><div class="component-generator-body"><p class="tiny muted">Combine the selected components with the business and design direction into a development prompt. This does not create or deploy software.</p><form id="component-build-brief">'+
@@ -187,6 +189,14 @@ export function componentsWire({root,supabase,rows,project,staff,teamRole,userId
     const qty=Number(item.quote_quantity)||1;
     return '<div class="component-estimate-row"><span>'+h(item.component_label)+(qty>1?' <small>× '+qty+'</small>':'')+'</span><strong>'+formatter(Number(item.setup_fee_cents||0)*qty)+'</strong><strong>'+formatter(Number(item.monthly_fee_cents||0)*qty)+'</strong></div>';
    }).join(''):'<p class="tiny muted">No components selected yet. Check items above to build an estimate.</p>';
+  const warningBox=scope.querySelector('#component-overlap-alert');
+  if(warningBox){
+   const overlaps=sharedImplementationWarnings(lastPreviewItems);
+   warningBox.innerHTML=overlaps.length?
+    '<details><summary>Review '+overlaps.length+' possible shared-work combination'+(overlaps.length===1?'':'s')+' before quoting</summary><ul>'+
+    overlaps.map(w=>'<li>'+h(w.message)+'</li>').join('')+
+    '</ul><p class="tiny muted">These are review prompts, not automatic discounts. Adjust the editable component prices as appropriate.</p></details>':'';
+  }
   scope.querySelector('#estimate-setup-total').textContent=formatter(totals.once);
   scope.querySelector('#estimate-monthly-total').textContent=formatter(totals.monthly);
   scope.querySelector('#estimate-external-total').textContent=formatter(totals.external);
