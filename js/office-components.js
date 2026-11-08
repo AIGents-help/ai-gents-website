@@ -7,6 +7,8 @@ import {pricingFor,referenceFor,benchmarkTotals,asUsd,quoteTotals,quoteText} fro
 // Keep accordion choices for each project while The Office refreshes after a save.
 // Only users clicking a summary change this state: selections must not collapse panels.
 const openPanels=new Map();
+// Called by Office navigation before replacing a project view.
+export const hasUnsavedOfficeQuote=()=>document.querySelector('#component-live-estimate')?.dataset.pendingChanges==='true';
 export const CATALOG=[
  {group:'Experience',items:[
   ['website','Public website / landing pages'],['branding','Brand identity & design system'],['responsive','Mobile-responsive design'],['content','Content & page management'],['forms','Lead capture & digital forms'],['portal','Customer / member portal'],['login','User login & profiles'],['roles','User roles and permissions'],['accessibility','Accessibility review'],['seo','Search optimization & indexing'],['analytics','Visitor analytics & conversion tracking']]},
@@ -65,7 +67,7 @@ export function componentsPage({rows,project,escape,staff,teamRole,userId}){
  '<p class="component-estimate-year">Estimated first-year AI Gents fees: <strong id="estimate-year-total">'+asUsd(totals.once+totals.monthly*12)+'</strong></p>'+
  '<div class="component-overlap-alert" id="component-overlap-alert" role="note"></div>'+ 
  '<p class="tiny muted" id="component-estimate-state" role="status">Figures update as components are selected and fees are edited. Save fees to persist changes before copying or sending a proposal.</p>'+
- '<p class="tiny muted">Third-party plans and processing fees are separate. Confirm scope overlap, taxes, and final pricing before issuing an approved client proposal or invoice.</p><div class="component-batch-save"><span id="component-batch-count" class="tiny muted">No unsaved fee changes</span><button type="button" class="btn" id="component-save-all-fees" disabled>Save estimate changes</button></div></div></details>':'')+
+ '<p class="tiny muted">Third-party plans and processing fees are separate. Confirm scope overlap, taxes, and final pricing before issuing an approved client proposal or invoice.</p><div class="component-batch-save"><span id="component-batch-count" class="tiny muted">No unsaved fee changes</span><div class="action-area"><button type="button" class="btn alt small" id="component-discard-fees" hidden>Discard edits</button><button type="button" class="btn" id="component-save-all-fees" disabled>Save estimate changes</button></div></div></div></details>':'')+
  (staff?'<details class="component-build-generator" data-accordion-key="generator" id="command-center-generator"><summary><span>Generate Client Command Center Build Prompt</span><span class="pill">'+items.length+' selected</span></summary><div class="component-generator-body"><p class="tiny muted">Combine the selected components with the business and design direction into a development prompt. This does not create or deploy software.</p><form id="component-build-brief">'+
 '<label class="form-field">What does the business do?<textarea name="business_description" rows="3" required maxlength="5000" placeholder="Industry, services, customers, and business operations">'+h(brief.business_description||'')+'</textarea></label>'+
 '<label class="form-field">Design aesthetics<textarea name="design_direction" rows="2" maxlength="3000" placeholder="Colors, style, fonts, references, tone">'+h(brief.design_direction||'')+'</textarea></label>'+
@@ -99,6 +101,10 @@ export function componentsWire({root,supabase,rows,project,staff,teamRole,userId
  };
  const write=staff||!!teamRole&&(rows.ag_team_assignments||[]).some(a=>a.user_id===userId&&a.project_id===project.id&&a.access_level==='write');
  const save=async(prompt,op,element)=>{
+  if(hasUnsavedOfficeQuote()){
+   notify('Save or discard your unsaved estimate changes before updating another project field.');
+   return;
+  }
   if(element)element.disabled=true;
   const {error}=await op;
   if(error){notify(error.message);if(element)element.disabled=false;return;}
@@ -113,6 +119,7 @@ export function componentsWire({root,supabase,rows,project,staff,teamRole,userId
    await save('Business brief saved.',supabase.from('ag_project_build_briefs').upsert({project_id:project.id,...getBrief(),updated_by:userId,updated_at:new Date().toISOString()},{onConflict:'project_id'}),button);
   };
   scope.querySelector('#component-generate-prompt').onclick=async()=>{
+   if(hasUnsavedOfficeQuote()){notify('Save the estimate changes before generating a new build prompt.');return;}
    const brief=getBrief();
    if(!String(brief.business_description||'').trim()){notify('Describe the business first.');buildForm.elements.business_description.focus();return;}
    const selected=(rows.ag_project_components||[]).filter(x=>x.project_id===project.id);
@@ -131,11 +138,39 @@ export function componentsWire({root,supabase,rows,project,staff,teamRole,userId
    catch{output.focus();output.select();notify('Select and copy the prompt manually.');}
   };
  }
+ const savedQuotePrice=rows.ag_component_pricing||[];
+ const editorValues=editor=>[
+  editor.querySelector('[data-price-setup]')?.value,
+  editor.querySelector('[data-price-monthly]')?.value,
+  editor.querySelector('[data-price-external]')?.value,
+  editor.querySelector('[data-price-quantity]')?.value
+ ];
+ const baselineValues=id=>{
+  const record=savedQuotePrice.find(p=>p.component_id===id);
+  return [(Number(record?.setup_fee_cents||0)/100).toFixed(2),
+   (Number(record?.monthly_fee_cents||0)/100).toFixed(2),
+   record?.third_party_monthly_cents==null?'':(Number(record.third_party_monthly_cents)/100).toFixed(2),
+   String(record?.quote_quantity||1)];
+ };
+ const hasEditedPrices=editor=>editorValues(editor).some((value,index)=>
+  value!==baselineValues(editor.dataset.componentPricing)[index]);
  const centsFrom=value=>{
   if(value===''||value==null)return null;
   const n=Number(value);
   if(!Number.isFinite(n)||n<0||n>9999999.99||!/^\d+(?:\.\d{1,2})?$/.test(String(value)))throw new Error('Use a valid nonnegative USD amount with at most two decimal places.');
   return Math.round(n*100);
+ };
+ const readEditorChange=editor=>{
+  const setup_fee_cents=centsFrom(editor.querySelector('[data-price-setup]').value);
+  const monthly_fee_cents=centsFrom(editor.querySelector('[data-price-monthly]').value);
+  const third_party_monthly_cents=centsFrom(editor.querySelector('[data-price-external]').value);
+  const quote_quantity=Number(editor.querySelector('[data-price-quantity]').value);
+  if(setup_fee_cents===null||monthly_fee_cents===null||!Number.isSafeInteger(quote_quantity)||quote_quantity<1||quote_quantity>1000)
+   throw new Error('Enter valid setup, monthly, and quantity values before saving.');
+  const original=savedQuotePrice.find(p=>p.component_id===editor.dataset.componentPricing);
+  return {component_id:editor.dataset.componentPricing,setup_fee_cents,
+   monthly_fee_cents,third_party_monthly_cents,quote_quantity,
+   expected_updated_at:original?.updated_at||null};
  };
  scope.querySelectorAll('[data-restore-benchmark]').forEach(button=>button.onclick=()=>{
   if(!staff)return;
@@ -152,14 +187,24 @@ export function componentsWire({root,supabase,rows,project,staff,teamRole,userId
   if(!staff)return;
   const fields=scope.querySelector('[data-component-pricing="'+b.dataset.saveComponentPrice+'"]');
   if(!fields)return;
+  const others=[...scope.querySelectorAll('[data-component-pricing]')].filter(e=>
+   e!==fields&&hasEditedPrices(e));
+  if(others.length){
+   notify('Other components have unsaved changes. Use Save estimate changes to save them together.');
+   const estimatePanel=scope.querySelector('#component-live-estimate');
+   if(estimatePanel)estimatePanel.open=true;
+   return;
+  }
   try{
-   const setup_fee_cents=centsFrom(fields.querySelector('[data-price-setup]').value);
-   const monthly_fee_cents=centsFrom(fields.querySelector('[data-price-monthly]').value);
-   const third_party_monthly_cents=centsFrom(fields.querySelector('[data-price-external]').value);
-   const quantity=Number(fields.querySelector('[data-price-quantity]').value);
-   if(setup_fee_cents===null||monthly_fee_cents===null||!Number.isSafeInteger(quantity)||quantity<1||quantity>1000)throw new Error('Setup, monthly fee and quantity are required.');
-   await save('Draft pricing saved; nothing was invoiced or sent.',supabase.from('ag_component_pricing').upsert({component_id:b.dataset.saveComponentPrice,setup_fee_cents,monthly_fee_cents,third_party_monthly_cents,quote_quantity:quantity,updated_by:userId,updated_at:new Date().toISOString()},{onConflict:'component_id'}),b);
-  }catch(err){notify(err.message||'Invalid amount');}
+   const change=readEditorChange(fields);
+   b.disabled=true;
+   const {data,error}=await supabase.rpc('ag_save_component_quote_batch',{
+    p_project_id:project.id,p_changes:[change]
+   });
+   if(error){notify(error.message||'Could not save price; refresh if another staff member edited it.');b.disabled=false;return;}
+   notify('Component price saved. The benchmark reference is unchanged.');
+   await refreshWithoutJump();
+  }catch(err){notify(err.message||'Invalid amount');b.disabled=false;}
  });
 
  // An internal estimate preview, not a Stripe invoice. Only privileged staff
@@ -229,24 +274,26 @@ export function componentsWire({root,supabase,rows,project,staff,teamRole,userId
   scope.querySelector('#estimate-external-total').textContent=formatter(totals.external);
   scope.querySelector('#estimate-external-unknown').textContent=totals.unknownExternal+' item(s)';
   scope.querySelector('#estimate-year-total').textContent=formatter(totals.once+totals.monthly*12);
-  const changedEditors=[...scope.querySelectorAll('[data-component-pricing]')].filter(editor=>{
-   const initial=savedQuotePrice.find(p=>p.component_id===editor.dataset.componentPricing);
-   const values=[editor.querySelector('[data-price-setup]')?.value,editor.querySelector('[data-price-monthly]')?.value,editor.querySelector('[data-price-external]')?.value,editor.querySelector('[data-price-quantity]')?.value];
-   const baseline=[(Number(initial?.setup_fee_cents||0)/100).toFixed(2),(Number(initial?.monthly_fee_cents||0)/100).toFixed(2),initial?.third_party_monthly_cents==null?'':(Number(initial.third_party_monthly_cents)/100).toFixed(2),String(initial?.quote_quantity||1)];
-   return values.some((v,i)=>v!==baseline[i]);
-  });
+  const changedEditors=[...scope.querySelectorAll('[data-component-pricing]')].filter(hasEditedPrices);
   const dirty=changedEditors.length>0;
+  let invalid=0;
+  for(const editor of changedEditors){
+   try{readEditorChange(editor);editor.removeAttribute('data-invalid-price');}
+   catch{invalid++;editor.setAttribute('data-invalid-price','true');}
+  }
+  estimate.dataset.pendingChanges=dirty?'true':'false';
   const batch=scope.querySelector('#component-save-all-fees');
+  const discard=scope.querySelector('#component-discard-fees');
+  if(discard)discard.hidden=!dirty;
   const countLabel=scope.querySelector('#component-batch-count');
   if(countLabel)countLabel.textContent=dirty?changedEditors.length+' component'+(changedEditors.length===1?'':'s')+' with unsaved changes':'No unsaved fee changes';
   const pending=[...scope.querySelectorAll('[data-scope-key]')].some(c=>c.disabled);
-  if(batch)batch.disabled=!dirty||pending;
+  if(batch)batch.disabled=!dirty||pending||invalid>0;
   const copy=scope.querySelector('#component-copy-quote');
   if(copy)copy.disabled=!lastPreviewItems.length||dirty||pending;
   const msg=scope.querySelector('#component-estimate-state');
-  if(msg)msg.textContent=pending?'Scope update in progress. Totals are provisional until saved.':dirty?'Preview includes unsaved changes. Use Save estimate changes below, or Save quoted fees in a component.':'Estimate reflects selected components and saved pricing. No invoice or payment has been generated.';
+  if(msg)msg.textContent=pending?'Scope update in progress. Totals are provisional until saved.':invalid?'Correct '+invalid+' invalid component amount'+(invalid===1?'':'s')+' or quantity before saving. Totals are provisional.':dirty?'Preview includes unsaved changes. Use Save estimate changes below, or Save quoted fees in a component.':'Estimate reflects selected components and saved pricing. No invoice or payment has been generated.';
  };
- const savedQuotePrice=rows.ag_component_pricing||[];
  if(estimate){
   // Edit from either location without rebuilding the active input DOM (which
   // would steal the cursor after every keystroke).
@@ -291,31 +338,22 @@ export function componentsWire({root,supabase,rows,project,staff,teamRole,userId
   const batchButton=scope.querySelector('#component-save-all-fees');
   if(batchButton)batchButton.onclick=async()=>{
    if(!staff)return;
-   const modified=[...scope.querySelectorAll('[data-component-pricing]')].filter(editor=>{
-    const initial=savedQuotePrice.find(p=>p.component_id===editor.dataset.componentPricing);
-    const values=[editor.querySelector('[data-price-setup]')?.value,editor.querySelector('[data-price-monthly]')?.value,editor.querySelector('[data-price-external]')?.value,editor.querySelector('[data-price-quantity]')?.value];
-    const baseline=[(Number(initial?.setup_fee_cents||0)/100).toFixed(2),(Number(initial?.monthly_fee_cents||0)/100).toFixed(2),initial?.third_party_monthly_cents==null?'':(Number(initial.third_party_monthly_cents)/100).toFixed(2),String(initial?.quote_quantity||1)];
-    return values.some((v,i)=>v!==baseline[i]);
-   });
+   const modified=[...scope.querySelectorAll('[data-component-pricing]')].filter(hasEditedPrices);
    if(!modified.length)return;
    let changes;
    try{
-    changes=modified.map(editor=>{
-     const setup_fee_cents=centsFrom(editor.querySelector('[data-price-setup]').value);
-     const monthly_fee_cents=centsFrom(editor.querySelector('[data-price-monthly]').value);
-     const third_party_monthly_cents=centsFrom(editor.querySelector('[data-price-external]').value);
-     const quote_quantity=Number(editor.querySelector('[data-price-quantity]').value);
-     if(setup_fee_cents===null||monthly_fee_cents===null||!Number.isSafeInteger(quote_quantity)||quote_quantity<1||quote_quantity>1000)
-      throw new Error('Complete each fee and quantity before saving.');
-     const original=savedQuotePrice.find(p=>p.component_id===editor.dataset.componentPricing);
-     return {component_id:editor.dataset.componentPricing,setup_fee_cents,monthly_fee_cents,
-      third_party_monthly_cents,quote_quantity,expected_updated_at:original?.updated_at||null};
-    });
+    changes=modified.map(readEditorChange);
    }catch(error){notify(error.message||'Fix invalid fee amounts.');return;}
    batchButton.disabled=true;
    const {data,error}=await supabase.rpc('ag_save_component_quote_batch',{p_project_id:project.id,p_changes:changes});
    if(error){notify(error.message||'The estimate could not be saved.');batchButton.disabled=false;return;}
    notify(data+' component price'+(data===1?'':'s')+' updated. The benchmark references were not changed.');
+   await refreshWithoutJump();
+  };
+  const discard=scope.querySelector('#component-discard-fees');
+  if(discard)discard.onclick=async()=>{
+   if(!hasUnsavedOfficeQuote())return;
+   if(!confirm('Discard all unsaved quote price changes for this project? Saved prices and benchmark references will remain intact.'))return;
    await refreshWithoutJump();
   };
   renderEstimate();
@@ -352,6 +390,11 @@ export function componentsWire({root,supabase,rows,project,staff,teamRole,userId
  });
  scope.querySelectorAll('[data-component-status]').forEach(s=>s.onchange=async()=>{
   if(!write)return;
+  if(hasUnsavedOfficeQuote()){
+   const item=(rows.ag_project_components||[]).find(x=>x.id===s.dataset.componentStatus);
+   if(item)s.value=item.status;
+   notify('Save or discard your estimate changes before changing delivery status.');return;
+  }
   if(s.value==='completed'&&!confirm('Confirm this component has actually been delivered and verified?')){await refreshWithoutJump();return;}
   await save('Delivery status updated.',supabase.from('ag_project_components').update({status:s.value,updated_by:userId}).eq('id',s.dataset.componentStatus),s);
  });
@@ -363,6 +406,7 @@ export function componentsWire({root,supabase,rows,project,staff,teamRole,userId
  scope.querySelectorAll('[data-remove-component]').forEach(b=>b.onclick=async()=>{
   if(!staff)return;
   const entry=(rows.ag_project_components||[]).find(x=>x.id===b.dataset.removeComponent);
+  if(hasUnsavedOfficeQuote()){notify('Save or discard your estimate edits before removing a component.');return;}
   if(!confirm('Remove custom component '+(entry?.component_label||'')+' from scope?'))return;
   await save('Custom component removed.',supabase.from('ag_project_components').delete().eq('id',b.dataset.removeComponent),b);
  });
