@@ -252,3 +252,18 @@ form[data-proposal-decision] .btn{white-space:normal}
 .component-overlap-alert summary{cursor:pointer;font-size:.85rem;font-weight:600;line-height:1.5}
 .component-overlap-alert li{font-size:.83rem;line-height:1.6;margin:8px 0}
 .component-overlap-alert ul{margin:10px 0 8px;padding-left:20px}
+
+/* Owner-only project readiness scorecard */
+.office-readiness{margin-top:24px}
+.office-readiness .section-head{align-items:center;flex-wrap:wrap;gap:12px}
+.office-readiness-meter{height:8px;background:rgba(255,255,255,.08);border-radius:999px;overflow:hidden;margin:18px 0 20px}
+.office-readiness-meter span{display:block;height:100%;border-radius:999px;background:#c8a96e}
+.office-readiness-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:22px;row-gap:0;margin:8px 0 18px}
+.office-readiness-step{display:flex;align-items:flex-start;gap:12px;border-top:1px solid var(--line);padding:13px 0;min-width:0}
+.office-readiness-step strong{font-size:.9rem;overflow-wrap:anywhere}
+.office-readiness-step p{margin:4px 0 0;line-height:1.5;overflow-wrap:anywhere}
+.readiness-icon{display:flex;align-items:center;justify-content:center;flex:0 0 25px;height:25px;border:1px solid var(--line);border-radius:50%;font-weight:700;font-size:.86rem}
+.readiness-icon.good{color:#c8a96e;border-color:#c8a96e}
+.readiness-icon.pending{color:var(--muted)}
+.office-readiness .action-area{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+@media(max-width:780px){.office-readiness-list{grid-template-columns:1fr}}
