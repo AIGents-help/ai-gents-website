@@ -83,7 +83,7 @@ export function scopePackageWire({root,rows,project,supabase,notify,reload,staff
  };
  const toCents=v=>{
   const raw=String(v??'').trim();
-  if(!/^\\d+(?:\\.\\d{1,2})?$/.test(raw))return null;
+  if(!/^\d+(?:\.\d{1,2})?$/.test(raw))return null;
   const number=Number(raw);
   return Number.isFinite(number)&&number>=0&&number<=9999999.99?Math.round(number*100):null;
  };
@@ -172,7 +172,7 @@ export function scopePackageWire({root,rows,project,supabase,notify,reload,staff
  const packages=rows.ag_scope_packages||[];
  const toDollars=v=>{
   const raw=String(v??'').trim();
-  if(!/^\\d+(?:\\.\\d{1,2})?$/.test(raw))return null;
+  if(!/^\d+(?:\.\d{1,2})?$/.test(raw))return null;
   const n=Number(raw);
   return Number.isFinite(n)&&n>=0&&n<=9999999.99?Math.round(n*100):null;
  };
@@ -244,7 +244,7 @@ export function scopePackageWire({root,rows,project,supabase,notify,reload,staff
   if(!pkg)return;
   const values=Object.fromEntries(new FormData(form));
   const amountString=String(values.amount||'').trim();
-  if(!/^\\d+(?:\\.\\d{1,2})?$/.test(amountString)){notify('Enter a valid USD amount with no more than two decimals.');return;}
+  if(!/^\d+(?:\.\d{1,2})?$/.test(amountString)){notify('Enter a valid USD amount with no more than two decimals.');return;}
   const amount=Math.round(Number(amountString)*100);
   if(!Number.isSafeInteger(amount)||amount<=0){notify('Enter a positive milestone amount.');return;}
   const label=String(values.milestone_label||'').trim();
