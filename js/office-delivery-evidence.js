@@ -1,13 +1,13 @@
 // Delivery acceptance evidence for tasks created from an approved scope version.
 // Tasks may not be marked Done until staff have verified supporting evidence.
-export function deliveryEvidencePanel({task,rows,staff,canWrite,escape}){
+export function deliveryEvidencePanel({task,rows,staff,canWrite,userId,escape}){
  const h=escape;
  const map=(rows.ag_scope_delivery_tasks||[]).find(x=>x.task_id===task.id);
  if(!map)return '';
  const evidence=(rows.ag_task_verifications||[]).find(x=>x.task_id===task.id);
  const state=evidence?.review_status||'not_submitted';
  const statusLabel={not_submitted:'Evidence required',submitted:'Awaiting staff verification',verified:'Verified',rejected:'Evidence rejected'};
- const canSubmit=canWrite&&(!evidence||state==='rejected'&&(staff||evidence.submitted_by===task.currentUserId));
+ const canSubmit=canWrite&&(!evidence||state==='rejected'&&(staff||evidence.submitted_by===userId));
  return '<details class="task-evidence"><summary><span>Delivery verification</span> <span class="pill">'+h(statusLabel[state])+'</span></summary><div class="task-evidence-body">'+
  '<p class="tiny muted">This task belongs to frozen scope v'+h((rows.ag_scope_packages||[]).find(p=>p.id===map.package_id)?.version||'?')+'. Verify acceptance criteria and attach a credible reference before completion.</p>'+
  (evidence?'<div class="task-evidence-record"><strong>Evidence reference</strong><p>'+h(evidence.evidence_reference)+'</p>'+(evidence.notes?'<p class="tiny muted">'+h(evidence.notes)+'</p>':'')+'</div>':'')+
