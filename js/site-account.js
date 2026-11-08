@@ -8,5 +8,5 @@ if(links.length){
   links.forEach(a=>{a.textContent=signed?'My Account':'Account / Sign in';a.href=signed?'/office?view=profile':'/office';a.setAttribute('aria-label',signed?'Open your AI Gents account profile':'Sign in to your AI Gents account');});
  };
  update();
- client.auth.onAuthStateChange(()=>{update();});
+ client.auth.onAuthStateChange((_event,session)=>{const signed=!!session?.user;links.forEach(a=>{a.textContent=signed?'My Account':'Account / Sign in';a.href=signed?'/office?view=profile':'/office';a.setAttribute('aria-label',signed?'Open your AI Gents account profile':'Sign in to your AI Gents account');});});
 }
