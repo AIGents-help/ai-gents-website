@@ -24,6 +24,7 @@ export function scopePackagePage({rows,project,escape,staff}) {
  }).join('');
  return '<section class="card scope-packages" id="scope-packages"><div class="section-head"><div><h3>Proposal → Build → Delivery</h3><p>One frozen scope version powers all three outputs. Editing checked items later does not silently change an existing proposal.</p></div></div>'+
  '<details class="scope-package-create"><summary>Create a new scope and proposal draft</summary><form id="scope-package-form"><label class="form-field">Proposal name<input required maxlength="160" minlength="3" name="title" value="'+h(project.title+' — Proprietary Platform')+'"></label><label class="form-field">Assumptions and exclusions<textarea name="assumptions" rows="3" maxlength="3500" placeholder="Included revisions, training, dependencies, excluded work, scope overlap, hosting ownership"></textarea></label><label class="form-field">Payment terms<textarea name="payment_terms" rows="2" maxlength="3500" placeholder="Example: 40% deposit, 40% at staging acceptance, 20% on handoff (edit for this engagement)"></textarea></label><label class="form-field">One-time discount ($)<input type="number" name="discount" min="0" max="9999999.99" step="0.01" value="0"></label><button type="submit" class="btn" '+(!ready?'disabled':'')+'>Freeze scope and create draft proposal</button><p class="tiny muted">'+(ready?'This creates an internal draft only. No email, account, invoice, or deployment is created.':'Select and price at least one component, then save the business description first.')+'</p></form></details>'+
+ '<div class="scope-actions"><button class="btn alt small" type="button" data-scope-open-proposals>Open Proposals & Client Approval</button></div>'+ 
  '<h4 class="scope-versions-title">Version history</h4>'+(display||'<p class="tiny muted">No frozen scope versions yet. Finish the checklist and create an internal proposal draft.</p>')+
  '<p class="tiny muted">The frozen proposal is published separately under Proposals. A client acceptance is not a legal e-signature or permission to charge; deployment and provider expenses still require owner authorization.</p></section>';
 }
@@ -31,6 +32,7 @@ export function scopePackageWire({root,rows,project,supabase,notify,reload,staff
  if(!staff)return;
  const section=root.querySelector('#scope-packages');if(!section)return;
  const form=section.querySelector('#scope-package-form');
+ section.querySelector('[data-scope-open-proposals]')?.addEventListener('click',()=>root.querySelector('[data-view="proposals"]')?.click());
  const packages=rows.ag_scope_packages||[];
  const toDollars=v=>{const n=Number(v);return Number.isFinite(n)&&n>=0&&Number.isSafeInteger(Math.round(n*100))?Math.round(n*100):null;};
  if(form)form.onsubmit=async e=>{
