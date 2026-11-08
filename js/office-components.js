@@ -61,7 +61,7 @@ export function componentsWire({root,supabase,rows,project,staff,teamRole,userId
  const centsFrom=value=>{
   if(value===''||value==null)return null;
   const n=Number(value);
-  if(!Number.isFinite(n)||n<0||n>9999999.99||!/^\\d+(?:\\.\\d{1,2})?$/.test(String(value)))throw new Error('Use a valid nonnegative USD amount with at most two decimal places.');
+  if(!Number.isFinite(n)||n<0||n>9999999.99||!/^\d+(?:\.\d{1,2})?$/.test(String(value)))throw new Error('Use a valid nonnegative USD amount with at most two decimal places.');
   return Math.round(n*100);
  };
  scope.querySelectorAll('[data-save-component-price]').forEach(b=>b.onclick=async()=>{
