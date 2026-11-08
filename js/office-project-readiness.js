@@ -10,6 +10,11 @@ export function projectReadinessPage({rows,project,escape,staff}){
  const latest=packages[0],proposal=(rows.ag_proposals||[]).find(p=>p.id===latest?.proposal_id);
  const decisions=(rows.ag_proposal_decisions||[]).filter(d=>d.proposal_id===proposal?.id).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
  const accepted=proposal?.status==='published'&&decisions[0]?.decision==='accepted';
+ const linkedApprovers=(rows.ag_client_approvers||[]).filter(a=>
+  a.client_id===project.client_id &&
+  (rows.ag_client_users||[]).some(u=>u.client_id===a.client_id&&u.user_id===a.user_id) &&
+  !(rows.ag_client_member_access||[]).some(x=>x.client_id===a.client_id&&x.user_id===a.user_id&&x.access_level==='read')
+ );
  const maps=(rows.ag_scope_delivery_tasks||[]).filter(m=>m.package_id===latest?.id);
  const allTasks=rows.ag_tasks||[],proof=rows.ag_task_verifications||[];
  const count=latest?.items?.length||0;
@@ -20,6 +25,7 @@ export function projectReadinessPage({rows,project,escape,staff}){
  const steps=[
   {name:'Business and design brief',good:!!brief?.business_description&&brief.business_description.trim().length>=10,description:'Describe the company, its operations, design direction and users.'},
   {name:'Selected and priced scope',good:scoped.length>0&&scoped.every(c=>pricing.some(p=>p.component_id===c.id)),description:scoped.length+' component(s) selected; every selected component must have a saved price.'},
+  {name:'Verified client approver',good:linkedApprovers.length>0,description:linkedApprovers.length?linkedApprovers.length+' designated authorized approver(s) linked.':'Client must verify a portal account with Read & respond access, then be assigned as approver.'},
   {name:'Frozen scope version',good:!!latest,description:latest?'Latest version: v'+latest.version:'Create a versioned proposal after reviewing the scope.'},
   {name:'Published client proposal',good:proposal?.status==='published',description:'Publication makes the frozen proposal available to authorized client users.'},
   {name:'Recorded client acceptance',good:!!accepted,description:decisions[0]?.decision==='changes_requested'?'Client requested changes; prepare a new version.':accepted?'Latest published scope was accepted.':'Awaiting authorized client acceptance.'},
