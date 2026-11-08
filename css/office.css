@@ -303,3 +303,30 @@ form[data-proposal-decision] .btn{white-space:normal}
 .scope-invoice-line span:first-child{overflow-wrap:anywhere}
 .scope-invoice-line .pill{white-space:nowrap}
 @media(max-width:590px){.scope-invoice-content>form{grid-template-columns:1fr}.scope-invoice-line{grid-template-columns:minmax(0,1fr) auto;gap:6px}.scope-invoice-line .pill{grid-column:1/-1;justify-self:start}.proposal-publish-warning button{flex:1 1 150px}}
+
+/* Compact, manually collapsible live internal estimate with two-way quick-edit */
+.component-estimate-accordion{display:block;overflow:hidden;padding:0!important}
+.component-estimate-accordion>summary{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:18px 20px;cursor:pointer;list-style:none;min-width:0}
+.component-estimate-accordion>summary::-webkit-details-marker{display:none}
+.component-estimate-accordion>summary:before{content:"▸";color:#c8a96e;font-size:1.1rem;font-weight:700}
+.component-estimate-accordion[open]>summary:before{content:"▾"}
+.component-estimate-accordion>summary>span:first-of-type{display:flex;flex-direction:column;gap:5px;flex:1 1 260px;min-width:0}
+.component-estimate-accordion>summary strong{font:500 clamp(1.1rem,2.2vw,1.35rem) Georgia,serif}
+.component-estimate-accordion>summary small{font-size:.78rem;color:var(--muted);line-height:1.45}
+.component-estimate-summary-total{font-size:.84rem;font-weight:650;font-variant-numeric:tabular-nums;color:#c8a96e;white-space:normal;overflow-wrap:anywhere}
+.component-estimate-body{border-top:1px solid var(--line);padding:18px 19px 20px;min-width:0}
+.component-estimate-name{min-width:0;overflow-wrap:anywhere}
+.component-jump-link{display:inline;text-align:left;border:0;background:none;color:inherit;padding:2px 0;text-decoration:underline;text-decoration-color:rgba(200,169,110,.55);text-underline-offset:3px;cursor:pointer;font:inherit;line-height:1.4}
+.component-jump-link:hover,.component-jump-link:focus-visible{color:#c8a96e;text-decoration-color:#c8a96e}
+.component-quick-field{display:block;width:100%;min-width:0}
+.component-quick-field input{width:100%;min-width:0;max-width:100%;box-sizing:border-box;padding:9px 8px;text-align:right;font-size:.85rem;font-variant-numeric:tabular-nums;height:40px}
+.component-quick-field input:focus-visible{outline:2px solid #c8a96e;outline-offset:1px}
+.component-estimate-row{align-items:center}
+.component-estimate-row .reference-line{display:block;font-size:.71rem;line-height:1.45;margin-top:4px}
+.component-batch-save{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;border-top:1px solid var(--line);margin-top:20px;padding-top:17px}
+.component-batch-save button:disabled{opacity:.48;cursor:not-allowed}
+.component-estimate-body .section-head{flex-wrap:wrap;align-items:center}
+.component-estimate-accordion .component-estimate-header,.component-estimate-accordion .component-estimate-row{grid-template-columns:minmax(0,1fr) minmax(95px,.31fr) minmax(95px,.31fr)}
+.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+@media(max-width:690px){.component-estimate-accordion>summary{padding:14px}.component-estimate-body{padding:14px 12px 18px}.component-estimate-accordion .component-estimate-header,.component-estimate-accordion .component-estimate-row{grid-template-columns:minmax(0,1fr) 83px 83px;gap:8px;padding:10px 8px}.component-quick-field input{padding:8px 5px;font-size:.78rem}.component-batch-save button{width:100%}}
+@media(max-width:420px){.component-estimate-accordion .component-estimate-header,.component-estimate-accordion .component-estimate-row{grid-template-columns:minmax(0,1fr) 76px 76px;gap:6px;padding:10px 6px}.component-estimate-accordion .component-estimate-header{font-size:.67rem}.component-quick-field input{font-size:.72rem;padding:7px 4px}}

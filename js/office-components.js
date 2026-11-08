@@ -57,7 +57,7 @@ export function componentsPage({rows,project,escape,staff,teamRole,userId}){
  '<details class="component-group component-category" data-accordion-key="category:Custom"><summary class="component-category-heading"><span>Custom components</span><span class="pill">'+custom.length+' selected</span></summary><div class="component-group-body">'+
  (custom.length?custom.map(x=>'<div class="component-line is-scoped"><div class="component-main"><strong>'+h(x.component_label)+'</strong><div class="action-area"><select class="small-status" data-component-status="'+h(x.id)+'" aria-label="Custom component status" '+(!canUpdate?'disabled':'')+'>'+Object.entries(statusLabel).map(([value,label])=>'<option value="'+value+'" '+(x.status===value?'selected':'')+'>'+label+'</option>').join('')+'</select>'+(staff?'<button type="button" class="btn alt small" data-remove-component="'+h(x.id)+'">Remove</button>':'')+'</div></div>'+(staff?'<details class="component-fees" data-accordion-key="fee:'+h(x.id)+'"><summary>Custom quote · '+asUsd(x.setup_fee_cents||0)+' setup / '+asUsd(x.monthly_fee_cents||0)+' monthly</summary>'+priceInputs(x,h)+'</details><details class="component-notes"><summary>Notes</summary><textarea rows="2" maxlength="3000" data-component-notes="'+h(x.id)+'">'+h(x.notes||'')+'</textarea><button type="button" class="btn alt small" data-component-save-note="'+h(x.id)+'">Save note</button></details>':x.notes?'<p class="tiny muted">'+h(x.notes)+'</p>':'')+'</div>').join(''):'<p class="tiny muted">No custom components selected.</p>')+
  (staff?'<form id="custom-component-form" class="custom-component-form"><label class="form-field">Add a unique requirement<input name="label" required maxlength="150" minlength="2" placeholder="Describe the custom feature or integration"></label><button class="btn alt small" type="submit">+ Add custom</button></form>':'')+'</div></details>'+
- (staff?'<section class="component-quote component-quote-footer" aria-label="Staff-only live estimate" id="component-live-estimate"><div class="section-head"><div><h3>Internal Estimate — Selected Components</h3><p class="tiny muted">Staff only · Draft, not a sent invoice. Values reflect the current selection and fee edits.</p></div><button type="button" class="btn alt small" id="component-copy-quote" '+(!items.length?'disabled':'')+'>Copy itemized estimate</button></div>'+
+ (staff?'<details class="component-quote component-quote-footer component-estimate-accordion" data-accordion-key="estimate" aria-label="Staff-only live estimate" id="component-live-estimate"><summary class="component-estimate-toggle"><span><strong>Internal Estimate — Selected Components</strong><small>Staff only · Click to expand pricing and update the quote.</small></span><span class="component-estimate-summary-total">'+asUsd(totals.once)+' one-time · '+asUsd(totals.monthly)+'/mo</span></summary><div class="component-estimate-body"><div class="section-head"><div><h3>Quick-edit Estimate</h3><p class="tiny muted">Select a component name to jump to its category; edit one-time and monthly amounts below, then save all changes together.</p></div><button type="button" class="btn alt small" id="component-copy-quote" '+(!items.length?'disabled':'')+'>Copy itemized estimate</button></div>'+
  '<div class="component-quote-lines" id="component-estimate-lines"></div>'+
  '<div class="component-quote-values"><div><span>One-time implementation</span><strong id="estimate-setup-total">'+asUsd(totals.once)+'</strong></div><div><span>AI Gents / month</span><strong id="estimate-monthly-total">'+asUsd(totals.monthly)+'</strong></div><div><span>Third-party / month (known)</span><strong id="estimate-external-total">'+asUsd(totals.external)+'</strong></div><div><span>Provider costs TBD</span><strong id="estimate-external-unknown">'+totals.unknownExternal+' item(s)</strong></div></div>'+
  '<div class="component-benchmark-comparison" id="component-benchmark-comparison"></div>'+
@@ -65,7 +65,7 @@ export function componentsPage({rows,project,escape,staff,teamRole,userId}){
  '<p class="component-estimate-year">Estimated first-year AI Gents fees: <strong id="estimate-year-total">'+asUsd(totals.once+totals.monthly*12)+'</strong></p>'+
  '<div class="component-overlap-alert" id="component-overlap-alert" role="note"></div>'+ 
  '<p class="tiny muted" id="component-estimate-state" role="status">Figures update as components are selected and fees are edited. Save fees to persist changes before copying or sending a proposal.</p>'+
- '<p class="tiny muted">Third-party plans and processing fees are separate. Confirm scope overlap, taxes, and final pricing before issuing an approved client proposal or invoice.</p></section>':'')+
+ '<p class="tiny muted">Third-party plans and processing fees are separate. Confirm scope overlap, taxes, and final pricing before issuing an approved client proposal or invoice.</p><div class="component-batch-save"><span id="component-batch-count" class="tiny muted">No unsaved fee changes</span><button type="button" class="btn" id="component-save-all-fees" disabled>Save estimate changes</button></div></div></details>':'')+
  (staff?'<details class="component-build-generator" data-accordion-key="generator" id="command-center-generator"><summary><span>Generate Client Command Center Build Prompt</span><span class="pill">'+items.length+' selected</span></summary><div class="component-generator-body"><p class="tiny muted">Combine the selected components with the business and design direction into a development prompt. This does not create or deploy software.</p><form id="component-build-brief">'+
 '<label class="form-field">What does the business do?<textarea name="business_description" rows="3" required maxlength="5000" placeholder="Industry, services, customers, and business operations">'+h(brief.business_description||'')+'</textarea></label>'+
 '<label class="form-field">Design aesthetics<textarea name="design_direction" rows="2" maxlength="3000" placeholder="Colors, style, fonts, references, tone">'+h(brief.design_direction||'')+'</textarea></label>'+
@@ -197,19 +197,24 @@ export function componentsWire({root,supabase,rows,project,staff,teamRole,userId
   return preview;
  };
  let lastPreviewItems=[];
- const renderEstimate=()=>{
+ const renderEstimate=({refreshRows=true}={})=>{
   if(!estimate)return;
   lastPreviewItems=getPreviewItems();
   const totals=quoteTotals(lastPreviewItems);
+  const head=scope.querySelector('.component-estimate-summary-total');
+  if(head)head.textContent=asUsd(totals.once)+' one-time · '+asUsd(totals.monthly)+'/mo';
   const lines=scope.querySelector('#component-estimate-lines');
   const formatter=amount=>asUsd(amount);
-  lines.innerHTML=lastPreviewItems.length?'<div class="component-estimate-header"><span>Selected component</span><span>One-time</span><span>Monthly</span></div>'+
+  if(refreshRows)lines.innerHTML=lastPreviewItems.length?'<div class="component-estimate-header"><span>Selected component</span><span>One-time ($)</span><span>Monthly ($)</span></div>'+
    lastPreviewItems.map(item=>{
     const qty=Number(item.quote_quantity)||1;
     const ref=referenceFor(item);
     const benchmarkLine=ref?'<small class="reference-line">Benchmark: '+formatter(ref.setup_fee_cents*qty)+' setup · '+formatter(ref.monthly_fee_cents*qty)+'/mo</small>':
       '<small class="reference-line">Custom — no reference benchmark</small>';
-    return '<div class="component-estimate-row"><span>'+h(item.component_label)+(qty>1?' <small>× '+qty+'</small>':'')+benchmarkLine+'</span><strong>'+formatter(Number(item.setup_fee_cents||0)*qty)+'</strong><strong>'+formatter(Number(item.monthly_fee_cents||0)*qty)+'</strong></div>';
+    return '<div class="component-estimate-row"><div class="component-estimate-name">'+(item.id?'<button type="button" class="component-jump-link" data-component-jump="'+h(item.id)+'">'+h(item.component_label)+'</button>':'<span>'+h(item.component_label)+'</span>')+(qty>1?' <small>× '+qty+'</small>':'')+benchmarkLine+'</div>'+
+      (item.id?'<label class="component-quick-field"><span class="sr-only">Setup fee for '+h(item.component_label)+'</span><input type="number" min="0" max="9999999.99" step="0.01" inputmode="decimal" data-quick-fee="'+h(item.id)+'" data-fee-kind="setup" value="'+(Number(item.setup_fee_cents||0)/100).toFixed(2)+'"></label>'+
+       '<label class="component-quick-field"><span class="sr-only">Monthly fee for '+h(item.component_label)+'</span><input type="number" min="0" max="9999999.99" step="0.01" inputmode="decimal" data-quick-fee="'+h(item.id)+'" data-fee-kind="monthly" value="'+(Number(item.monthly_fee_cents||0)/100).toFixed(2)+'"></label>':
+       '<strong>'+formatter(Number(item.setup_fee_cents||0))+'</strong><strong>'+formatter(Number(item.monthly_fee_cents||0))+'</strong>')+'</div>';
    }).join(''):'<p class="tiny muted">No components selected yet. Check items above to build an estimate.</p>';
   const warningBox=scope.querySelector('#component-overlap-alert');
   if(warningBox){
@@ -224,32 +229,95 @@ export function componentsWire({root,supabase,rows,project,staff,teamRole,userId
   scope.querySelector('#estimate-external-total').textContent=formatter(totals.external);
   scope.querySelector('#estimate-external-unknown').textContent=totals.unknownExternal+' item(s)';
   scope.querySelector('#estimate-year-total').textContent=formatter(totals.once+totals.monthly*12);
-  const dirty=[...scope.querySelectorAll('[data-component-pricing]')].some(editor=>{
+  const changedEditors=[...scope.querySelectorAll('[data-component-pricing]')].filter(editor=>{
    const initial=savedQuotePrice.find(p=>p.component_id===editor.dataset.componentPricing);
    const values=[editor.querySelector('[data-price-setup]')?.value,editor.querySelector('[data-price-monthly]')?.value,editor.querySelector('[data-price-external]')?.value,editor.querySelector('[data-price-quantity]')?.value];
    const baseline=[(Number(initial?.setup_fee_cents||0)/100).toFixed(2),(Number(initial?.monthly_fee_cents||0)/100).toFixed(2),initial?.third_party_monthly_cents==null?'':(Number(initial.third_party_monthly_cents)/100).toFixed(2),String(initial?.quote_quantity||1)];
    return values.some((v,i)=>v!==baseline[i]);
   });
- const refTotals=benchmarkTotals(lastPreviewItems);
-  const covered=lastPreviewItems.filter(item=>referenceFor(item));
-  const comparison=scope.querySelector('#component-benchmark-comparison');
-  if(comparison){
-   const quotedCovered=covered.reduce((n,item)=>n+Number(item.setup_fee_cents||0)*(Number(item.quote_quantity)||1),0);
-   const delta=refTotals.once-quotedCovered;
-   comparison.innerHTML='<div class="component-compare-head"><span>AI Gents benchmark (standard items only)</span><strong>'+formatter(refTotals.once)+'</strong></div>'+
-    '<div class="component-compare-head"><span>Current quote (those same items)</span><strong>'+formatter(quotedCovered)+'</strong></div>'+
-    '<p class="tiny muted">Difference from benchmark: <strong>'+formatter(Math.abs(delta))+' '+(delta>=0?'below':'above')+' reference</strong>. '+(refTotals.unbenchmarked?'Custom / unbenchmarked items: '+refTotals.unbenchmarked+'. ':'')+'Benchmarks are suggested starting estimates, not independently verified market prices.</p>';
-  }
+  const dirty=changedEditors.length>0;
+  const batch=scope.querySelector('#component-save-all-fees');
+  const countLabel=scope.querySelector('#component-batch-count');
+  if(countLabel)countLabel.textContent=dirty?changedEditors.length+' component'+(changedEditors.length===1?'':'s')+' with unsaved changes':'No unsaved fee changes';
   const pending=[...scope.querySelectorAll('[data-scope-key]')].some(c=>c.disabled);
+  if(batch)batch.disabled=!dirty||pending;
   const copy=scope.querySelector('#component-copy-quote');
   if(copy)copy.disabled=!lastPreviewItems.length||dirty||pending;
   const msg=scope.querySelector('#component-estimate-state');
-  if(msg)msg.textContent=pending?'Scope update in progress. Totals are provisional until saved.':dirty?'Preview includes unsaved changes. Click Save fees on the edited components before copying.':'Estimate reflects selected components and saved pricing. No invoice or payment has been generated.';
+  if(msg)msg.textContent=pending?'Scope update in progress. Totals are provisional until saved.':dirty?'Preview includes unsaved changes. Use Save estimate changes below, or Save quoted fees in a component.':'Estimate reflects selected components and saved pricing. No invoice or payment has been generated.';
  };
  const savedQuotePrice=rows.ag_component_pricing||[];
  if(estimate){
-  scope.addEventListener('input',event=>{if(event.target.closest('[data-component-pricing]'))renderEstimate();});
-  scope.addEventListener('change',event=>{if(event.target.matches('[data-scope-key]')||event.target.closest('[data-component-pricing]'))renderEstimate();});
+  // Edit from either location without rebuilding the active input DOM (which
+  // would steal the cursor after every keystroke).
+  scope.addEventListener('input',event=>{
+   const quick=event.target.closest('[data-quick-fee]');
+   if(quick){
+    const selector=quick.dataset.feeKind==='monthly'?'[data-price-monthly]':'[data-price-setup]';
+    const editor=scope.querySelector('[data-component-pricing="'+quick.dataset.quickFee+'"]');
+    const field=editor?.querySelector(selector);
+    if(field)field.value=quick.value;
+    renderEstimate({refreshRows:false});
+    return;
+   }
+   const editor=event.target.closest('[data-component-pricing]');
+   if(editor){
+    const id=editor.dataset.componentPricing;
+    const kind=event.target.matches('[data-price-setup]')?'setup':event.target.matches('[data-price-monthly]')?'monthly':null;
+    if(kind){
+     const counterpart=scope.querySelector('[data-quick-fee="'+id+'"][data-fee-kind="'+kind+'"]');
+     if(counterpart)counterpart.value=event.target.value;
+    }
+    renderEstimate({refreshRows:false});
+   }
+  });
+  scope.addEventListener('change',event=>{
+   if(event.target.matches('[data-scope-key]'))renderEstimate();
+   else if(event.target.closest('[data-component-pricing]'))renderEstimate({refreshRows:false});
+  });
+  estimate.addEventListener('click',event=>{
+   const button=event.target.closest('[data-component-jump]');
+   if(!button)return;
+   const id=button.dataset.componentJump;
+   const editor=scope.querySelector('[data-component-pricing="'+id+'"]');
+   if(!editor){notify('The selected component is no longer in this project.');return;}
+   const category=editor.closest('.component-category');
+   if(category)category.open=true;
+   const fees=editor.closest('.component-fees');
+   if(fees)fees.open=true;
+   const row=editor.closest('.component-line')||editor;
+   row.scrollIntoView({behavior:'smooth',block:'center'});
+  });
+  const batchButton=scope.querySelector('#component-save-all-fees');
+  if(batchButton)batchButton.onclick=async()=>{
+   if(!staff)return;
+   const modified=[...scope.querySelectorAll('[data-component-pricing]')].filter(editor=>{
+    const initial=savedQuotePrice.find(p=>p.component_id===editor.dataset.componentPricing);
+    const values=[editor.querySelector('[data-price-setup]')?.value,editor.querySelector('[data-price-monthly]')?.value,editor.querySelector('[data-price-external]')?.value,editor.querySelector('[data-price-quantity]')?.value];
+    const baseline=[(Number(initial?.setup_fee_cents||0)/100).toFixed(2),(Number(initial?.monthly_fee_cents||0)/100).toFixed(2),initial?.third_party_monthly_cents==null?'':(Number(initial.third_party_monthly_cents)/100).toFixed(2),String(initial?.quote_quantity||1)];
+    return values.some((v,i)=>v!==baseline[i]);
+   });
+   if(!modified.length)return;
+   let changes;
+   try{
+    changes=modified.map(editor=>{
+     const setup_fee_cents=centsFrom(editor.querySelector('[data-price-setup]').value);
+     const monthly_fee_cents=centsFrom(editor.querySelector('[data-price-monthly]').value);
+     const third_party_monthly_cents=centsFrom(editor.querySelector('[data-price-external]').value);
+     const quote_quantity=Number(editor.querySelector('[data-price-quantity]').value);
+     if(setup_fee_cents===null||monthly_fee_cents===null||!Number.isSafeInteger(quote_quantity)||quote_quantity<1||quote_quantity>1000)
+      throw new Error('Complete each fee and quantity before saving.');
+     const original=savedQuotePrice.find(p=>p.component_id===editor.dataset.componentPricing);
+     return {component_id:editor.dataset.componentPricing,setup_fee_cents,monthly_fee_cents,
+      third_party_monthly_cents,quote_quantity,expected_updated_at:original?.updated_at||null};
+    });
+   }catch(error){notify(error.message||'Fix invalid fee amounts.');return;}
+   batchButton.disabled=true;
+   const {data,error}=await supabase.rpc('ag_save_component_quote_batch',{p_project_id:project.id,p_changes:changes});
+   if(error){notify(error.message||'The estimate could not be saved.');batchButton.disabled=false;return;}
+   notify(data+' component price'+(data===1?'':'s')+' updated. The benchmark references were not changed.');
+   await refreshWithoutJump();
+  };
   renderEstimate();
  }
  const copy=scope.querySelector('#component-copy-quote');
@@ -259,6 +327,13 @@ export function componentsWire({root,supabase,rows,project,staff,teamRole,userId
  };
  scope.querySelectorAll('[data-scope-key]').forEach(c=>c.onchange=async()=>{
   if(!staff){c.checked=!c.checked;return;}
+  const batch=scope.querySelector('#component-save-all-fees');
+  if(batch&&!batch.disabled){
+   c.checked=!c.checked;
+   renderEstimate();
+   notify('Save your pending estimate changes before adding or removing components.');
+   return;
+  }
   const key=c.dataset.scopeKey;
   const existing=(rows.ag_project_components||[]).find(x=>x.project_id===project.id&&x.component_key===key);
   if(c.checked){
