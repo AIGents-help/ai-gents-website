@@ -305,3 +305,10 @@
 @media(max-width:1050px){.page-head.editorial-hero{grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:22px}.page-head.editorial-hero .hero-copy-block h1{font-size:clamp(2.5rem,4.6vw,4rem)}.process-board{grid-template-columns:1fr 57px 1fr}.process-core{width:47px;height:47px}}
 @media(max-width:760px){.page-head.editorial-hero{display:block;min-height:0;padding-top:38px;padding-bottom:36px}.page-head.editorial-hero .hero-copy-block h1{font-size:clamp(2.55rem,9vw,3.65rem)}.page-head.editorial-hero .hero-exhibit{width:100%;max-width:450px;height:235px;margin:24px auto 0;opacity:1;top:auto;right:auto}.page-head.editorial-hero .hero-copy-block .lede{font-size:1.05rem}.exhibit-browser{height:215px}.exhibit-identity .identity-orbit{width:208px;height:208px}.work-preview{height:140px}.work-stack{height:195px}}
 @media(prefers-reduced-motion:reduce){.process-pulse,.identity-orbit{animation:none}.work-preview{transition:none}}
+
+
+/* Command Center brand narrative and client ownership disclosure */
+.ownership-note{margin:32px auto 0;max-width:880px;padding:21px 25px;border-left:2px solid var(--gold);background:linear-gradient(90deg,rgba(200,169,110,.10),rgba(200,169,110,.015));font-size:.93rem;line-height:1.7;color:var(--muted)}
+.ownership-note strong{color:var(--white)}
+.method-command-note{max-width:670px;font-size:clamp(1rem,1.4vw,1.16rem);line-height:1.6;color:var(--gold);margin-top:16px}
+@media(max-width:650px){.ownership-note{padding:18px}}
