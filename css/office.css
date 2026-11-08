@@ -330,3 +330,10 @@ form[data-proposal-decision] .btn{white-space:normal}
 .sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
 @media(max-width:690px){.component-estimate-accordion>summary{padding:14px}.component-estimate-body{padding:14px 12px 18px}.component-estimate-accordion .component-estimate-header,.component-estimate-accordion .component-estimate-row{grid-template-columns:minmax(0,1fr) 83px 83px;gap:8px;padding:10px 8px}.component-quick-field input{padding:8px 5px;font-size:.78rem}.component-batch-save button{width:100%}}
 @media(max-width:420px){.component-estimate-accordion .component-estimate-header,.component-estimate-accordion .component-estimate-row{grid-template-columns:minmax(0,1fr) 76px 76px;gap:6px;padding:10px 6px}.component-estimate-accordion .component-estimate-header{font-size:.67rem}.component-quick-field input{font-size:.72rem;padding:7px 4px}}
+
+/* Unsaved quote safeguards */
+#component-discard-fees[hidden]{display:none!important}
+.component-pricing[data-invalid-price="true"]{border-left:3px solid #b76f51;padding-left:10px}
+.component-batch-save .action-area{display:flex;flex-wrap:wrap;gap:9px;align-items:center}
+#component-estimate-state{line-height:1.55}
+@media(max-width:600px){.component-batch-save .action-area{width:100%}.component-batch-save .action-area button{flex:1 1 140px}}
