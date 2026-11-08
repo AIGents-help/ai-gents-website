@@ -285,3 +285,21 @@ form[data-proposal-decision] .btn{white-space:normal}
 @media(max-width:540px){.component-benchmark{align-items:stretch}.component-benchmark button{width:100%}.component-compare-head{flex-wrap:wrap}}
 
 .component-estimate-row .reference-line{display:block;font-weight:400;color:var(--muted);margin-top:5px;line-height:1.45;font-size:.74rem;white-space:normal;overflow-wrap:anywhere}
+
+/* Approved scope billing drafts: private and non-transactional until activated */
+.proposal-publish-warning{padding:12px 15px;border:1px solid rgba(200,169,110,.42);border-radius:10px;background:rgba(200,169,110,.045);margin:14px 0;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.proposal-publish-warning p{flex:1 1 260px;line-height:1.5;margin:0}
+.proposal-publish-warning button{white-space:normal}
+.scope-invoice-drafts{margin:12px 0;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+.scope-invoice-drafts>summary{padding:13px 15px;cursor:pointer;font-weight:600;font-size:.88rem;line-height:1.5}
+.scope-invoice-content{border-top:1px solid var(--line);padding:14px 15px;min-width:0}
+.scope-invoice-content>form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}
+.scope-invoice-content>form .form-field:first-child{grid-column:1/-1}
+.scope-invoice-content input{width:100%;max-width:100%;box-sizing:border-box}
+.scope-invoice-content button{grid-column:1/-1;justify-self:start}
+.scope-invoice-list{border:1px solid var(--line);border-radius:8px;margin:12px 0;overflow:hidden}
+.scope-invoice-line{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:12px;border-top:1px solid var(--line);padding:10px 12px;font-size:.83rem}
+.scope-invoice-line:first-child{border-top:0}
+.scope-invoice-line span:first-child{overflow-wrap:anywhere}
+.scope-invoice-line .pill{white-space:nowrap}
+@media(max-width:590px){.scope-invoice-content>form{grid-template-columns:1fr}.scope-invoice-line{grid-template-columns:minmax(0,1fr) auto;gap:6px}.scope-invoice-line .pill{grid-column:1/-1;justify-self:start}.proposal-publish-warning button{flex:1 1 150px}}
