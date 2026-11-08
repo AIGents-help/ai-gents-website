@@ -15,7 +15,7 @@ export const CATALOG=[
   ['resend','Resend transactional email'],['kit','Kit email campaigns'],['smartlead','Smartlead outreach campaigns'],['newsletter','Newsletter / subscriber management'],['email_templates','Branded email templates'],['reviews','Reviews / testimonials'],['social','Social / publishing integrations'],['consent','Consent / unsubscribe / deliverability controls']]}
 ];
 export function componentsPage({rows,project,escape,staff,teamRole,userId}){
- const h=escape,items=(rows.ag_project_components||[]).filter(x=>x.project_id===project.id),
+ const h=escape,prices=rows.ag_component_pricing||[],items=(rows.ag_project_components||[]).filter(x=>x.project_id===project.id).map(x=>({...x,...(prices.find(p=>p.component_id===x.id)||{})})),
  assignments=rows.ag_team_assignments||[];
  const canUpdate=staff||!!teamRole&&assignments.some(a=>a.project_id===project.id&&a.user_id===userId&&a.access_level==='write');
  const counts={selected:items.length,done:items.filter(x=>x.status==='completed').length,blocked:items.filter(x=>x.status==='blocked').length};
@@ -74,12 +74,12 @@ export function componentsWire({root,supabase,rows,project,staff,teamRole,userId
    const third_party_monthly_cents=centsFrom(fields.querySelector('[data-price-external]').value);
    const quantity=Number(fields.querySelector('[data-price-quantity]').value);
    if(setup_fee_cents===null||monthly_fee_cents===null||!Number.isSafeInteger(quantity)||quantity<1||quantity>1000)throw new Error('Setup, monthly fee and quantity are required.');
-   await save('Draft pricing saved; nothing was invoiced or sent.',supabase.from('ag_project_components').update({setup_fee_cents,monthly_fee_cents,third_party_monthly_cents,quote_quantity:quantity,updated_by:userId}).eq('id',b.dataset.saveComponentPrice),b);
+   await save('Draft pricing saved; nothing was invoiced or sent.',supabase.from('ag_component_pricing').upsert({component_id:b.dataset.saveComponentPrice,setup_fee_cents,monthly_fee_cents,third_party_monthly_cents,quote_quantity:quantity,updated_by:userId,updated_at:new Date().toISOString()},{onConflict:'component_id'}),b);
   }catch(err){notify(err.message||'Invalid amount');}
  });
  const copy=scope.querySelector('#component-copy-quote');
  if(copy)copy.onclick=async()=>{
-  try{await navigator.clipboard.writeText(quoteText(project,(rows.ag_project_components||[]).filter(x=>x.project_id===project.id)));notify('Internal draft estimate copied. Review before sending to clients.');}
+  try{await navigator.clipboard.writeText(quoteText(project,(rows.ag_project_components||[]).filter(x=>x.project_id===project.id).map(x=>({...x,...((rows.ag_component_pricing||[]).find(p=>p.component_id===x.id)||{})}))));notify('Internal draft estimate copied. Review before sending to clients.');}
   catch{notify('Clipboard blocked by your browser.');}
  };
  scope.querySelectorAll('[data-scope-key]').forEach(c=>c.onchange=async()=>{
@@ -87,7 +87,13 @@ export function componentsWire({root,supabase,rows,project,staff,teamRole,userId
   const key=c.dataset.scopeKey;
   const existing=(rows.ag_project_components||[]).find(x=>x.project_id===project.id&&x.component_key===key);
   if(c.checked){
-   await save('Component added to project scope with editable starting fees.',supabase.from('ag_project_components').insert({project_id:project.id,component_key:key,component_label:c.dataset.scopeLabel,category:c.dataset.scopeGroup,item_type:'standard',status:'planned',...pricingFor(key),created_by:userId,updated_by:userId}),c);
+   c.disabled=true;
+   const created=await supabase.from('ag_project_components').insert({project_id:project.id,component_key:key,component_label:c.dataset.scopeLabel,category:c.dataset.scopeGroup,item_type:'standard',status:'planned',created_by:userId,updated_by:userId}).select('id').single();
+   if(created.error||!created.data){notify(created.error?.message||'Unable to add the component.');c.disabled=false;return;}
+   const price=await supabase.from('ag_component_pricing').insert({component_id:created.data.id,...pricingFor(key),updated_by:userId});
+   if(price.error)notify('Component added, but suggested pricing could not be saved. Enter its fees manually.');
+   else notify('Component added with editable suggested pricing.');
+   await reload();
   }else{
    if(existing?.status==='completed'&&!confirm('This component is marked completed. Remove it from the agreed project scope?')){c.checked=true;return;}
    if(!existing){await reload();return;}
