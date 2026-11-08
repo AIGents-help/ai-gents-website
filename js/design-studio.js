@@ -9,7 +9,7 @@ export function studioPage({rows,staff,userId,escape,projectName,clientName}) {
    const url=v.preview_url||'', safeLink=/^https:\/\//i.test(url)&&!/[\u0000-\u001f]/.test(url);
    const image=safeLink&&v.preview_type==='image';
    const vdec=decisions.filter(d=>d.version_id===v.id);
-   const own=vdec.find(d=>d.actor_id===userId);
+   const own=vdec.filter(d=>d.actor_id===userId).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at))[0];
    const canApprove=approvers.some(a=>a.user_id===userId&&projects.some(p=>p.id===item.project_id&&p.client_id===a.client_id));
    return '<article class="studio-version"><div class="studio-preview">'+(image?'<img src="'+h(url)+'" alt="'+h(v.label)+'" loading="lazy">':safeLink?'<div class="studio-visual-icon">↗<small>'+h(v.preview_type.toUpperCase())+' PREVIEW</small></div>':'<div class="studio-visual-icon">◈<small>Preview pending</small></div>')+'</div>'+
    '<div class="studio-version-body"><div class="section-head"><div><strong>'+h(v.label)+'</strong><p class="tiny">Version '+v.version_number+' · '+h(v.status)+'</p></div>'+badge(v.status)+'</div><p class="tiny">'+h(v.notes||'')+'</p>'+
@@ -61,7 +61,7 @@ export function studioWire({root,supabase,rows,staff,userId,escape,reload,notify
    if(!confirm(act==='approved'?'Formally approve this exact version?':'Submit this feedback?'))return;
    let result;
    if(act==='comment')result=await supabase.from('ag_review_comments').insert({version_id:versionId,author_id:userId,body:text});
-   else result=await supabase.from('ag_review_decisions').upsert({version_id:versionId,actor_id:userId,decision:act,note:text||null,created_at:new Date().toISOString()},{onConflict:'version_id,actor_id'});
+   else result=await supabase.from('ag_review_decisions').insert({version_id:versionId,actor_id:userId,decision:act,note:text||null});
    if(result.error)notify(result.error.message);else{notify(act==='approved'?'Version approved.':'Feedback recorded.');await reload();}
   };
  });
