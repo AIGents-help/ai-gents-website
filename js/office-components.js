@@ -3,6 +3,9 @@ import {pricingFor,asUsd,quoteTotals,quoteText} from '/js/office-component-prici
 // AI Gents project scope: standard component catalog + custom scope.
 // A checked component means "requested/in scope"; delivery status is tracked separately.
 // Nothing here provisions a service, account, repository, deployment, or subscription.
+// Keep accordion choices for each project while The Office refreshes after a save.
+// Only users clicking a summary change this state: selections must not collapse panels.
+const openPanels=new Map();
 export const CATALOG=[
  {group:'Experience',items:[
   ['website','Public website / landing pages'],['branding','Brand identity & design system'],['responsive','Mobile-responsive design'],['content','Content & page management'],['forms','Lead capture & digital forms'],['portal','Customer / member portal'],['login','User login & profiles'],['roles','User roles and permissions'],['accessibility','Accessibility review'],['seo','Search optimization & indexing'],['analytics','Visitor analytics & conversion tracking']]},
@@ -27,7 +30,7 @@ export function componentsPage({rows,project,escape,staff,teamRole,userId}){
   const input=staff?'<input type="checkbox" data-scope-key="'+h(key)+'" data-scope-label="'+h(label)+'" data-scope-group="'+h(group)+'" '+(checked?'checked':'')+' aria-label="Include '+h(label)+'">':'<span class="pill">'+(checked?'Included':'Not selected')+'</span>';
   const status=checked?'<select class="small-status" data-component-status="'+h(existing.id)+'" aria-label="Delivery status of '+h(label)+'" '+(!canUpdate?'disabled':'')+'>'+Object.entries(statusLabel).map(([value,text])=>'<option value="'+value+'" '+(existing.status===value?'selected':'')+'>'+text+'</option>').join('')+'</select>':'<span class="tiny muted">Not in scope</span>';
   const defaultFees=pricingFor(key);
-  const price=checked?(staff?'<details class="component-fees"><summary>Fees · '+asUsd(existing.setup_fee_cents||0)+' setup / '+asUsd(existing.monthly_fee_cents||0)+' monthly</summary>'+priceInputs(existing,h)+'</details>':''):(staff?'<span class="tiny muted component-estimate">Estimate: '+asUsd(defaultFees.setup_fee_cents)+'</span>':'');
+  const price=checked?(staff?'<details class="component-fees" data-accordion-key="fee:'+h(existing.id)+'"><summary>Fees · '+asUsd(existing.setup_fee_cents||0)+' setup / '+asUsd(existing.monthly_fee_cents||0)+' monthly</summary>'+priceInputs(existing,h)+'</details>':''):(staff?'<span class="tiny muted component-estimate">Estimate: '+asUsd(defaultFees.setup_fee_cents)+'</span>':'');
   const note=checked&&staff?'<details class="component-notes"><summary>Notes</summary><textarea rows="2" maxlength="3000" aria-label="Notes for '+h(label)+'" data-component-notes="'+h(existing.id)+'" placeholder="Requirements, dependencies or acceptance criteria">'+h(existing.notes||'')+'</textarea><button type="button" class="btn alt small" data-component-save-note="'+h(existing.id)+'">Save note</button></details>':checked&&existing.notes?'<p class="tiny muted">'+h(existing.notes)+'</p>':'';
   return '<div class="component-line '+(checked?'is-scoped':'')+'"><div class="component-main"><label class="component-label">'+input+'<span>'+h(label)+'</span></label>'+status+'</div>'+price+note+'</div>';
  };
@@ -37,33 +40,54 @@ export function componentsPage({rows,project,escape,staff,teamRole,userId}){
  '<label>External / mo. ($)<input type="number" min="0" max="9999999.99" step="0.01" data-price-external placeholder="TBD" value="'+(record.third_party_monthly_cents==null?'':(Number(record.third_party_monthly_cents)/100).toFixed(2))+'"></label>'+
  '<label>Qty<input type="number" min="1" max="1000" step="1" data-price-quantity value="'+(Number(record.quote_quantity)||1)+'"></label>'+
  '<button type="button" class="btn alt small" data-save-component-price="'+esc(record.id)+'">Save fees</button></div>';
- const sections=CATALOG.map(g=>{const count=g.items.filter(([key])=>items.some(x=>x.item_type==='standard'&&x.component_key===key)).length;return '<details class="component-group component-category"><summary class="component-category-heading"><span>'+h(g.group)+'</span><span class="pill">'+count+' selected / '+g.items.length+'</span></summary><div class="component-group-body">'+g.items.map(([key,label])=>renderItem(key,label,g.group,items.find(x=>x.component_key===key&&x.item_type==='standard'))).join('')+'</div></details>';}).join('');
+ const sections=CATALOG.map(g=>{const count=g.items.filter(([key])=>items.some(x=>x.item_type==='standard'&&x.component_key===key)).length;return '<details class="component-group component-category" data-accordion-key="category:'+h(g.group)+'"><summary class="component-category-heading"><span>'+h(g.group)+'</span><span class="pill">'+count+' selected / '+g.items.length+'</span></summary><div class="component-group-body">'+g.items.map(([key,label])=>renderItem(key,label,g.group,items.find(x=>x.component_key===key&&x.item_type==='standard'))).join('')+'</div></details>';}).join('');
  const custom=items.filter(x=>x.item_type==='custom');
  return '<section class="card component-checklist" id="project-component-scope">'+
  '<div class="section-head"><div><h3>Project components & scope</h3><p>Choose requested standard components, add custom requirements, then track actual completion separately.</p></div></div>'+
  '<div class="grid component-summary"><div class="card"><p class="eyebrow">In scope</p><div class="stat">'+counts.selected+'</div></div><div class="card"><p class="eyebrow">Completed</p><div class="stat">'+counts.done+' / '+counts.selected+'</div></div><div class="card"><p class="eyebrow">Blocked</p><div class="stat">'+counts.blocked+'</div></div></div>'+
  '<p class="tiny muted">A checked box means the client wants this component or it is included in the agreed scope. It does <strong>not</strong> mean the service is connected, purchased, deployed or working. Only mark Completed after verifying delivery.</p>'+
  (staff?'<div class="component-quote"><div class="section-head"><div><h4>Internal draft quote</h4><p class="tiny muted">Editable planning estimates for selected components only. Third-party provider bills are not AI Gents revenue.</p></div><button type="button" class="btn alt small" id="component-copy-quote" '+(!items.length?'disabled':'')+'>Copy draft estimate</button></div><div class="component-quote-values"><div><span>One-time setup</span><strong>'+asUsd(totals.once)+'</strong></div><div><span>AI Gents monthly</span><strong>'+asUsd(totals.monthly)+'</strong></div><div><span>Third-party monthly, known</span><strong>'+asUsd(totals.external)+'</strong></div><div><span>External costs TBD</span><strong>'+totals.unknownExternal+' component(s)</strong></div></div><p class="tiny muted">Estimated first year of AI Gents fees: <strong>'+asUsd(totals.once+totals.monthly*12)+'</strong> (excludes taxes, external services and any additional scope). Review overlapping items to avoid double billing.</p></div>':'')+
- (staff?'<details class="component-build-generator" id="command-center-generator"><summary><span>Generate Client Command Center Build Prompt</span><span class="pill">'+items.length+' selected</span></summary><div class="component-generator-body"><p class="tiny muted">Combine the selected components with the business and design direction into a development prompt. This does not create or deploy software.</p><form id="component-build-brief">'+
+ (staff?'<details class="component-build-generator" data-accordion-key="generator" id="command-center-generator"><summary><span>Generate Client Command Center Build Prompt</span><span class="pill">'+items.length+' selected</span></summary><div class="component-generator-body"><p class="tiny muted">Combine the selected components with the business and design direction into a development prompt. This does not create or deploy software.</p><form id="component-build-brief">'+
 '<label class="form-field">What does the business do?<textarea name="business_description" rows="3" required maxlength="5000" placeholder="Industry, services, customers, and business operations">'+h(brief.business_description||'')+'</textarea></label>'+
 '<label class="form-field">Design aesthetics<textarea name="design_direction" rows="2" maxlength="3000" placeholder="Colors, style, fonts, references, tone">'+h(brief.design_direction||'')+'</textarea></label>'+
 '<label class="form-field">Who needs access?<textarea name="audience_roles" rows="2" maxlength="2000" placeholder="Owner, staff, customers, contractors, etc.">'+h(brief.audience_roles||'')+'</textarea></label>'+
 '<label class="form-field">Additional requirements<textarea name="additional_requirements" rows="2" maxlength="4000" placeholder="Existing systems, compliance, special workflows or exclusions">'+h(brief.additional_requirements||'')+'</textarea></label>'+
 '<div class="action-area"><button class="btn alt small" type="submit">Save brief</button><button class="btn small" type="button" id="component-generate-prompt" '+(!items.length?'disabled':'')+'>Generate build prompt</button><button class="btn alt small" type="button" id="component-copy-prompt" hidden>Copy prompt</button></div></form><label class="form-field" id="component-prompt-output-wrap" hidden>Generated development prompt<textarea id="component-prompt-output" rows="13" readonly></textarea></label></div></details>':'')+
 '<div class="component-groups">'+sections+'</div>'+
- '<details class="component-group component-category"><summary class="component-category-heading"><span>Custom components</span><span class="pill">'+custom.length+' selected</span></summary><div class="component-group-body">'+
- (custom.length?custom.map(x=>'<div class="component-line is-scoped"><div class="component-main"><strong>'+h(x.component_label)+'</strong><div class="action-area"><select class="small-status" data-component-status="'+h(x.id)+'" aria-label="Custom component status" '+(!canUpdate?'disabled':'')+'>'+Object.entries(statusLabel).map(([value,label])=>'<option value="'+value+'" '+(x.status===value?'selected':'')+'>'+label+'</option>').join('')+'</select>'+(staff?'<button type="button" class="btn alt small" data-remove-component="'+h(x.id)+'">Remove</button>':'')+'</div></div>'+(staff?'<details class="component-fees"><summary>Fees · '+asUsd(x.setup_fee_cents||0)+' setup / '+asUsd(x.monthly_fee_cents||0)+' monthly</summary>'+priceInputs(x,h)+'</details><details class="component-notes"><summary>Notes</summary><textarea rows="2" maxlength="3000" data-component-notes="'+h(x.id)+'">'+h(x.notes||'')+'</textarea><button type="button" class="btn alt small" data-component-save-note="'+h(x.id)+'">Save note</button></details>':x.notes?'<p class="tiny muted">'+h(x.notes)+'</p>':'')+'</div>').join(''):'<p class="tiny muted">No custom components selected.</p>')+
+ '<details class="component-group component-category" data-accordion-key="category:Custom"><summary class="component-category-heading"><span>Custom components</span><span class="pill">'+custom.length+' selected</span></summary><div class="component-group-body">'+
+ (custom.length?custom.map(x=>'<div class="component-line is-scoped"><div class="component-main"><strong>'+h(x.component_label)+'</strong><div class="action-area"><select class="small-status" data-component-status="'+h(x.id)+'" aria-label="Custom component status" '+(!canUpdate?'disabled':'')+'>'+Object.entries(statusLabel).map(([value,label])=>'<option value="'+value+'" '+(x.status===value?'selected':'')+'>'+label+'</option>').join('')+'</select>'+(staff?'<button type="button" class="btn alt small" data-remove-component="'+h(x.id)+'">Remove</button>':'')+'</div></div>'+(staff?'<details class="component-fees" data-accordion-key="fee:'+h(x.id)+'"><summary>Fees · '+asUsd(x.setup_fee_cents||0)+' setup / '+asUsd(x.monthly_fee_cents||0)+' monthly</summary>'+priceInputs(x,h)+'</details><details class="component-notes"><summary>Notes</summary><textarea rows="2" maxlength="3000" data-component-notes="'+h(x.id)+'">'+h(x.notes||'')+'</textarea><button type="button" class="btn alt small" data-component-save-note="'+h(x.id)+'">Save note</button></details>':x.notes?'<p class="tiny muted">'+h(x.notes)+'</p>':'')+'</div>').join(''):'<p class="tiny muted">No custom components selected.</p>')+
  (staff?'<form id="custom-component-form" class="custom-component-form"><label class="form-field">Add a unique requirement<input name="label" required maxlength="150" minlength="2" placeholder="Describe the custom feature or integration"></label><button class="btn alt small" type="submit">+ Add custom</button></form>':'')+'</div></details>'+ 
  '<p class="tiny muted">Only AI Gents internal staff can change the agreed scope. Assigned employees and contractors with Write access can update delivery statuses but cannot add or remove components.</p></section>';
 }
 export function componentsWire({root,supabase,rows,project,staff,teamRole,userId,reload,notify}){
  const scope=root.querySelector('#project-component-scope');if(!scope)return;
+ const projectPanels=openPanels.get(project.id)||new Map();
+ if(!openPanels.has(project.id))openPanels.set(project.id,projectPanels);
+ // Browser-native details: only an explicit user toggle changes the desired state.
+ // Restore before attaching listeners to avoid treating restoration as a user action.
+ const accordions=scope.querySelectorAll('details[data-accordion-key]');
+ accordions.forEach(panel=>{
+  const key=panel.dataset.accordionKey;
+  if(projectPanels.has(key))panel.open=projectPanels.get(key);
+ });
+ accordions.forEach(panel=>panel.addEventListener('toggle',()=>{
+  // Ignore delayed toggle events from a panel that has already been detached.
+  if(panel.isConnected)projectPanels.set(panel.dataset.accordionKey,panel.open);
+ }));
+ const refreshWithoutJump=async()=>{
+  // Snapshot immediately: a fast checkbox click can precede the async
+  // details.toggle event, but the user's current open/closed state is definitive.
+  accordions.forEach(panel=>projectPanels.set(panel.dataset.accordionKey,panel.open));
+  const top=window.scrollY;
+  await reload();
+  window.scrollTo({top,left:0,behavior:'auto'});
+ };
  const write=staff||!!teamRole&&(rows.ag_team_assignments||[]).some(a=>a.user_id===userId&&a.project_id===project.id&&a.access_level==='write');
  const save=async(prompt,op,element)=>{
   if(element)element.disabled=true;
   const {error}=await op;
   if(error){notify(error.message);if(element)element.disabled=false;return;}
-  notify(prompt);await reload();
+  notify(prompt);await refreshWithoutJump();
  };
  const buildForm=scope.querySelector('#component-build-brief');
  if(buildForm){
@@ -126,16 +150,16 @@ export function componentsWire({root,supabase,rows,project,staff,teamRole,userId
    const price=await supabase.from('ag_component_pricing').insert({component_id:created.data.id,...pricingFor(key),updated_by:userId});
    if(price.error)notify('Component added, but suggested pricing could not be saved. Enter its fees manually.');
    else notify('Component added with editable suggested pricing.');
-   await reload();
+   await refreshWithoutJump();
   }else{
    if(existing?.status==='completed'&&!confirm('This component is marked completed. Remove it from the agreed project scope?')){c.checked=true;return;}
-   if(!existing){await reload();return;}
+   if(!existing){await refreshWithoutJump();return;}
    await save('Component removed from scope.',supabase.from('ag_project_components').delete().eq('id',existing.id),c);
   }
  });
  scope.querySelectorAll('[data-component-status]').forEach(s=>s.onchange=async()=>{
   if(!write)return;
-  if(s.value==='completed'&&!confirm('Confirm this component has actually been delivered and verified?')){await reload();return;}
+  if(s.value==='completed'&&!confirm('Confirm this component has actually been delivered and verified?')){await refreshWithoutJump();return;}
   await save('Delivery status updated.',supabase.from('ag_project_components').update({status:s.value,updated_by:userId}).eq('id',s.dataset.componentStatus),s);
  });
  scope.querySelectorAll('[data-component-save-note]').forEach(b=>b.onclick=async()=>{
