@@ -55,3 +55,13 @@ Test with a real, expressly designated **internal** client record, a positive US
 - Supabase function deployment: `ag-office-stripe-test` JWT-verified and `ag-office-stripe-webhook` signature-checked with no JWT.
 - Database privilege checks: browser users cannot insert Stripe mapping, cannot edit invoice paid status, and cannot forge webhook event receipts.
 - No secrets read from user, displayed, or stored in source.
+
+## Reconciliation hardening (November 8, 2026)
+- Version 2 of `ag-office-stripe-webhook` calls `public.ag_record_stripe_test_invoice_event`. This function is callable only by `service_role`.
+- The database locks each matched invoice, verifies that the Stripe customer belongs to the same Office client, writes the event replay receipt, and applies the status in **one transaction**.
+- Duplicate events cannot repeat writes; paid/void/uncollectible terminal statuses are not reverted by a later open/failure event.
+- An unknown Office invoice returns `not_found` without creating any receipt. Tested inside a rolled-back SQL transaction.
+- A unique `ag_stripe_invoice_preparations` claim prevents multiple test invoice drafts from being created after ambiguous network failures. Interrupted attempts are marked `needs_reconciliation`; they must be checked in the Stripe test Dashboard before manual recovery. Do not re-enable the create button blindly.
+- Staff Billing UI shows preparation pending/needs reconciliation; client accounts cannot view internal attempt records.
+- Security verification: authenticated role cannot execute the reconciliation RPC or insert invoice claims; service role can execute reconciliation.
+- Both Edge Functions deployed as version 2; the activation secrets and authenticated multi-user E2E test are still pending. This release does not activate production billing.
