@@ -1,5 +1,5 @@
 // Client access and delivery operations. Database RLS is authoritative.
-export function clientAccessPage({rows,escape,pretty,owner}) {
+export function clientAccessPage({rows,escape,pretty,owner,userId}) {
  const h=escape, clients=rows.ag_clients||[], projects=rows.ag_projects||[], invites=rows.ag_client_invitations||[], permissions=rows.ag_client_member_access||[], members=rows.ag_client_users||[], approvers=rows.ag_client_approvers||[];
  const clientName=id=>clients.find(c=>c.id===id)?.company||'Client';
  const stamp=s=>s?new Date(s).toLocaleDateString():'—';
@@ -27,7 +27,7 @@ export function clientAccessPage({rows,escape,pretty,owner}) {
  '<div class="card"><div class="section-head"><div><h3>Client portal access</h3><p class="tiny">Add client access by verified email. The account is assigned only after email verification.</p></div><button class="btn alt" data-access="invite">+ Add client access</button></div>'+
  (invites.length?invites.map(i=>{
   const expired=!i.accepted_by&&Date.parse(i.expires_at)<Date.now();
-  const canDeliver=owner||i.created_by===rows.currentStaffUserId;
+  const canDeliver=owner||i.created_by===userId;
   return '<div class="item"><div><strong>'+h(i.email)+'</strong><small>'+h(clientName(i.client_id))+' · Created '+stamp(i.created_at)+'</small></div><div class="action-area">'+
     '<span class="pill">'+(i.accepted_by?'Active':expired?'Expired':'Pending verification')+'</span>'+
     (!i.accepted_by&&!expired&&canDeliver?'<button type="button" class="btn alt small" data-access="resend" data-invite="'+h(i.id)+'">Resend invite</button>':'')+
