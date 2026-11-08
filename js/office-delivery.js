@@ -13,9 +13,9 @@ export function proposalPage({rows,staff,userId,escape,projectName,clientName}) 
   const canApprove=!((rows.ag_client_member_access||[]).some(a=>a.user_id===userId&&a.client_id===project?.client_id&&a.access_level==='read'))&&approvers.some(a=>a.user_id===userId&&project?.client_id===a.client_id);
   return '<section class="card" style="margin-bottom:16px"><div class="section-head"><div><p class="eyebrow">'+h(projectName(p.project_id))+'</p><h3>'+h(p.title)+'</h3><p>'+h(money(p.amount_cents,p.currency))+'</p></div><span class="pill">'+h(p.status)+'</span></div><div class="office-proposal-scope">'+h(p.scope)+'</div>'+
    '<div class="action-area" style="margin:12px 0"><button type="button" class="btn alt small" data-print-proposal="'+h(p.id)+'">Review / Print / Save PDF</button>'+(superseded?'<span class="pill">Superseded by a newer scope version</span>':'')+'</div>'+
-   '<div class="office-approval-history"><strong>Client decisions</strong>'+ (ds.length?ds.map(d=>'<p class="tiny">'+h(d.decision.replaceAll('_',' '))+' · '+new Date(d.created_at).toLocaleString()+(d.note?' · '+h(d.note):'')+'</p>').join(''):'<p class="tiny muted">Awaiting review.</p>')+'</div>'+
+   '<div class="office-approval-history"><strong>Client decisions</strong>'+ (ds.length?ds.map(d=>'<p class="tiny">'+h(d.decision.replaceAll('_',' '))+' · '+new Date(d.created_at).toLocaleString()+(d.typed_name?' · Acknowledged by '+h(d.typed_name):'')+(d.note?' · '+h(d.note):'')+'</p>').join(''):'<p class="tiny muted">Awaiting review.</p>')+'</div>'+
    (staff&&p.status==='draft'?'<button class="btn alt small" data-publish-proposal="'+h(p.id)+'">Publish to client</button>':'')+
-   (!staff&&canApprove&&!hasDecision&&!superseded&&p.status==='published'?'<form data-proposal-decision="'+h(p.id)+'"><label class="form-field">Comments (required for revisions)<textarea name="note" maxlength="6000"></textarea></label><div class="action-area"><button class="btn alt small" name="decision" value="changes_requested">Request changes</button><button class="btn small" name="decision" value="accepted">Accept proposal</button></div></form>':'')+
+   (!staff&&canApprove&&!hasDecision&&!superseded&&p.status==='published'?'<form data-proposal-decision="'+h(p.id)+'"><p class="tiny muted">Review the complete proposal and its scope before recording a decision. Acceptance is recorded with your account, name and timestamp; it is not an external legal e-signature.</p><label class="form-field">Your full name (required for acceptance)<input name="typed_name" maxlength="150" autocomplete="name" placeholder="Enter your name"></label><label class="form-field">Comments (required for revisions)<textarea name="note" maxlength="6000"></textarea></label><label class="proposal-acknowledge"><input type="checkbox" name="scope_acknowledged" value="yes"> I have reviewed the published scope, price, exclusions and payment terms and agree to these exact terms.</label><div class="action-area"><button class="btn alt small" name="decision" value="changes_requested">Request changes</button><button class="btn small" name="decision" value="accepted">Accept proposal</button></div></form>':'')+
   '</section>';
  }).join('');
  const options=projects.map(p=>'<option value="'+h(p.id)+'">'+h(clientName(p.client_id)+' / '+p.title)+'</option>').join('');
@@ -65,11 +65,13 @@ export function proposalWire({root,supabase,rows,staff,userId,escape,reload,noti
  root.querySelectorAll('[data-proposal-decision]').forEach(form=>{
   form.onsubmit=async e=>{
    e.preventDefault();
-   const decision=e.submitter?.value,note=String(new FormData(form).get('note')||'').trim();
+   const fd=new FormData(form),decision=e.submitter?.value,note=String(fd.get('note')||'').trim();
+   const typed_name=String(fd.get('typed_name')||'').trim(),scope_acknowledged=fd.get('scope_acknowledged')==='yes';
    if(!['accepted','changes_requested'].includes(decision))return;
-   if(decision==='changes_requested'&&!note){notify('Please describe the changes requested.');return;}
+   if(decision==='accepted'&&(typed_name.length<2||typed_name.length>150||!scope_acknowledged)){notify('Enter your name and check the scope acknowledgment before accepting.');return;}
+   if(decision==='changes_requested'&&note.length<5){notify('Describe the changes requested (at least five characters).');return;}
    if(!confirm(decision==='accepted'?'Record your acceptance of these exact proposal terms?':'Submit your request for changes?'))return;
-   const {error}=await supabase.from('ag_proposal_decisions').insert({proposal_id:form.dataset.proposalDecision,actor_id:userId,decision,note:note||null});
+   const {error}=await supabase.from('ag_proposal_decisions').insert({proposal_id:form.dataset.proposalDecision,actor_id:userId,decision,note:note||null,typed_name:decision==='accepted'?typed_name:null,scope_acknowledged:decision==='accepted'&&scope_acknowledged});
    if(error)notify(error.message);else{notify('Your proposal decision was recorded.');await reload();}
   };
  });
