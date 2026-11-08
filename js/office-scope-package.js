@@ -21,9 +21,25 @@ export function scopePackagePage({rows,project,escape,staff}) {
   const allTasks=rows.ag_tasks||[];
   const verifiedTasks=assignedMappings.filter(link=>allTasks.find(task=>task.id===link.task_id)?.status==='done').length;
   const n=Array.isArray(pkg.items)?pkg.items.length:0;
+  const allocations=(rows.ag_scope_invoice_allocations||[]).filter(a=>a.package_id===pkg.id);
+  const matchingInvoices=(rows.ag_invoices||[]).filter(i=>allocations.some(a=>a.invoice_id===i.id));
+  const usedCents=matchingInvoices.filter(i=>i.status!=='void').reduce((n,i)=>n+Number(i.amount_cents||0),0);
+  const remainingCents=Math.max(0,Number(pkg.estimated_one_time_cents||0)-usedCents);
+  const invoicePreview=allocations.map(a=>{
+    const invoice=matchingInvoices.find(i=>i.id===a.invoice_id);
+    return '<div class="scope-invoice-line"><span>'+h(a.milestone_label)+'</span><span>'+asUsd(invoice?.amount_cents||0)+'</span><span class="pill">'+h(invoice?.status||'Record unavailable')+'</span></div>';
+  }).join('');
   return '<article class="scope-version"><div class="section-head"><div><strong>Scope v'+pkg.version+' · '+h(pkg.title)+'</strong><p class="tiny muted">Frozen '+new Date(pkg.created_at).toLocaleString()+' · '+n+' components · '+asUsd(pkg.estimated_one_time_cents)+' one-time · '+asUsd(pkg.monthly_total_cents)+'/mo</p></div><span class="pill">'+h(accepted?'Client accepted':proposal?.status==='published'?(last==='changes_requested'?'Changes requested':'Awaiting client decision'):'Internal draft')+'</span></div>'+
    '<div class="scope-actions"><button type="button" class="btn alt small" data-package-copy="'+h(pkg.id)+'" data-type="proposal">Copy proposal</button><button type="button" class="btn alt small" data-package-copy="'+h(pkg.id)+'" data-type="build">Copy frozen AI build prompt</button><button type="button" class="btn alt small" data-package-copy="'+h(pkg.id)+'" data-type="plan">Copy delivery checklist</button>'+
    (accepted&&!superseded?'<button type="button" class="btn small" data-package-tasks="'+h(pkg.id)+'">'+(completedTasks?'Sync approved tasks':'Create approved tasks')+'</button>':'')+'</div>'+
+   (accepted&&!superseded?'<details class="scope-invoice-drafts"><summary>Prepare approved billing drafts · '+asUsd(remainingCents)+' remaining</summary><div class="scope-invoice-content">'+
+     '<p class="tiny muted">Internal invoice draft only. No Stripe invoice, message or payment is created. Review the accepted payment schedule before allocating milestone charges.</p>'+
+     (invoicePreview?'<div class="scope-invoice-list">'+invoicePreview+'</div>':'')+
+     (remainingCents>0?'<form data-prepare-scope-invoice="'+h(pkg.id)+'"><label class="form-field">Billing milestone name<input name="milestone_label" required minlength="3" maxlength="120" placeholder="Deposit / Staging / Final handoff"></label>'+
+       '<label class="form-field">Amount (USD)<input type="number" name="amount" required min="0.01" step="0.01" max="'+(remainingCents/100).toFixed(2)+'" value="'+(remainingCents/100).toFixed(2)+'"></label>'+
+       '<label class="form-field">Planned due date (optional)<input type="date" name="due_date"></label>'+
+       '<button class="btn alt small" type="submit">Save internal invoice draft</button></form>':'<p class="tiny muted">The accepted one-time total is fully allocated. Create no further draft charges for this version.</p>')+
+     '</div></details>':'')+
    '<p class="tiny muted">'+(completedTasks?verifiedTasks+' / '+completedTasks+' mapped tasks marked done. ':'')+(superseded?'This version has been superseded; a new version requires review and acceptance. ':'')+'Publish the related draft on the Proposals tab. Client acceptance is recorded there; no client is contacted automatically by creating this package.</p></article>';
  }).join('');
  return '<section class="card scope-packages" id="scope-packages"><div class="section-head"><div><h3>Proposal → Build → Delivery</h3><p>One frozen scope version powers all three outputs. Editing checked items later does not silently change an existing proposal.</p></div></div>'+
@@ -68,6 +84,24 @@ export function scopePackageWire({root,rows,project,supabase,notify,reload,staff
   const text=button.dataset.type==='proposal'?(proposal?.scope||'Proposal unavailable'):button.dataset.type==='build'?toPrompt(pkg):asText(pkg);
   try{await navigator.clipboard.writeText(text);notify(button.dataset.type==='proposal'?'Frozen proposal copied.':'Frozen project document copied.');}
   catch{notify('Clipboard access blocked.');}
+ });
+ section.querySelectorAll('[data-prepare-scope-invoice]').forEach(form=>form.onsubmit=async event=>{
+  event.preventDefault();
+  const id=form.dataset.prepareScopeInvoice;
+  const pkg=packages.find(x=>x.id===id);
+  if(!pkg)return;
+  const values=Object.fromEntries(new FormData(form));
+  const amountString=String(values.amount||'').trim();
+  if(!/^\\d+(?:\\.\\d{1,2})?$/.test(amountString)){notify('Enter a valid USD amount with no more than two decimals.');return;}
+  const amount=Math.round(Number(amountString)*100);
+  if(!Number.isSafeInteger(amount)||amount<=0){notify('Enter a positive milestone amount.');return;}
+  const label=String(values.milestone_label||'').trim();
+  if(label.length<3||label.length>120){notify('Enter a milestone description of 3–120 characters.');return;}
+  if(!confirm('Prepare an internal draft for '+label+' at '+asUsd(amount)+' against accepted scope v'+pkg.version+'? Nothing will be sent or charged.'))return;
+  const button=form.querySelector('[type=submit]');button.disabled=true;
+  const {data,error}=await supabase.rpc('ag_prepare_scope_invoice_draft',{p_package_id:pkg.id,p_milestone_label:label,p_amount_cents:amount,p_due_date:values.due_date||null});
+  if(error||!data){notify(error?.message||'Unable to prepare billing draft.');button.disabled=false;return;}
+  notify('Internal billing draft saved. Review it under Billing before any payment setup.');await reload();
  });
  section.querySelectorAll('[data-package-tasks]').forEach(button=>button.onclick=async()=>{
   const pkg=packages.find(x=>x.id===button.dataset.packageTasks);if(!pkg)return;
