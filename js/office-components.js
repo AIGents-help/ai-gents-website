@@ -206,7 +206,10 @@ export function componentsWire({root,supabase,rows,project,staff,teamRole,userId
   lines.innerHTML=lastPreviewItems.length?'<div class="component-estimate-header"><span>Selected component</span><span>One-time</span><span>Monthly</span></div>'+
    lastPreviewItems.map(item=>{
     const qty=Number(item.quote_quantity)||1;
-    return '<div class="component-estimate-row"><span>'+h(item.component_label)+(qty>1?' <small>× '+qty+'</small>':'')+'</span><strong>'+formatter(Number(item.setup_fee_cents||0)*qty)+'</strong><strong>'+formatter(Number(item.monthly_fee_cents||0)*qty)+'</strong></div>';
+    const ref=referenceFor(item);
+    const benchmarkLine=ref?'<small class="reference-line">Benchmark: '+formatter(ref.setup_fee_cents*qty)+' setup · '+formatter(ref.monthly_fee_cents*qty)+'/mo</small>':
+      '<small class="reference-line">Custom — no reference benchmark</small>';
+    return '<div class="component-estimate-row"><span>'+h(item.component_label)+(qty>1?' <small>× '+qty+'</small>':'')+benchmarkLine+'</span><strong>'+formatter(Number(item.setup_fee_cents||0)*qty)+'</strong><strong>'+formatter(Number(item.monthly_fee_cents||0)*qty)+'</strong></div>';
    }).join(''):'<p class="tiny muted">No components selected yet. Check items above to build an estimate.</p>';
   const warningBox=scope.querySelector('#component-overlap-alert');
   if(warningBox){
