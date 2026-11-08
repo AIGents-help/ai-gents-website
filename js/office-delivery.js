@@ -3,18 +3,20 @@ import {openProposalPrint} from '/js/office-proposal-print.js';
 export function proposalPage({rows,staff,userId,escape,projectName,clientName}) {
  const h=escape,proposals=rows.ag_proposals||[],decisions=rows.ag_proposal_decisions||[],projects=rows.ag_projects||[],approvers=rows.ag_client_approvers||[];
  const money=(n,c)=>n==null?'Pricing to be confirmed':new Intl.NumberFormat('en-US',{style:'currency',currency:c||'usd'}).format(Number(n)/100);
- const scopePackages=rows.ag_scope_packages||[];
+ const scopePackages=rows.ag_scope_packages||[],members=rows.ag_client_users||[],access=rows.ag_client_member_access||[];
+ const hasApprover=clientId=>approvers.some(a=>a.client_id===clientId&&members.some(m=>m.client_id===clientId&&m.user_id===a.user_id)&&!access.some(x=>x.client_id===clientId&&x.user_id===a.user_id&&x.access_level==='read'));
  const blocks=proposals.map(p=>{
   const project=projects.find(pr=>pr.id===p.project_id);
   const ds=decisions.filter(d=>d.proposal_id===p.id).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
   const scopeVersion=scopePackages.find(pkg=>pkg.proposal_id===p.id);
   const superseded=!!scopeVersion&&scopePackages.some(pkg=>pkg.project_id===scopeVersion.project_id&&pkg.version>scopeVersion.version);
   const hasDecision=ds.length>0;
+  const publishReady=hasApprover(project?.client_id);
   const canApprove=!((rows.ag_client_member_access||[]).some(a=>a.user_id===userId&&a.client_id===project?.client_id&&a.access_level==='read'))&&approvers.some(a=>a.user_id===userId&&project?.client_id===a.client_id);
   return '<section class="card" style="margin-bottom:16px"><div class="section-head"><div><p class="eyebrow">'+h(projectName(p.project_id))+'</p><h3>'+h(p.title)+'</h3><p>'+h(money(p.amount_cents,p.currency))+'</p></div><span class="pill">'+h(p.status)+'</span></div><div class="office-proposal-scope">'+h(p.scope)+'</div>'+
    '<div class="action-area" style="margin:12px 0"><button type="button" class="btn alt small" data-print-proposal="'+h(p.id)+'">Review / Print / Save PDF</button>'+(superseded?'<span class="pill">Superseded by a newer scope version</span>':'')+'</div>'+
    '<div class="office-approval-history"><strong>Client decisions</strong>'+ (ds.length?ds.map(d=>'<p class="tiny">'+h(d.decision.replaceAll('_',' '))+' · '+new Date(d.created_at).toLocaleString()+(d.typed_name?' · Acknowledged by '+h(d.typed_name):'')+(d.note?' · '+h(d.note):'')+'</p>').join(''):'<p class="tiny muted">Awaiting review.</p>')+'</div>'+
-   (staff&&p.status==='draft'?'<button class="btn alt small" data-publish-proposal="'+h(p.id)+'">Publish to client</button>':'')+
+   (staff&&p.status==='draft'?(publishReady?'<button class="btn alt small" data-publish-proposal="'+h(p.id)+'">Publish to client</button>':'<div class="proposal-publish-warning"><p class="tiny">Client approver required before publication. Add a verified client with Read & respond access and authorize proposal approval.</p><button type="button" class="btn alt small" data-proposal-manage-access>Manage client access</button></div>'):'')+
    (!staff&&canApprove&&!hasDecision&&!superseded&&p.status==='published'?'<form data-proposal-decision="'+h(p.id)+'"><p class="tiny muted">Review the complete proposal and its scope before recording a decision. Acceptance is recorded with your account, name and timestamp; it is not an external legal e-signature.</p><label class="form-field">Your full name (required for acceptance)<input name="typed_name" maxlength="150" autocomplete="name" placeholder="Enter your name"></label><label class="form-field">Comments (required for revisions)<textarea name="note" maxlength="6000"></textarea></label><label class="proposal-acknowledge"><input type="checkbox" name="scope_acknowledged" value="yes"> I have reviewed the published scope, price, exclusions and payment terms and agree to these exact terms.</label><div class="action-area"><button class="btn alt small" name="decision" value="changes_requested">Request changes</button><button class="btn small" name="decision" value="accepted">Accept proposal</button></div></form>':'')+
   '</section>';
  }).join('');
@@ -30,6 +32,7 @@ export function deliverablesPage({rows,staff,escape,projectName,clientName}) {
  '<template id="deliverable-project-options">'+projects.map(p=>'<option value="'+h(p.id)+'">'+h(clientName(p.client_id)+' / '+p.title)+'</option>').join('')+'</template>';
 }
 export function proposalWire({root,supabase,rows,staff,userId,escape,reload,notify}){
+ root.querySelectorAll('[data-proposal-manage-access]').forEach(button=>button.onclick=()=>root.querySelector('[data-view="clients"]')?.click());
  root.querySelectorAll('[data-print-proposal]').forEach(button=>button.onclick=()=>{
   const proposal=(rows.ag_proposals||[]).find(x=>x.id===button.dataset.printProposal);
   if(!proposal)return;
