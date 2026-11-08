@@ -25,7 +25,16 @@ export function clientAccessPage({rows,escape,pretty,owner}) {
     '</div></section>';
  }).join(''):'<p class="muted">No client organizations yet.</p>')+'</div>'+
  '<div class="card"><div class="section-head"><div><h3>Client portal access</h3><p class="tiny">Add client access by verified email. The account is assigned only after email verification.</p></div><button class="btn alt" data-access="invite">+ Add client access</button></div>'+
- (invites.length?invites.map(i=>'<div class="item"><div><strong>'+h(i.email)+'</strong><small>'+h(clientName(i.client_id))+' · Created '+stamp(i.created_at)+'</small></div><div class="action-area"><span class="pill">'+(i.accepted_by?'Active':Date.parse(i.expires_at)<Date.now()?'Expired':'Pending verification')+'</span>'+'<button type="button" class="btn alt small" data-access="revoke" data-invite="'+h(i.id)+'">'+(i.accepted_by?'Remove access':'Revoke')+'</button>'+(owner&&i.accepted_by?'<select aria-label="Client access level" data-client-access-user="'+h(i.accepted_by)+'" data-client-access-client="'+h(i.client_id)+'"><option value="read" '+(permissions.some(p=>p.user_id===i.accepted_by&&p.client_id===i.client_id&&p.access_level==='read')?'selected':'')+'>Read only</option><option value="write" '+(!permissions.some(p=>p.user_id===i.accepted_by&&p.client_id===i.client_id&&p.access_level==='read')?'selected':'')+'>Read & respond</option></select>':'')+'</div></div>').join(''):'<p class="muted">No client access invitations have been recorded.</p>')+
+ (invites.length?invites.map(i=>{
+  const expired=!i.accepted_by&&Date.parse(i.expires_at)<Date.now();
+  const canDeliver=owner||i.created_by===rows.currentStaffUserId;
+  return '<div class="item"><div><strong>'+h(i.email)+'</strong><small>'+h(clientName(i.client_id))+' · Created '+stamp(i.created_at)+'</small></div><div class="action-area">'+
+    '<span class="pill">'+(i.accepted_by?'Active':expired?'Expired':'Pending verification')+'</span>'+
+    (!i.accepted_by&&!expired&&canDeliver?'<button type="button" class="btn alt small" data-access="resend" data-invite="'+h(i.id)+'">Resend invite</button>':'')+
+    (!i.accepted_by?'<button type="button" class="btn alt small" data-access="copy-link">Copy portal link</button>':'')+
+    '<button type="button" class="btn alt small" data-access="revoke" data-invite="'+h(i.id)+'">'+(i.accepted_by?'Remove access':'Revoke')+'</button>'+
+    (owner&&i.accepted_by?'<select aria-label="Client access level" data-client-access-user="'+h(i.accepted_by)+'" data-client-access-client="'+h(i.client_id)+'"><option value="read" '+(permissions.some(p=>p.user_id===i.accepted_by&&p.client_id===i.client_id&&p.access_level==='read')?'selected':'')+'>Read only</option><option value="write" '+(!permissions.some(p=>p.user_id===i.accepted_by&&p.client_id===i.client_id&&p.access_level==='read')?'selected':'')+'>Read & respond</option></select>':'')+'</div></div>';
+ }).join(''):'<p class="muted">No client access invitations have been recorded.</p>')+
  '<p class="tiny muted" style="margin-top:15px">The invitation email is sent through Supabase. If email delivery is unavailable, the pending record is preserved and the secure invitation console can be used.</p>'+
  '<a class="btn alt small" target="_blank" rel="noopener noreferrer" href="https://supabase.com/dashboard/project/apcvfezfmegqqjuonrgl/auth/users">Open secure invitation console ↗</a></div>';
 }
@@ -78,6 +87,32 @@ export function clientAccessWire({root,supabase,rows,userId,escape,reload,notify
  });
  root.querySelectorAll('[data-access]').forEach(b=>b.onclick=async()=>{
   if(b.dataset.access==='invite'){dialog();return;}
+  if(b.dataset.access==='copy-link'){
+   try{
+    await navigator.clipboard.writeText('https://aigents.help/office');
+    notify('Portal address copied. The client must verify the email invitation or use their existing verified account; this address is not an invitation token.');
+   }catch{notify('Clipboard access blocked. Portal address: https://aigents.help/office');}
+   return;
+  }
+  if(b.dataset.access==='resend'){
+   const invitation=(rows.ag_client_invitations||[]).find(i=>i.id===b.dataset.invite);
+   if(!invitation||invitation.accepted_by)return;
+   if(Date.parse(invitation.expires_at)<Date.now()){
+    notify('This invitation expired. Revoke it and issue a new invitation.');return;
+   }
+   if(!confirm('Resend the existing client portal invitation to '+invitation.email+'? This attempts real email delivery.'))return;
+   b.disabled=true;
+   const {data,error}=await supabase.functions.invoke('ag-invite-client',{body:{invitation_id:invitation.id}});
+   if(error||data?.error){
+    notify(data?.error||'Invitation delivery could not be confirmed. Verify email settings and check whether the recipient has an existing account.');
+    b.disabled=false;return;
+   }
+   if(data?.status==='sent')notify('Supabase accepted the invitation email request. Delivery and client verification are not yet confirmed.');
+   else if(data?.status==='active')notify('This existing client account is already verified and linked.');
+   else notify('Invitation request processed; verify client activation before proceeding.');
+   await reload();
+   return;
+  }
   if(b.dataset.access==='revoke'){
    if(!confirm('Remove this client portal access? If active, the client will immediately lose access to this organization.'))return;
    const {data:removed,error}=await supabase.rpc('ag_revoke_client_access',{p_invitation_id:b.dataset.invite});
