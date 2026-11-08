@@ -142,6 +142,7 @@ export function componentsWire({root,supabase,rows,project,staff,teamRole,userId
 
  // An internal estimate preview, not a Stripe invoice. Only privileged staff
  // receive pricing rows and may view this section.
+ const h=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
  const estimate=scope.querySelector('#component-live-estimate');
  const getPreviewItems=()=>{
   const saved=(rows.ag_project_components||[]).filter(i=>i.project_id===project.id)
@@ -196,10 +197,11 @@ export function componentsWire({root,supabase,rows,project,staff,teamRole,userId
    const baseline=[(Number(initial?.setup_fee_cents||0)/100).toFixed(2),(Number(initial?.monthly_fee_cents||0)/100).toFixed(2),initial?.third_party_monthly_cents==null?'':(Number(initial.third_party_monthly_cents)/100).toFixed(2),String(initial?.quote_quantity||1)];
    return values.some((v,i)=>v!==baseline[i]);
   });
+  const pending=[...scope.querySelectorAll('[data-scope-key]')].some(c=>c.disabled);
   const copy=scope.querySelector('#component-copy-quote');
-  if(copy)copy.disabled=!lastPreviewItems.length||dirty;
+  if(copy)copy.disabled=!lastPreviewItems.length||dirty||pending;
   const msg=scope.querySelector('#component-estimate-state');
-  if(msg)msg.textContent=dirty?'Preview includes unsaved changes. Click Save fees on the edited components before copying.':'Estimate reflects selected components and saved pricing. No invoice or payment has been generated.';
+  if(msg)msg.textContent=pending?'Scope update in progress. Totals are provisional until saved.':dirty?'Preview includes unsaved changes. Click Save fees on the edited components before copying.':'Estimate reflects selected components and saved pricing. No invoice or payment has been generated.';
  };
  const savedQuotePrice=rows.ag_component_pricing||[];
  if(estimate){
