@@ -24,8 +24,13 @@ export const pricingFor=key=>{
 // Non-editable reference for staff quoting. Adjusted project amounts stay in
 // ag_component_pricing; changing a quote never mutates these catalog defaults.
 // Benchmarks are AI Gents suggested starting figures, NOT certified industry tariffs.
-export const referenceFor=item=>item.item_type==='custom'?null:
-  Object.prototype.hasOwnProperty.call(BASE_PRICING,item.component_key)?pricingFor(item.component_key):null;
+export const referenceFor=item=>{
+ if(item.item_type==='custom')return null;
+ if(item.benchmark_setup_fee_cents!==null&&item.benchmark_setup_fee_cents!==undefined
+  &&item.benchmark_monthly_fee_cents!==null&&item.benchmark_monthly_fee_cents!==undefined)
+  return {setup_fee_cents:Number(item.benchmark_setup_fee_cents),monthly_fee_cents:Number(item.benchmark_monthly_fee_cents)};
+ return Object.prototype.hasOwnProperty.call(BASE_PRICING,item.component_key)?pricingFor(item.component_key):null;
+};
 export function benchmarkTotals(items){
  return items.reduce((totals,item)=>{
   const ref=referenceFor(item);
