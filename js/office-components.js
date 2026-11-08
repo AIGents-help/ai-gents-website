@@ -248,8 +248,76 @@ export function componentsWire({root,supabase,rows,project,staff,teamRole,userId
  };
  const savedQuotePrice=rows.ag_component_pricing||[];
  if(estimate){
-  scope.addEventListener('input',event=>{if(event.target.closest('[data-component-pricing]'))renderEstimate();});
-  scope.addEventListener('change',event=>{if(event.target.matches('[data-scope-key]')||event.target.closest('[data-component-pricing]'))renderEstimate();});
+  // Edit from either location without rebuilding the active input DOM (which
+  // would steal the cursor after every keystroke).
+  scope.addEventListener('input',event=>{
+   const quick=event.target.closest('[data-quick-fee]');
+   if(quick){
+    const selector=quick.dataset.feeKind==='monthly'?'[data-price-monthly]':'[data-price-setup]';
+    const editor=scope.querySelector('[data-component-pricing="'+quick.dataset.quickFee+'"]');
+    const field=editor?.querySelector(selector);
+    if(field)field.value=quick.value;
+    renderEstimate({refreshRows:false});
+    return;
+   }
+   const editor=event.target.closest('[data-component-pricing]');
+   if(editor){
+    const id=editor.dataset.componentPricing;
+    const kind=event.target.matches('[data-price-setup]')?'setup':event.target.matches('[data-price-monthly]')?'monthly':null;
+    if(kind){
+     const counterpart=scope.querySelector('[data-quick-fee="'+id+'"][data-fee-kind="'+kind+'"]');
+     if(counterpart)counterpart.value=event.target.value;
+    }
+    renderEstimate({refreshRows:false});
+   }
+  });
+  scope.addEventListener('change',event=>{
+   if(event.target.matches('[data-scope-key]'))renderEstimate();
+   else if(event.target.closest('[data-component-pricing]'))renderEstimate({refreshRows:false});
+  });
+  estimate.addEventListener('click',event=>{
+   const button=event.target.closest('[data-component-jump]');
+   if(!button)return;
+   const id=button.dataset.componentJump;
+   const editor=scope.querySelector('[data-component-pricing="'+id+'"]');
+   if(!editor){notify('The selected component is no longer in this project.');return;}
+   const category=editor.closest('.component-category');
+   if(category)category.open=true;
+   const fees=editor.closest('.component-fees');
+   if(fees)fees.open=true;
+   const row=editor.closest('.component-line')||editor;
+   row.scrollIntoView({behavior:'smooth',block:'center'});
+  });
+  const batchButton=scope.querySelector('#component-save-all-fees');
+  if(batchButton)batchButton.onclick=async()=>{
+   if(!staff)return;
+   const modified=[...scope.querySelectorAll('[data-component-pricing]')].filter(editor=>{
+    const initial=savedQuotePrice.find(p=>p.component_id===editor.dataset.componentPricing);
+    const values=[editor.querySelector('[data-price-setup]')?.value,editor.querySelector('[data-price-monthly]')?.value,editor.querySelector('[data-price-external]')?.value,editor.querySelector('[data-price-quantity]')?.value];
+    const baseline=[(Number(initial?.setup_fee_cents||0)/100).toFixed(2),(Number(initial?.monthly_fee_cents||0)/100).toFixed(2),initial?.third_party_monthly_cents==null?'':(Number(initial.third_party_monthly_cents)/100).toFixed(2),String(initial?.quote_quantity||1)];
+    return values.some((v,i)=>v!==baseline[i]);
+   });
+   if(!modified.length)return;
+   let changes;
+   try{
+    changes=modified.map(editor=>{
+     const setup_fee_cents=centsFrom(editor.querySelector('[data-price-setup]').value);
+     const monthly_fee_cents=centsFrom(editor.querySelector('[data-price-monthly]').value);
+     const third_party_monthly_cents=centsFrom(editor.querySelector('[data-price-external]').value);
+     const quote_quantity=Number(editor.querySelector('[data-price-quantity]').value);
+     if(setup_fee_cents===null||monthly_fee_cents===null||!Number.isSafeInteger(quote_quantity)||quote_quantity<1||quote_quantity>1000)
+      throw new Error('Complete each fee and quantity before saving.');
+     const original=savedQuotePrice.find(p=>p.component_id===editor.dataset.componentPricing);
+     return {component_id:editor.dataset.componentPricing,setup_fee_cents,monthly_fee_cents,
+      third_party_monthly_cents,quote_quantity,expected_updated_at:original?.updated_at||null};
+    });
+   }catch(error){notify(error.message||'Fix invalid fee amounts.');return;}
+   batchButton.disabled=true;
+   const {data,error}=await supabase.rpc('ag_save_component_quote_batch',{p_project_id:project.id,p_changes:changes});
+   if(error){notify(error.message||'The estimate could not be saved.');batchButton.disabled=false;return;}
+   notify(data+' component price'+(data===1?'':'s')+' updated. The benchmark references were not changed.');
+   await refreshWithoutJump();
+  };
   renderEstimate();
  }
  const copy=scope.querySelector('#component-copy-quote');
