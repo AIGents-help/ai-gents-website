@@ -1,6 +1,6 @@
 import {sharedImplementationWarnings} from '/js/office-scope-overlap.js';
 import {buildCommandCenterPrompt} from '/js/office-build-prompt.js';
-import {pricingFor,asUsd,quoteTotals,quoteText} from '/js/office-component-pricing.js';
+import {pricingFor,referenceFor,benchmarkTotals,asUsd,quoteTotals,quoteText} from '/js/office-component-pricing.js';
 // AI Gents project scope: standard component catalog + custom scope.
 // A checked component means "requested/in scope"; delivery status is tracked separately.
 // Nothing here provisions a service, account, repository, deployment, or subscription.
@@ -31,16 +31,22 @@ export function componentsPage({rows,project,escape,staff,teamRole,userId}){
   const input=staff?'<input type="checkbox" data-scope-key="'+h(key)+'" data-scope-label="'+h(label)+'" data-scope-group="'+h(group)+'" '+(checked?'checked':'')+' aria-label="Include '+h(label)+'">':'<span class="pill">'+(checked?'Included':'Not selected')+'</span>';
   const status=checked?'<select class="small-status" data-component-status="'+h(existing.id)+'" aria-label="Delivery status of '+h(label)+'" '+(!canUpdate?'disabled':'')+'>'+Object.entries(statusLabel).map(([value,text])=>'<option value="'+value+'" '+(existing.status===value?'selected':'')+'>'+text+'</option>').join('')+'</select>':'<span class="tiny muted">Not in scope</span>';
   const defaultFees=pricingFor(key);
-  const price=checked?(staff?'<details class="component-fees" data-accordion-key="fee:'+h(existing.id)+'"><summary>Fees · '+asUsd(existing.setup_fee_cents||0)+' setup / '+asUsd(existing.monthly_fee_cents||0)+' monthly</summary>'+priceInputs(existing,h)+'</details>':''):(staff?'<span class="tiny muted component-estimate">Estimate: '+asUsd(defaultFees.setup_fee_cents)+'</span>':'');
+  const price=checked?(staff?'<details class="component-fees" data-accordion-key="fee:'+h(existing.id)+'"><summary>Quote: '+asUsd(existing.setup_fee_cents||0)+' setup / '+asUsd(existing.monthly_fee_cents||0)+' monthly · Benchmark: '+asUsd(defaultFees.setup_fee_cents)+'</summary>'+priceInputs(existing,h)+'</details>':''):(staff?'<span class="tiny muted component-estimate">Reference setup: '+asUsd(defaultFees.setup_fee_cents)+'</span>':'');
   const note=checked&&staff?'<details class="component-notes"><summary>Notes</summary><textarea rows="2" maxlength="3000" aria-label="Notes for '+h(label)+'" data-component-notes="'+h(existing.id)+'" placeholder="Requirements, dependencies or acceptance criteria">'+h(existing.notes||'')+'</textarea><button type="button" class="btn alt small" data-component-save-note="'+h(existing.id)+'">Save note</button></details>':checked&&existing.notes?'<p class="tiny muted">'+h(existing.notes)+'</p>':'';
   return '<div class="component-line '+(checked?'is-scoped':'')+'"><div class="component-main"><label class="component-label">'+input+'<span>'+h(label)+'</span></label>'+status+'</div>'+price+note+'</div>';
  };
- const priceInputs=(record,esc)=>'<div class="component-pricing" data-component-pricing="'+esc(record.id)+'">'+
+ const priceInputs=(record,esc)=>{
+  const ref=referenceFor(record);
+  return '<div class="component-pricing-wrapper">'+(ref?
+   '<div class="component-benchmark"><div><span>Industry reference · AI Gents benchmark</span><strong>'+asUsd(ref.setup_fee_cents)+' setup / '+asUsd(ref.monthly_fee_cents)+' monthly</strong></div><button type="button" class="btn alt small" data-restore-benchmark="'+esc(record.id)+'">Restore benchmark</button></div>':
+   '<p class="tiny muted component-custom-benchmark">Custom scope — no standard benchmark. Enter a project-specific fee.</p>')+
+   '<div class="component-pricing" data-component-pricing="'+esc(record.id)+'">'+
  '<label>Setup fee ($)<input type="number" min="0" max="9999999.99" step="0.01" data-price-setup value="'+(Number(record.setup_fee_cents||0)/100).toFixed(2)+'"></label>'+
  '<label>Monthly fee ($)<input type="number" min="0" max="9999999.99" step="0.01" data-price-monthly value="'+(Number(record.monthly_fee_cents||0)/100).toFixed(2)+'"></label>'+
  '<label>External / mo. ($)<input type="number" min="0" max="9999999.99" step="0.01" data-price-external placeholder="TBD" value="'+(record.third_party_monthly_cents==null?'':(Number(record.third_party_monthly_cents)/100).toFixed(2))+'"></label>'+
  '<label>Qty<input type="number" min="1" max="1000" step="1" data-price-quantity value="'+(Number(record.quote_quantity)||1)+'"></label>'+
- '<button type="button" class="btn alt small" data-save-component-price="'+esc(record.id)+'">Save fees</button></div>';
+ '<button type="button" class="btn alt small" data-save-component-price="'+esc(record.id)+'">Save quoted fees</button></div></div>';
+ };
  const sections=CATALOG.map(g=>{const count=g.items.filter(([key])=>items.some(x=>x.item_type==='standard'&&x.component_key===key)).length;return '<details class="component-group component-category" data-accordion-key="category:'+h(g.group)+'"><summary class="component-category-heading"><span>'+h(g.group)+'</span><span class="pill">'+count+' selected / '+g.items.length+'</span></summary><div class="component-group-body">'+g.items.map(([key,label])=>renderItem(key,label,g.group,items.find(x=>x.component_key===key&&x.item_type==='standard'))).join('')+'</div></details>';}).join('');
  const custom=items.filter(x=>x.item_type==='custom');
  return '<section class="card component-checklist" id="project-component-scope">'+
@@ -49,11 +55,13 @@ export function componentsPage({rows,project,escape,staff,teamRole,userId}){
  '<p class="tiny muted">A checked box means the client wants this component or it is included in the agreed scope. It does <strong>not</strong> mean the service is connected, purchased, deployed or working. Only mark Completed after verifying delivery.</p>'+
 '<div class="component-groups">'+sections+'</div>'+
  '<details class="component-group component-category" data-accordion-key="category:Custom"><summary class="component-category-heading"><span>Custom components</span><span class="pill">'+custom.length+' selected</span></summary><div class="component-group-body">'+
- (custom.length?custom.map(x=>'<div class="component-line is-scoped"><div class="component-main"><strong>'+h(x.component_label)+'</strong><div class="action-area"><select class="small-status" data-component-status="'+h(x.id)+'" aria-label="Custom component status" '+(!canUpdate?'disabled':'')+'>'+Object.entries(statusLabel).map(([value,label])=>'<option value="'+value+'" '+(x.status===value?'selected':'')+'>'+label+'</option>').join('')+'</select>'+(staff?'<button type="button" class="btn alt small" data-remove-component="'+h(x.id)+'">Remove</button>':'')+'</div></div>'+(staff?'<details class="component-fees" data-accordion-key="fee:'+h(x.id)+'"><summary>Fees · '+asUsd(x.setup_fee_cents||0)+' setup / '+asUsd(x.monthly_fee_cents||0)+' monthly</summary>'+priceInputs(x,h)+'</details><details class="component-notes"><summary>Notes</summary><textarea rows="2" maxlength="3000" data-component-notes="'+h(x.id)+'">'+h(x.notes||'')+'</textarea><button type="button" class="btn alt small" data-component-save-note="'+h(x.id)+'">Save note</button></details>':x.notes?'<p class="tiny muted">'+h(x.notes)+'</p>':'')+'</div>').join(''):'<p class="tiny muted">No custom components selected.</p>')+
+ (custom.length?custom.map(x=>'<div class="component-line is-scoped"><div class="component-main"><strong>'+h(x.component_label)+'</strong><div class="action-area"><select class="small-status" data-component-status="'+h(x.id)+'" aria-label="Custom component status" '+(!canUpdate?'disabled':'')+'>'+Object.entries(statusLabel).map(([value,label])=>'<option value="'+value+'" '+(x.status===value?'selected':'')+'>'+label+'</option>').join('')+'</select>'+(staff?'<button type="button" class="btn alt small" data-remove-component="'+h(x.id)+'">Remove</button>':'')+'</div></div>'+(staff?'<details class="component-fees" data-accordion-key="fee:'+h(x.id)+'"><summary>Custom quote · '+asUsd(x.setup_fee_cents||0)+' setup / '+asUsd(x.monthly_fee_cents||0)+' monthly</summary>'+priceInputs(x,h)+'</details><details class="component-notes"><summary>Notes</summary><textarea rows="2" maxlength="3000" data-component-notes="'+h(x.id)+'">'+h(x.notes||'')+'</textarea><button type="button" class="btn alt small" data-component-save-note="'+h(x.id)+'">Save note</button></details>':x.notes?'<p class="tiny muted">'+h(x.notes)+'</p>':'')+'</div>').join(''):'<p class="tiny muted">No custom components selected.</p>')+
  (staff?'<form id="custom-component-form" class="custom-component-form"><label class="form-field">Add a unique requirement<input name="label" required maxlength="150" minlength="2" placeholder="Describe the custom feature or integration"></label><button class="btn alt small" type="submit">+ Add custom</button></form>':'')+'</div></details>'+
  (staff?'<section class="component-quote component-quote-footer" aria-label="Staff-only live estimate" id="component-live-estimate"><div class="section-head"><div><h3>Internal Estimate — Selected Components</h3><p class="tiny muted">Staff only · Draft, not a sent invoice. Values reflect the current selection and fee edits.</p></div><button type="button" class="btn alt small" id="component-copy-quote" '+(!items.length?'disabled':'')+'>Copy itemized estimate</button></div>'+
  '<div class="component-quote-lines" id="component-estimate-lines"></div>'+
  '<div class="component-quote-values"><div><span>One-time implementation</span><strong id="estimate-setup-total">'+asUsd(totals.once)+'</strong></div><div><span>AI Gents / month</span><strong id="estimate-monthly-total">'+asUsd(totals.monthly)+'</strong></div><div><span>Third-party / month (known)</span><strong id="estimate-external-total">'+asUsd(totals.external)+'</strong></div><div><span>Provider costs TBD</span><strong id="estimate-external-unknown">'+totals.unknownExternal+' item(s)</strong></div></div>'+
+ '<div class="component-benchmark-comparison" id="component-benchmark-comparison"></div>'+
+ '<label class="component-benchmark-toggle"><input type="checkbox" id="include-benchmark-copy"> Include benchmark reference in copied estimate (optional; verify before sharing)</label>'+
  '<p class="component-estimate-year">Estimated first-year AI Gents fees: <strong id="estimate-year-total">'+asUsd(totals.once+totals.monthly*12)+'</strong></p>'+
  '<div class="component-overlap-alert" id="component-overlap-alert" role="note"></div>'+ 
  '<p class="tiny muted" id="component-estimate-state" role="status">Figures update as components are selected and fees are edited. Save fees to persist changes before copying or sending a proposal.</p>'+
@@ -129,6 +137,17 @@ export function componentsWire({root,supabase,rows,project,staff,teamRole,userId
   if(!Number.isFinite(n)||n<0||n>9999999.99||!/^\d+(?:\.\d{1,2})?$/.test(String(value)))throw new Error('Use a valid nonnegative USD amount with at most two decimal places.');
   return Math.round(n*100);
  };
+ scope.querySelectorAll('[data-restore-benchmark]').forEach(button=>button.onclick=()=>{
+  if(!staff)return;
+  const component=(rows.ag_project_components||[]).find(c=>c.id===button.dataset.restoreBenchmark);
+  const reference=component&&referenceFor(component);
+  const editor=scope.querySelector('[data-component-pricing="'+button.dataset.restoreBenchmark+'"]');
+  if(!reference||!editor)return;
+  editor.querySelector('[data-price-setup]').value=(reference.setup_fee_cents/100).toFixed(2);
+  editor.querySelector('[data-price-monthly]').value=(reference.monthly_fee_cents/100).toFixed(2);
+  editor.dispatchEvent(new Event('input',{bubbles:true}));
+  notify('Benchmark values restored in the editor. Click Save quoted fees to persist.');
+ });
  scope.querySelectorAll('[data-save-component-price]').forEach(b=>b.onclick=async()=>{
   if(!staff)return;
   const fields=scope.querySelector('[data-component-pricing="'+b.dataset.saveComponentPrice+'"]');
@@ -208,6 +227,16 @@ export function componentsWire({root,supabase,rows,project,staff,teamRole,userId
    const baseline=[(Number(initial?.setup_fee_cents||0)/100).toFixed(2),(Number(initial?.monthly_fee_cents||0)/100).toFixed(2),initial?.third_party_monthly_cents==null?'':(Number(initial.third_party_monthly_cents)/100).toFixed(2),String(initial?.quote_quantity||1)];
    return values.some((v,i)=>v!==baseline[i]);
   });
+ const refTotals=benchmarkTotals(lastPreviewItems);
+  const covered=lastPreviewItems.filter(item=>referenceFor(item));
+  const comparison=scope.querySelector('#component-benchmark-comparison');
+  if(comparison){
+   const quotedCovered=covered.reduce((n,item)=>n+Number(item.setup_fee_cents||0)*(Number(item.quote_quantity)||1),0);
+   const delta=refTotals.once-quotedCovered;
+   comparison.innerHTML='<div class="component-compare-head"><span>AI Gents benchmark (standard items only)</span><strong>'+formatter(refTotals.once)+'</strong></div>'+
+    '<div class="component-compare-head"><span>Current quote (those same items)</span><strong>'+formatter(quotedCovered)+'</strong></div>'+
+    '<p class="tiny muted">Difference from benchmark: <strong>'+formatter(Math.abs(delta))+' '+(delta>=0?'below':'above')+' reference</strong>. '+(refTotals.unbenchmarked?'Custom / unbenchmarked items: '+refTotals.unbenchmarked+'. ':'')+'Benchmarks are suggested starting estimates, not independently verified market prices.</p>';
+  }
   const pending=[...scope.querySelectorAll('[data-scope-key]')].some(c=>c.disabled);
   const copy=scope.querySelector('#component-copy-quote');
   if(copy)copy.disabled=!lastPreviewItems.length||dirty||pending;
@@ -222,7 +251,7 @@ export function componentsWire({root,supabase,rows,project,staff,teamRole,userId
  }
  const copy=scope.querySelector('#component-copy-quote');
  if(copy)copy.onclick=async()=>{
-  try{renderEstimate();if(copy.disabled)return;await navigator.clipboard.writeText(quoteText(project,lastPreviewItems));notify('Internal draft estimate copied. Review before sending to clients.');}
+  try{renderEstimate();if(copy.disabled)return;await navigator.clipboard.writeText(quoteText(project,lastPreviewItems,{includeBenchmarks:!!scope.querySelector('#include-benchmark-copy')?.checked}));notify('Internal draft estimate copied. Review benchmarks and prices before sending to clients.');}
   catch{notify('Clipboard blocked by your browser.');}
  };
  scope.querySelectorAll('[data-scope-key]').forEach(c=>c.onchange=async()=>{
