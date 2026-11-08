@@ -1,17 +1,17 @@
 // Client access and delivery operations. Database RLS is authoritative.
-export function clientAccessPage({rows,escape,pretty}) {
- const h=escape, clients=rows.ag_clients||[], invites=rows.ag_client_invitations||[];
+export function clientAccessPage({rows,escape,pretty,owner}) {
+ const h=escape, clients=rows.ag_clients||[], invites=rows.ag_client_invitations||[], permissions=rows.ag_client_member_access||[];
  const clientName=id=>clients.find(c=>c.id===id)?.company||'Client';
  const stamp=s=>s?new Date(s).toLocaleDateString():'—';
  return '<div class="section-head"><div><h2>Client relationships</h2><p>One organization record, one secure client workspace.</p></div><button class="btn" data-action="new-client">+ New client</button></div>'+
  '<div class="card" style="margin-bottom:20px"><div class="section-head"><div><h3>Client organizations</h3><p class="tiny">Create projects after the client has been registered.</p></div></div>'+
  (clients.length?clients.map(c=>'<div class="item"><div><strong>'+h(c.company)+'</strong><small>'+h(c.contact_name||'No primary contact')+' · '+h(c.contact_email||'No email')+'</small></div><span class="pill">'+h(c.status||'active')+'</span></div>').join(''):'<p class="muted">No client organizations yet.</p>')+'</div>'+
  '<div class="card"><div class="section-head"><div><h3>Client portal access</h3><p class="tiny">Add client access by verified email. The account is assigned only after email verification.</p></div><button class="btn alt" data-access="invite">+ Add client access</button></div>'+
- (invites.length?invites.map(i=>'<div class="item"><div><strong>'+h(i.email)+'</strong><small>'+h(clientName(i.client_id))+' · Created '+stamp(i.created_at)+'</small></div><div class="action-area"><span class="pill">'+(i.accepted_by?'Active':Date.parse(i.expires_at)<Date.now()?'Expired':'Pending verification')+'</span>'+'<button type="button" class="btn alt small" data-access="revoke" data-invite="'+h(i.id)+'">'+(i.accepted_by?'Remove access':'Revoke')+'</button>'+'</div></div>').join(''):'<p class="muted">No client access invitations have been recorded.</p>')+
+ (invites.length?invites.map(i=>'<div class="item"><div><strong>'+h(i.email)+'</strong><small>'+h(clientName(i.client_id))+' · Created '+stamp(i.created_at)+'</small></div><div class="action-area"><span class="pill">'+(i.accepted_by?'Active':Date.parse(i.expires_at)<Date.now()?'Expired':'Pending verification')+'</span>'+'<button type="button" class="btn alt small" data-access="revoke" data-invite="'+h(i.id)+'">'+(i.accepted_by?'Remove access':'Revoke')+'</button>'+(owner&&i.accepted_by?'<select aria-label="Client access level" data-client-access-user="'+h(i.accepted_by)+'" data-client-access-client="'+h(i.client_id)+'"><option value="read" '+(permissions.some(p=>p.user_id===i.accepted_by&&p.client_id===i.client_id&&p.access_level==='read')?'selected':'')+'>Read only</option><option value="write" '+(!permissions.some(p=>p.user_id===i.accepted_by&&p.client_id===i.client_id&&p.access_level==='read')?'selected':'')+'>Read & respond</option></select>':'')+'</div></div>').join(''):'<p class="muted">No client access invitations have been recorded.</p>')+
  '<p class="tiny muted" style="margin-top:15px">The invitation email is sent through Supabase. If email delivery is unavailable, the pending record is preserved and the secure invitation console can be used.</p>'+
  '<a class="btn alt small" target="_blank" rel="noopener noreferrer" href="https://supabase.com/dashboard/project/apcvfezfmegqqjuonrgl/auth/users">Open secure invitation console ↗</a></div>';
 }
-export function clientAccessWire({root,supabase,rows,userId,escape,reload,notify}) {
+export function clientAccessWire({root,supabase,rows,userId,escape,reload,notify,owner}) {
  const h=escape,clients=rows.ag_clients||[];
  function dialog(){
   if(!clients.length){notify('Create the client organization before granting access.');return;}
@@ -34,6 +34,12 @@ export function clientAccessWire({root,supabase,rows,userId,escape,reload,notify
    await reload();
   };
  }
+ root.querySelectorAll('[data-client-access-user]').forEach(field=>field.onchange=async()=>{
+  if(!owner)return;
+  field.disabled=true;
+  const {data,error}=await supabase.functions.invoke('ag-manage-access',{body:{action:'set_client_access',user_id:field.dataset.clientAccessUser,client_id:field.dataset.clientAccessClient,access_level:field.value}});
+  if(error||data?.error){notify(data?.error||'Unable to change client permission.');field.disabled=false;}else{notify('Client permission updated.');await reload();}
+ });
  root.querySelectorAll('[data-access]').forEach(b=>b.onclick=async()=>{
   if(b.dataset.access==='invite'){dialog();return;}
   if(b.dataset.access==='revoke'){
