@@ -3,7 +3,7 @@ import { studioPage, studioWire } from '/js/design-studio.js';
 import { clientAccessPage, clientAccessWire } from '/js/office-client-access.js';
 const supabase=createClient('https://apcvfezfmegqqjuonrgl.supabase.co','sb_publishable_zV6w0DBZzfe4oX2OCSYZmg_dp1OvBn0',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 const root=document.getElementById('office-app');
-let session=null,staff=false,view='overview',activeProject=null,data={},loading=false,flash='',failure='';
+let session=null,staff=false,view='overview',activeProject=null,data={},loading=false,flash='',failure='',recoveryMode=false;
 const keys=['ag_clients','ag_projects','ag_milestones','ag_messages','ag_tasks','ag_documents','ag_invoices','ag_review_items','ag_review_versions','ag_review_comments','ag_review_decisions','ag_client_approvers','ag_client_users','ag_client_invitations','ag_project_activity'];
 const titles={overview:'Overview',clients:'Clients',projects:'Projects',studio:'Design Studio',tasks:'Tasks',messages:'Messages',documents:'Documents',invoices:'Billing',profile:'My Account'};
 const pretty=s=>String(s||'—').replaceAll('_',' ').replace(/\b\w/g,c=>c.toUpperCase());
@@ -19,12 +19,34 @@ const empty=label=>'<div class="empty">'+safe(label)+'</div>';
 const button=(label,act,cls='')=>'<button type="button" class="btn '+cls+'" data-action="'+safe(act)+'">'+safe(label)+'</button>';
 const template=(content)=>'<div class="layout"><aside class="sidebar"><div class="wordmark"><img src="/images/logo-white.png" alt="">AI GENTS <span style="color:#eee;font-family:Playfair Display,serif;font-weight:400;letter-spacing:0;font-size:19px">The Office</span></div><div class="nav">'+Object.entries(titles).filter(([id])=>staff||!['clients','tasks'].includes(id)).map(([id,name])=>'<button data-view="'+id+'" class="'+(id===view?'active':'')+'">'+name+'</button>').join('')+'</div><div class="side-bottom"><span class="tiny muted">'+safe(session.user.email)+'</span>'+button('Sign out','logout','alt small')+'</div></aside><main class="main"><div class="topline"><div><div class="eyebrow">'+(staff?'Operations / Management':'Client Access / Project Delivery')+'</div><h1>'+(staff?'Unified Business Command Center':'Your Private Client Portal')+'</h1></div><span class="role">'+(staff?'Staff access':'Client access')+'</span></div>'+(failure?'<div class="error">'+safe(failure)+'</div>':'')+(flash?'<div class="notice">'+safe(flash)+'</div>':'')+content+'</main></div>';
 const redirect=()=>location.href='/office';
+
+function recoveryView(){
+ root.innerHTML = '<div class="login-wrap"><div class="login-card"><div class="wordmark">AI GENTS · THE OFFICE</div><h1>Set your password</h1><p>Enter a new password to complete account recovery.</p><div id="recovery-error"></div><form id="recovery-form"><label class="form-field">New password<input type="password" name="password" autocomplete="new-password" minlength="12" required></label><label class="form-field">Confirm password<input type="password" name="confirm" autocomplete="new-password" minlength="12" required></label><button type="submit" class="btn">Save password and enter</button></form></div></div>';
+ root.querySelector('#recovery-form').onsubmit=async event=>{
+  event.preventDefault();
+  const form=event.target,values=new FormData(form),pass=String(values.get('password')||''),confirmPass=String(values.get('confirm')||'');
+  const box=root.querySelector('#recovery-error');
+  if(pass.length<12||pass!==confirmPass){box.textContent='Passwords must match and contain at least 12 characters.';box.className='error';return;}
+  const button=form.querySelector('button');button.disabled=true;
+  const {error}=await supabase.auth.updateUser({password:pass});
+  if(error){box.textContent=error.message;box.className='error';button.disabled=false;return;}
+  recoveryMode=false;history.replaceState(null,'',location.pathname);await initialize();
+ };
+}
+function showRedirectError(){
+ const params=new URLSearchParams(location.hash.replace(/^#/,''));
+ const q=new URLSearchParams(location.search);
+ const message=params.get('error_description')||q.get('error_description');
+ if(message){const box=root.querySelector('#login-error');if(box){box.textContent=message;box.className='error';}}
+}
+
 function notifyOffice(message){flash=message;const n=document.createElement('div');n.className='notice';n.textContent=message;root.querySelector('.main')?.prepend(n);}
 function loginView(){root.innerHTML='<div class="login-wrap"><div class="login-card"><div class="wordmark"><img src="/images/logo-white.png" alt=""> AI GENTS · THE OFFICE</div><h1>Business, in command.</h1><p>Secure access for AI Gents and invited client organizations.</p><div id="login-error"></div><form id="login-form"><label class="form-field">Email<input name="email" type="email" autocomplete="email" required></label><label class="form-field">Password<input name="password" type="password" autocomplete="current-password" required></label><button type="submit" class="btn">Enter The Office</button></form><p class="logo-note">Invitation-only access · Protected by Supabase Auth</p><button type="button" class="btn alt" id="recover">Reset password</button></div></div>';
+ showRedirectError();
  document.getElementById('login-form').onsubmit=async e=>{e.preventDefault();const b=e.target.querySelector('button'),fields=new FormData(e.target);b.disabled=true;b.textContent='Signing in…';const {error}=await supabase.auth.signInWithPassword({email:String(fields.get('email')),password:String(fields.get('password'))});if(error){document.getElementById('login-error').innerHTML='<div class="error">'+safe(error.message)+'</div>';b.disabled=false;b.textContent='Enter The Office';}else await initialize();};
  document.getElementById('recover').onclick=async()=>{const email=root.querySelector('input[name=email]').value.trim();if(!email){document.getElementById('login-error').innerHTML='<div class="notice">Enter your email address first.</div>';return;}const {error}=await supabase.auth.resetPasswordForEmail(email,{redirectTo:location.origin+'/office'});document.getElementById('login-error').innerHTML=error?'<div class="error">'+safe(error.message)+'</div>':'<div class="notice">If this email has an account, a recovery email will be sent.</div>';};
 }
-async function initialize(){const r=await supabase.auth.getSession();session=r.data.session;if(!session){loginView();return;}const auth=await supabase.from('ag_staff').select('role').eq('user_id',session.user.id).maybeSingle();if(auth.error){failure=auth.error.message;staff=false;}else staff=!!auth.data;await reload();}
+async function initialize(){const r=await supabase.auth.getSession();session=r.data.session;if(recoveryMode&&session){recoveryView();return;}if(!session){loginView();return;}const auth=await supabase.from('ag_staff').select('role').eq('user_id',session.user.id).maybeSingle();if(auth.error){failure=auth.error.message;staff=false;}else staff=!!auth.data;await reload();}
 async function reload(){if(!session)return;loading=true;const tables=keys.filter(k=>staff||k!=='ag_tasks');const result=await Promise.all(tables.map(key=>supabase.from(key).select('*').order('created_at',{ascending:false}).limit(500)));data={};result.forEach((r,i)=>{data[tables[i]]=r.data||[];if(r.error)failure=r.error.message;});loading=false;render();}
 function render(){if(!session)return loginView();const count=(a)=>list(a).length;let content='';
  if(view==='overview'){const active=count('ag_projects')-list('ag_projects').filter(p=>['completed','on_hold'].includes(p.status)).length;
@@ -56,5 +78,5 @@ function wire(){
  const p=list('ag_projects').find(x=>x.id===activeProject);
  if(p){const phase=root.querySelector('#phase-select');if(phase)phase.onchange=e=>update('ag_projects',p.id,{status:e.target.value,updated_at:new Date().toISOString()});const progress=root.querySelector('#progress-range');if(progress){progress.oninput=e=>{root.querySelector('#progress-value').textContent=e.target.value+'%';};progress.onchange=e=>update('ag_projects',p.id,{progress:num(e.target.value),updated_at:new Date().toISOString()});}root.querySelectorAll('[data-milestone]').forEach(x=>x.onchange=e=>update('ag_milestones',x.dataset.milestone,{status:e.target.value}));const mf=root.querySelector('#message-form');if(mf)mf.onsubmit=async e=>{e.preventDefault();const body=String(new FormData(mf).get('body')||'').trim();if(!body)return;const send=mf.querySelector('button');send.disabled=true;const {error}=await supabase.from('ag_messages').insert({project_id:activeProject,sender_id:session.user.id,body,internal_only:false});if(error){failure=error.message;render();}else await reload();};}
 }
-supabase.auth.onAuthStateChange((event,newSession)=>{if(event==='SIGNED_OUT'){session=null;loginView();}if(event==='PASSWORD_RECOVERY'){const password=prompt('Enter a new password (at least 12 characters):');if(password&&password.length>=12)supabase.auth.updateUser({password}).then(({error})=>{alert(error?error.message:'Password updated. Sign in with your new password.');});}});
+supabase.auth.onAuthStateChange((event,newSession)=>{if(event==='PASSWORD_RECOVERY'){recoveryMode=true;session=newSession;recoveryView();}if(event==='SIGNED_OUT'){recoveryMode=false;session=null;loginView();}});
 await initialize();
