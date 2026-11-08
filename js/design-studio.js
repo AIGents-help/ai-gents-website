@@ -71,8 +71,9 @@ export function studioWire({root,supabase,rows,staff,userId,escape,reload,notify
   }
   if(action==='new-review'){
    const opts=(root.querySelector('#studio-project-options')?.innerHTML||'');
-   modal('New design review','<label class="form-field">Project<select name="project_id" required><option value="">Choose project</option>'+opts+'</select></label><label class="form-field">Review title<input name="title" required maxlength="150"></label><label class="form-field">Description<textarea name="description"></textarea></label><label class="form-field">Visibility<select name="status"><option value="draft">Internal draft</option><option value="published">Publish to client</option></select></label>',async v=>{
-    const {error}=await supabase.from('ag_review_items').insert({project_id:v.project_id,title:v.title,description:v.description||null,status:v.status,created_by:userId});if(error){notify(error.message);return false;}return true;});
+   const milestoneOptions=(rows.ag_milestones||[]).map(m=>'<option value="'+h(m.id)+'">'+h((rows.ag_projects||[]).find(p=>p.id===m.project_id)?.title||'Project')+' / '+h(m.title)+'</option>').join('');
+   modal('New design review','<label class="form-field">Project<select name="project_id" required><option value="">Choose project</option>'+opts+'</select></label><label class="form-field">Approval milestone (optional)<select name="milestone_id"><option value="">No milestone automation</option>'+milestoneOptions+'</select></label><label class="form-field">Review title<input name="title" required maxlength="150"></label><label class="form-field">Description<textarea name="description"></textarea></label><label class="form-field">Visibility<select name="status"><option value="draft">Internal draft</option><option value="published">Publish to client</option></select></label>',async v=>{
+    const {error}=await supabase.from('ag_review_items').insert({project_id:v.project_id,title:v.title,description:v.description||null,milestone_id:v.milestone_id||null,status:v.status,created_by:userId});if(error){notify(error.message);return false;}return true;});
   }
   if(action==='new-version'){
    const reviewId=b.dataset.review,versions=(rows.ag_review_versions||[]).filter(v=>v.review_id===reviewId);
