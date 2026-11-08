@@ -5,7 +5,35 @@ export function proposalPage({rows,staff,userId,escape,projectName,clientName}) 
  const money=(n,c)=>n==null?'Pricing to be confirmed':new Intl.NumberFormat('en-US',{style:'currency',currency:c||'usd'}).format(Number(n)/100);
  const scopePackages=rows.ag_scope_packages||[],members=rows.ag_client_users||[],access=rows.ag_client_member_access||[];
  const hasApprover=clientId=>approvers.some(a=>a.client_id===clientId&&members.some(m=>m.client_id===clientId&&m.user_id===a.user_id)&&!access.some(x=>x.client_id===clientId&&x.user_id===a.user_id&&x.access_level==='read'));
- const blocks=proposals.map(p=>{
+ const statuses=proposals.map(p=>{
+  const project=projects.find(j=>j.id===p.project_id);
+  const packageRecord=scopePackages.find(pkg=>pkg.proposal_id===p.id);
+  const superseded=!!packageRecord&&scopePackages.some(pkg=>pkg.project_id===packageRecord.project_id&&pkg.version>packageRecord.version);
+  const decision=decisions.filter(d=>d.proposal_id===p.id).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at))[0];
+  const canApprove=approvers.some(a=>a.user_id===userId&&a.client_id===project?.client_id)&&!access.some(a=>a.user_id===userId&&a.client_id===project?.client_id&&a.access_level==='read');
+  const linked=(rows.ag_scope_delivery_tasks||[]).filter(link=>link.package_id===packageRecord?.id).length;
+  let action='Awaiting staff review',detail='Review the proposal status.',order=3;
+  if(superseded){action='Superseded version';detail='Use the latest scope version for any new agreement.';order=5;}
+  else if(p.status==='draft'){
+   action=staff?(hasApprover(project?.client_id)?'Ready for publication':'Assign client approver'):'Internal draft';
+   detail=staff?(hasApprover(project?.client_id)?'Review the fixed terms and publish when ready.':'Grant verified client access and approver rights before publishing.'):'Not published for client review.';
+   order=staff?0:4;
+  }else if(decision?.decision==='changes_requested'){
+   action='Changes requested';detail=staff?'Review the comments and prepare a revised proposal version.':'Your request was recorded. AI Gents must prepare a revised proposal.';order=staff?0:3;
+  }else if(decision?.decision==='accepted'){
+   action='Accepted';
+   detail=staff?(packageRecord?(linked?'Delivery tasks exist; review work and evidence.':'Generate tasks from the approved scope in the project workspace.'):'Acceptance recorded; coordinate project delivery.'):'Acceptance recorded. AI Gents will coordinate delivery.';
+   order=staff&&packageRecord&&!linked?1:3;
+  }else if(p.status==='published'){
+   action=!staff&&canApprove?'Your review required':'Awaiting client decision';
+   detail=!staff&&canApprove?'Review the complete proposal, then accept or request changes.':staff?'Published to the client portal; awaiting an authorized decision.':'An authorized approver must respond.';
+   order=!staff&&canApprove?0:staff?2:3;
+  }
+  return {p,action,detail,order};
+ }).sort((a,b)=>a.order-b.order||new Date(b.p.created_at||0)-new Date(a.p.created_at||0));
+ const myActions=statuses.filter(x=>x.order===0).length;
+ const actionHeader='<section class="card proposal-action-overview"><div class="section-head"><div><h3>'+(staff?'Proposal actions':'Your proposal reviews')+'</h3><p>'+(staff?'Next actions based on recorded proposal and client decisions.':'Review published offers and monitor your recorded decisions.')+'</p></div><span class="pill">'+myActions+' item'+(myActions===1?'':'s')+' requiring action</span></div></section>';
+ const blocks=statuses.map(({p,action,detail})=>{
   const project=projects.find(pr=>pr.id===p.project_id);
   const ds=decisions.filter(d=>d.proposal_id===p.id).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
   const scopeVersion=scopePackages.find(pkg=>pkg.proposal_id===p.id);
@@ -15,6 +43,7 @@ export function proposalPage({rows,staff,userId,escape,projectName,clientName}) 
   const canApprove=!((rows.ag_client_member_access||[]).some(a=>a.user_id===userId&&a.client_id===project?.client_id&&a.access_level==='read'))&&approvers.some(a=>a.user_id===userId&&project?.client_id===a.client_id);
   return '<section class="card" style="margin-bottom:16px"><div class="section-head"><div><p class="eyebrow">'+h(projectName(p.project_id))+'</p><h3>'+h(p.title)+'</h3><p>'+h(money(p.amount_cents,p.currency))+'</p></div><span class="pill">'+h(p.status)+'</span></div><div class="office-proposal-scope">'+h(p.scope)+'</div>'+
    '<div class="action-area" style="margin:12px 0"><button type="button" class="btn alt small" data-print-proposal="'+h(p.id)+'">Review / Print / Save PDF</button>'+(superseded?'<span class="pill">Superseded by a newer scope version</span>':'')+'</div>'+
+   '<div class="proposal-next-action"><strong>Next step: '+h(action)+'</strong><p class="tiny muted">'+h(detail)+'</p>'+(staff&&project?'<button type="button" class="btn alt small" data-open-proposal-project="'+h(project.id)+'">Open project</button>':'')+'</div>'+
    '<div class="office-approval-history"><strong>Client decisions</strong>'+ (ds.length?ds.map(d=>'<p class="tiny">'+h(d.decision.replaceAll('_',' '))+' · '+new Date(d.created_at).toLocaleString()+(d.typed_name?' · Acknowledged by '+h(d.typed_name):'')+(d.note?' · '+h(d.note):'')+'</p>').join(''):'<p class="tiny muted">Awaiting review.</p>')+'</div>'+
    (staff&&p.status==='draft'?(publishReady?'<button class="btn alt small" data-publish-proposal="'+h(p.id)+'">Publish to client</button>':'<div class="proposal-publish-warning"><p class="tiny">Client approver required before publication. Add a verified client with Read & respond access and authorize proposal approval.</p><button type="button" class="btn alt small" data-proposal-manage-access>1. Manage client access</button><button type="button" class="btn alt small" data-proposal-assign-approver>2. Assign approver</button></div>'):'')+
    (!staff&&canApprove&&!hasDecision&&!superseded&&p.status==='published'?'<form data-proposal-decision="'+h(p.id)+'"><p class="tiny muted">Review the complete proposal and its scope before recording a decision. Acceptance is recorded with your account, name and timestamp; it is not an external legal e-signature.</p><label class="form-field">Your full name (required for acceptance)<input name="typed_name" maxlength="150" autocomplete="name" placeholder="Enter your name"></label><label class="form-field">Comments (required for revisions)<textarea name="note" maxlength="6000"></textarea></label><label class="proposal-acknowledge"><input type="checkbox" name="scope_acknowledged" value="yes"> I have reviewed the published scope, price, exclusions and payment terms and agree to these exact terms.</label><div class="action-area"><button class="btn alt small" name="decision" value="changes_requested">Request changes</button><button class="btn small" name="decision" value="accepted">Accept proposal</button></div></form>':'')+
@@ -23,7 +52,7 @@ export function proposalPage({rows,staff,userId,escape,projectName,clientName}) 
  const options=projects.map(p=>'<option value="'+h(p.id)+'">'+h(clientName(p.client_id)+' / '+p.title)+'</option>').join('');
  return '<div class="section-head"><div><h2>Proposals & Scope</h2><p>Publish the work being offered and record a decision against its exact terms.</p></div>'+(staff?'<button class="btn" data-new-proposal>+ New proposal</button>':'')+'</div>'+
  '<p class="tiny muted">Proposal acceptance records client intent. Legal contracting and e-signatures are separate, and billing is not triggered by acceptance.</p>'+
- (blocks||'<section class="card"><p class="muted">No proposals to review yet.</p></section>')+'<template id="proposal-project-options">'+options+'</template>';
+ actionHeader+(blocks||'<section class="card"><p class="muted">No proposals to review yet.</p></section>')+'<template id="proposal-project-options">'+options+'</template>';
 }
 export function deliverablesPage({rows,staff,escape,projectName,clientName}) {
  const h=escape,docs=rows.ag_documents||[],projects=rows.ag_projects||[];
@@ -31,7 +60,8 @@ export function deliverablesPage({rows,staff,escape,projectName,clientName}) {
  '<section class="card">'+(docs.length?docs.map(d=>'<div class="item"><div><strong>'+h(d.title)+'</strong><small>'+h(projectName(d.project_id))+' · '+(d.visible_to_client?'Shared with client':'Internal')+'</small></div><div class="action-area"><button class="btn alt small" data-download-deliverable="'+h(d.storage_path)+'">Open file</button>'+(staff?'<button class="btn alt small" data-toggle-deliverable="'+h(d.id)+'" data-visible="'+String(!!d.visible_to_client)+'">'+(d.visible_to_client?'Make internal':'Share with client')+'</button>':'')+'</div></div>').join(''):'<div class="empty">No deliverables yet. Files uploaded here stay internal until explicitly shared.</div>')+'</section>'+
  '<template id="deliverable-project-options">'+projects.map(p=>'<option value="'+h(p.id)+'">'+h(clientName(p.client_id)+' / '+p.title)+'</option>').join('')+'</template>';
 }
-export function proposalWire({root,supabase,rows,staff,userId,escape,reload,notify}){
+export function proposalWire({root,supabase,rows,staff,userId,escape,reload,notify,openProject}){
+ root.querySelectorAll('[data-open-proposal-project]').forEach(b=>b.onclick=()=>openProject?.(b.dataset.openProposalProject));
  root.querySelectorAll('[data-proposal-manage-access]').forEach(button=>button.onclick=()=>root.querySelector('[data-view="clients"]')?.click());
  root.querySelectorAll('[data-proposal-assign-approver]').forEach(button=>button.onclick=()=>root.querySelector('[data-view="studio"]')?.click());
  root.querySelectorAll('[data-print-proposal]').forEach(button=>button.onclick=()=>{

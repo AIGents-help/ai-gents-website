@@ -372,3 +372,12 @@ form[data-proposal-decision] .btn{white-space:normal}
 .scope-preview-terms{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.7;font-size:.83rem}
 .scope-preview-card h5{font-size:.84rem;margin:16px 0 7px}
 @media(max-width:650px){.scope-preview-items>div{grid-template-columns:minmax(0,1fr) 85px 85px;gap:6px;padding:9px 7px;font-size:.75rem}.scope-proposal-actions button{flex:1 1 165px}.scope-preview-card{padding:12px}}
+
+/* Proposal decision workflow: next actions for owner and client */
+.proposal-action-overview{margin:0 0 17px}
+.proposal-action-overview .section-head{align-items:center;gap:12px;flex-wrap:wrap}
+.proposal-next-action{border:1px solid rgba(200,169,110,.38);background:rgba(200,169,110,.045);border-radius:10px;padding:13px 15px;margin:14px 0}
+.proposal-next-action>strong{font-size:.92rem;line-height:1.5}
+.proposal-next-action p{margin:7px 0 9px;line-height:1.55;overflow-wrap:anywhere}
+.proposal-next-action button{margin-top:5px}
+@media(max-width:610px){.proposal-next-action{padding:12px}.proposal-next-action button{width:100%}}
