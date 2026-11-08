@@ -283,3 +283,5 @@ form[data-proposal-decision] .btn{white-space:normal}
 .component-benchmark-toggle{display:flex;align-items:flex-start;gap:9px;font-size:.81rem;line-height:1.45;margin:12px 0 16px}
 .component-benchmark-toggle input{height:17px;width:17px;flex:0 0 17px;margin-top:2px;accent-color:#c8a96e}
 @media(max-width:540px){.component-benchmark{align-items:stretch}.component-benchmark button{width:100%}.component-compare-head{flex-wrap:wrap}}
+
+.component-estimate-row .reference-line{display:block;font-weight:400;color:var(--muted);margin-top:5px;line-height:1.45;font-size:.74rem;white-space:normal;overflow-wrap:anywhere}
