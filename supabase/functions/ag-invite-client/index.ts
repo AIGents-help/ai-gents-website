@@ -23,7 +23,7 @@ function json(status: number, data: Record<string, unknown>, origin: string) {
 Deno.serve(async (req: Request) => {
   const origin = req.headers.get("origin") ?? "";
   if (!allowedOrigins.has(origin)) return new Response("Origin not allowed", { status: 403 });
-  if (req.method === "OPTIONS") return json(204, {}, origin);
+  if (req.method === "OPTIONS") return json(200, {}, origin);
   if (req.method !== "POST") return json(405, { error: "Method not allowed" }, origin);
   if (!endpoint || !anonKey || !serviceKey) return json(503, { error: "Invitation service is not configured" }, origin);
 
