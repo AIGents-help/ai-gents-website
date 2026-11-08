@@ -21,6 +21,21 @@ export const BASE_PRICING={
 export const pricingFor=key=>{
  const p=BASE_PRICING[key]||[0,0];return {setup_fee_cents:p[0]*100,monthly_fee_cents:p[1]*100};
 };
+// Non-editable reference for staff quoting. Adjusted project amounts stay in
+// ag_component_pricing; changing a quote never mutates these catalog defaults.
+// Benchmarks are AI Gents suggested starting figures, NOT certified industry tariffs.
+export const referenceFor=item=>item.item_type==='custom'?null:
+  Object.prototype.hasOwnProperty.call(BASE_PRICING,item.component_key)?pricingFor(item.component_key):null;
+export function benchmarkTotals(items){
+ return items.reduce((totals,item)=>{
+  const ref=referenceFor(item);
+  if(!ref){totals.unbenchmarked+=1;return totals;}
+  const quantity=Number(item.quote_quantity)||1;
+  totals.once+=ref.setup_fee_cents*quantity;
+  totals.monthly+=ref.monthly_fee_cents*quantity;
+  return totals;
+ },{once:0,monthly:0,unbenchmarked:0});
+}
 export const asUsd=cents=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:2}).format(Number(cents||0)/100);
 export const quoteTotals=items=>items.reduce((a,i)=>{
  const q=Number(i.quote_quantity)||1;
@@ -30,16 +45,18 @@ export const quoteTotals=items=>items.reduce((a,i)=>{
  else a.external+=Number(i.third_party_monthly_cents||0)*q;
  return a;
 },{once:0,monthly:0,external:0,unknownExternal:0});
-export function quoteText(project,items){
- const t=quoteTotals(items),stamp=new Date().toLocaleDateString('en-US');
+export function quoteText(project,items,{includeBenchmarks=false}={}){
+ const t=quoteTotals(items),b=benchmarkTotals(items),stamp=new Date().toLocaleDateString('en-US');
  return ['AI GENTS | INTERNAL DRAFT ESTIMATE','Project: '+project.title,'Prepared: '+stamp,'Currency: USD','',
  'COMPONENTS (SELECTED SCOPE ONLY)',
  ...items.map(i=>{
   const q=Number(i.quote_quantity)||1;
   const external=i.third_party_monthly_cents==null?'Not estimated':asUsd(Number(i.third_party_monthly_cents)*q);
-  return i.component_label+' | Qty '+q+' | Setup '+asUsd(Number(i.setup_fee_cents||0)*q)+' | AI Gents monthly '+asUsd(Number(i.monthly_fee_cents||0)*q)+' | External monthly '+external;
+  const ref=includeBenchmarks?referenceFor(i):null;
+  return i.component_label+' | Qty '+q+(ref?' | Benchmark setup '+asUsd(ref.setup_fee_cents*q)+' | Benchmark monthly '+asUsd(ref.monthly_fee_cents*q):'')+' | Quoted setup '+asUsd(Number(i.setup_fee_cents||0)*q)+' | AI Gents monthly '+asUsd(Number(i.monthly_fee_cents||0)*q)+' | External monthly '+external;
  }),
  '',
+ ...(includeBenchmarks?['AI Gents catalog benchmark one-time subtotal (standard components only): '+asUsd(b.once),'AI Gents catalog benchmark monthly subtotal (standard components only): '+asUsd(b.monthly),'Unbenchmarked custom components: '+b.unbenchmarked+' item(s)','Benchmarks are reference estimates, not independent market rates.']:[]),
  'AI Gents one-time subtotal: '+asUsd(t.once),
  'AI Gents recurring monthly subtotal: '+asUsd(t.monthly),
  'Estimated third-party monthly subtotal (known amounts only): '+asUsd(t.external),
