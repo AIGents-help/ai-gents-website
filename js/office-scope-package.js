@@ -73,7 +73,7 @@ export function scopePackagePage({rows,project,escape,staff}) {
   const usedCents=matchingInvoices.filter(i=>i.status!=='void').reduce((n,i)=>n+Number(i.amount_cents||0),0);
   const remainingCents=Math.max(0,Number(pkg.estimated_one_time_cents||0)-usedCents);
   const schedule=scopeBillingSuggestions(pkg.payment_terms,pkg.estimated_one_time_cents);
-  const allocatedLabels=new Set(allocations.filter(a=>matchingInvoices.some(i=>i.id===a.invoice_id&&i.status!=='void')).map(a=>a.milestone_label));
+  const allocatedLabels=new Set(allocations.map(a=>a.milestone_label));
   const suggestions=schedule.filter(x=>!allocatedLabels.has(x.label)&&x.amount_cents<=remainingCents);
   const suggestedButtons=suggestions.map(x=>'<button class="btn alt small" type="button" data-billing-suggestion="'+h(pkg.id)+'" data-milestone-name="'+h(x.label)+'" data-milestone-cents="'+x.amount_cents+'">'+h(x.label)+' · '+x.percent+'% · '+asUsd(x.amount_cents)+'</button>').join('');
   const invoicePreview=allocations.map(a=>{
