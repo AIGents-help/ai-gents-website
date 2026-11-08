@@ -41,3 +41,24 @@ No account is pre-created; do not paste any passwords, tokens, or service-role k
 - Check Supabase security advisor after migration.
 - Test staff, assigned client reviewer, assigned client approver, unrelated client, and anonymous user.
 - Test impossible URL/path traversal, oversize file, unauthorized file, wrong project milestone, non-approver approval, and revision history immutability.
+
+## New: email-driven client access
+- Under The Office → Clients, a permitted staff user creates a client organization and selects **Add client access**.
+- The client invitation is stored by normalized email in `ag_client_invitations`.
+- A JWT-verified, role-checked Supabase Edge Function `ag-invite-client` sends an Auth invitation through Supabase. Its service key stays inside Supabase's secret environment.
+- After Supabase verifies the email, a database Auth trigger connects the user to the invitation's specific organization in `ag_client_users`. Already-verified Auth users are linked at invitation creation.
+- Revoke access through the Office interface. A restricted, invoker-rights RPC deletes membership, removes approval authority through the foreign key, and records a private audit entry. Unrestricted database table mutations remain unavailable to clients.
+- Email delivery depends on the project's configured Supabase Auth email provider, redirects, and rate limits. Confirm in a role-based sign-in test before inviting live clients.
+- Revisit SMTP configuration and Auth redirect allowlist (`https://aigents.help/office`) when onboarding the first user.
+
+## New: client activity timeline and account settings
+- The dashboard displays recent project messages, milestone changes, design decisions, and project status updates. These are persisted to `ag_project_activity` and constrained by project RLS.
+- Staff can update task statuses directly in the Tasks workspace.
+- Signed-in users can set/change a password through **My Account** without exposing passwords to AI Gents.
+- No notification email on routine activity yet; the feed is in-app only.
+
+## Security hardening
+- Anonymous role privileges removed from all Office `ag_*` tables.
+- `TRUNCATE`, `TRIGGER`, and `REFERENCES` revoked from authenticated users for Office tables.
+- Supabase advisor returns no findings following privileged revocation function conversion to security-invoker.
+- Permission policies, invitations, and Auth email triggers require actual multi-user integration tests.
