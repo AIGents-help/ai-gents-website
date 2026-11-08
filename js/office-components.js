@@ -112,6 +112,7 @@ export function componentsWire({root,supabase,rows,project,staff,teamRole,userId
    scope.querySelector('#component-prompt-output-wrap').hidden=false;
    scope.querySelector('#component-copy-prompt').hidden=false;
    const {error}=await supabase.from('ag_project_build_briefs').upsert({project_id:project.id,...brief,updated_by:userId,updated_at:new Date().toISOString()},{onConflict:'project_id'});
+   if(!error){const packageButton=root.querySelector('#scope-package-form button[type=submit]');if(packageButton)packageButton.disabled=false;const tip=root.querySelector('#scope-package-form .tiny.muted');if(tip)tip.textContent='Business brief saved. Review prices, assumptions and payment terms before freezing the scope.';}
    notify(error?'Build prompt generated, but the business brief could not be saved: '+error.message:'Build prompt generated and business brief saved. Review before using in your development AI.');
   };
   scope.querySelector('#component-copy-prompt').onclick=async()=>{
