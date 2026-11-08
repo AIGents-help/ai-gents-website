@@ -73,7 +73,7 @@ export function componentsWire({root,supabase,rows,project,staff,teamRole,userId
    const button=buildForm.querySelector('[type=submit]');
    await save('Business brief saved.',supabase.from('ag_project_build_briefs').upsert({project_id:project.id,...getBrief(),updated_by:userId,updated_at:new Date().toISOString()},{onConflict:'project_id'}),button);
   };
-  scope.querySelector('#component-generate-prompt').onclick=()=>{
+  scope.querySelector('#component-generate-prompt').onclick=async()=>{
    const brief=getBrief();
    if(!String(brief.business_description||'').trim()){notify('Describe the business first.');buildForm.elements.business_description.focus();return;}
    const selected=(rows.ag_project_components||[]).filter(x=>x.project_id===project.id);
@@ -82,7 +82,8 @@ export function componentsWire({root,supabase,rows,project,staff,teamRole,userId
    output.value=buildCommandCenterPrompt({project,items:selected,brief});
    scope.querySelector('#component-prompt-output-wrap').hidden=false;
    scope.querySelector('#component-copy-prompt').hidden=false;
-   notify('Build prompt generated. Review before using in your development AI.');
+   const {error}=await supabase.from('ag_project_build_briefs').upsert({project_id:project.id,...brief,updated_by:userId,updated_at:new Date().toISOString()},{onConflict:'project_id'});
+   notify(error?'Build prompt generated, but the business brief could not be saved: '+error.message:'Build prompt generated and business brief saved. Review before using in your development AI.');
   };
   scope.querySelector('#component-copy-prompt').onclick=async()=>{
    const output=scope.querySelector('#component-prompt-output');
