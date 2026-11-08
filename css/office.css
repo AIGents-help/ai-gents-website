@@ -115,3 +115,39 @@ form[data-proposal-decision] .btn{white-space:normal}
 .component-estimate{display:block;margin:4px 0 0 28px;font-size:.75rem}
 @media(max-width:820px){.component-pricing{grid-template-columns:repeat(2,minmax(0,1fr))}.component-pricing button{grid-column:1/-1}.component-quote-values{grid-template-columns:1fr 1fr}}
 @media(max-width:520px){.component-pricing{padding-left:0}.component-quote-values{grid-template-columns:1fr}}
+
+/* Fix: price editors must never spill into the adjacent category card.
+   Each category owns its own content width, regardless of viewport. */
+.component-checklist,
+.component-groups,
+.component-group,
+.component-line,
+.component-main,
+.component-pricing{min-width:0;max-width:100%;box-sizing:border-box}
+.component-groups{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
+.component-group{overflow:hidden}
+.component-line{overflow-wrap:anywhere}
+.component-main{flex-wrap:wrap;gap:10px}
+.component-label{flex:1 1 205px;min-width:0}
+.component-main>.small-status{flex:0 1 145px;min-width:120px;max-width:100%;margin:0}
+.component-pricing{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px 12px;
+  padding:12px 0 4px;
+  width:100%;
+}
+.component-pricing label{min-width:0;max-width:100%;font-size:.78rem;line-height:1.35;white-space:normal}
+.component-pricing input{box-sizing:border-box;width:100%;min-width:0;max-width:100%;height:42px;padding:10px;font-variant-numeric:tabular-nums}
+.component-pricing button{grid-column:1/-1;justify-self:start;max-width:100%;margin:4px 0 0;min-height:38px;padding-inline:16px}
+.component-estimate{margin:6px 0 0 28px;max-width:calc(100% - 28px);overflow-wrap:anywhere;line-height:1.5}
+.component-notes{margin-left:0}
+.component-notes textarea{box-sizing:border-box;max-width:100%}
+/* Two columns only if each will be sufficiently wide for the controls. */
+@media(max-width:1320px){.component-groups{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:520px){
+  .component-main{display:flex;align-items:flex-start}
+  .component-main>.small-status{margin-left:28px}
+  .component-pricing{grid-template-columns:repeat(2,minmax(0,1fr));padding-left:0;gap:10px}
+  .component-pricing button{grid-column:1/-1;width:100%;justify-self:stretch}
+}
