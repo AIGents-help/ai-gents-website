@@ -407,3 +407,11 @@ form[data-proposal-decision] .btn{white-space:normal}
 .office-pilot-item p{margin:4px 0 0;line-height:1.55;overflow-wrap:anywhere}
 .office-pilot-item button{margin-left:auto;flex:0 0 auto}
 @media(max-width:610px){.office-pilot-item{flex-wrap:wrap}.office-pilot-item button{margin-left:30px;flex:1 1 100%}}
+
+/* Accepted-scope billing: suggested milestones are not automatic invoices */
+.scope-payment-reference{border:1px solid rgba(200,169,110,.35);border-radius:10px;padding:13px 15px;margin:10px 0 16px;background:rgba(200,169,110,.035)}
+.scope-payment-reference>strong{font-size:.88rem}
+.scope-payment-reference>p:not(.tiny){white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.65;font-size:.84rem;margin:9px 0 13px}
+.scope-payment-reference .action-area{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.scope-payment-reference .action-area button{white-space:normal;line-height:1.45}
+@media(max-width:580px){.scope-payment-reference{padding:11px}.scope-payment-reference .action-area button{flex:1 1 100%}}
