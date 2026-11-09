@@ -50,8 +50,11 @@ export function projectReadinessPage({rows,project,escape,staff}){
  else if(!docs){action='handoff';title='Share the final handoff';description='Upload and share the approved files with the customer.';}
  else {action='review';title='Review the completed handoff';description='Internal task evidence and handoff records exist. Confirm real client delivery separately.';}
  const labels={brief:'Edit business description',components:'Edit project scope',invite:'Invite client','pending-invite':'Check invitation',approver:'Assign decision-maker',scope:'Prepare proposal',publish:'Review proposal',review:'View proposal',tasks:'Create work tasks',billing:'Prepare billing draft',work:'Review tasks',handoff:'Share files'};
- const summary=stages.filter(x=>x.done).length;
- return '<section class="card office-workflow" id="office-project-readiness"><div class="section-head"><div><p class="eyebrow">Project management</p><h3>What happens next?</h3><p>One clear next step. The rest is handled as the project moves forward.</p></div><span class="pill">'+h(summary+' of 4 stages recorded')+'</span></div>'+
+ const status=action==='review'&&!accepted?'Waiting on customer':
+  verified&&docs?'Final review':
+  ['brief','components','invite','pending-invite','approver','scope','publish'].includes(action)?'Preparing':
+  'In delivery';
+ return '<section class="card office-workflow" id="office-project-readiness"><div class="section-head"><div><p class="eyebrow">Project management</p><h3>What happens next?</h3><p>One clear next step. The rest is handled as the project moves forward.</p></div><span class="pill">'+h(status)+'</span></div>'+
  '<div class="office-workflow-primary"><div><span class="tiny muted">YOUR NEXT ACTION</span><h4>'+h(title)+'</h4><p>'+h(description)+'</p></div>'+
  '<button class="btn" type="button" data-workflow-action="'+h(action)+'" data-workflow-project="'+h(project.id)+'">'+h(labels[action])+'</button></div>'+
  '<details class="office-workflow-details"><summary>View the project steps</summary><div class="office-workflow-steps">'+stages.map(s=>
