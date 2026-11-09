@@ -193,6 +193,10 @@ function wire(){
     pendingInviteClientId=chosen.client_id;
     view='clients';activeProject=null;render();return;
    }
+   if(action==='pending-invite'){
+    navigate('clients','[data-client-invitation="'+chosen.client_id+'"]');
+    return;
+   }
    if(action==='approver'){
     navigate('clients','[data-client-organization="'+chosen.client_id+'"] .office-client-approvers');
     return;
