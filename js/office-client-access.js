@@ -28,7 +28,7 @@ export function clientAccessPage({rows,escape,pretty,owner,userId}) {
  (invites.length?invites.map(i=>{
   const expired=!i.accepted_by&&Date.parse(i.expires_at)<Date.now();
   const canDeliver=owner||i.created_by===userId;
-  return '<div class="item"><div><strong>'+h(i.email)+'</strong><small>'+h(clientName(i.client_id))+' · Created '+stamp(i.created_at)+'</small></div><div class="action-area">'+
+  return '<div class="item" data-client-invitation="'+h(i.client_id)+'"><div><strong>'+h(i.email)+'</strong><small>'+h(clientName(i.client_id))+' · Created '+stamp(i.created_at)+'</small></div><div class="action-area">'+
     '<span class="pill">'+(i.accepted_by?'Active':expired?'Expired':'Pending verification')+'</span>'+
     (!i.accepted_by&&!expired&&canDeliver?'<button type="button" class="btn alt small" data-access="resend" data-invite="'+h(i.id)+'">Resend invite</button>':'')+
     (!i.accepted_by?'<button type="button" class="btn alt small" data-access="copy-link">Copy portal link</button>':'')+
