@@ -110,7 +110,7 @@ export function proposalWire({root,supabase,rows,staff,userId,escape,reload,noti
   };
  });
 }
-export function deliverablesWire({root,supabase,staff,userId,escape,reload,notify}){
+export function deliverablesWire({root,supabase,staff,userId,escape,reload,notify,focusProjectId}){
  const bucket=supabase.storage.from('ag-client-deliverables');
  root.querySelectorAll('[data-download-deliverable]').forEach(b=>b.onclick=async()=>{
   const {data,error}=await bucket.createSignedUrl(b.dataset.downloadDeliverable,90);
@@ -124,13 +124,15 @@ export function deliverablesWire({root,supabase,staff,userId,escape,reload,notif
   const {data,error}=await supabase.from('ag_documents').update({visible_to_client:visible}).eq('id',b.dataset.toggleDeliverable).select('id').single();
   if(error||!data){notify(error?.message||'Document visibility was not changed.');return;}notify(visible?'Document shared with client.':'Document made internal.');await reload();
  });
- root.querySelector('[data-new-deliverable]')?.addEventListener('click',()=>{
+ const openUpload=(selectedProjectId)=>{
   if(!staff)return;
   const options=root.querySelector('#deliverable-project-options')?.innerHTML||'';
   if(!options){notify('Create a project before uploading deliverables.');return;}
   const el=document.createElement('div');el.className='dialog';
   el.innerHTML='<div class="dialog-card" role="dialog" aria-modal="true"><h2>Upload client deliverable</h2><p>The file starts internal. Share it after checking the result.</p><form id="deliverable-form"><label class="form-field">Project<select name="project_id" required><option value="">Choose project</option>'+options+'</select></label><label class="form-field">File label<input name="title" maxlength="180" required></label><label class="form-field">File (PDF, PNG, JPG, WebP, TXT or CSV; maximum 20 MB)<input type="file" name="file" accept=".pdf,.png,.jpg,.jpeg,.webp,.txt,.csv" required></label><div class="dialog-buttons"><button class="btn alt" type="button" id="deliverable-cancel">Cancel</button><button class="btn" type="submit">Upload privately</button></div></form></div>';
-  document.body.appendChild(el);el.querySelector('#deliverable-cancel').onclick=()=>el.remove();
+  document.body.appendChild(el);
+  if(selectedProjectId&&[...el.querySelector('[name="project_id"]').options].some(o=>o.value===selectedProjectId))el.querySelector('[name="project_id"]').value=selectedProjectId;
+  el.querySelector('#deliverable-cancel').onclick=()=>el.remove();
   el.onclick=e=>{if(e.target===el)el.remove();};
   el.querySelector('form').onsubmit=async e=>{
    e.preventDefault();const form=e.target,fd=new FormData(form),file=fd.get('file'),project=String(fd.get('project_id')||''),title=String(fd.get('title')||'').trim();
@@ -143,5 +145,7 @@ export function deliverablesWire({root,supabase,staff,userId,escape,reload,notif
    if(result.error){notify('File stored, but the document record failed. Contact the administrator: '+result.error.message);button.disabled=false;return;}
    el.remove();notify('Document uploaded privately. Share it when ready.');await reload();
   };
- });
+ };
+ root.querySelector('[data-new-deliverable]')?.addEventListener('click',()=>openUpload());
+ if(staff&&focusProjectId)openUpload(focusProjectId);
 }
