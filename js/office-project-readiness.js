@@ -11,6 +11,7 @@ export function projectReadinessPage({rows,project,escape,staff}){
  const access=rows.ag_client_member_access||[];
  const eligible=uid=>memberIds.has(uid)&&!access.some(a=>a.client_id===clientId&&a.user_id===uid&&a.access_level==='read');
  const approvers=(rows.ag_client_approvers||[]).filter(a=>a.client_id===clientId&&eligible(a.user_id));
+ const unlinkedInvites=(rows.ag_client_invitations||[]).filter(i=>i.client_id===clientId&&!i.accepted_by);
  const packages=(rows.ag_scope_packages||[]).filter(x=>x.project_id===project.id).sort((a,b)=>b.version-a.version);
  const pkg=packages[0];
  const proposals=rows.ag_proposals||[],proposal=proposals.find(p=>p.id===pkg?.proposal_id);
@@ -36,6 +37,7 @@ export function projectReadinessPage({rows,project,escape,staff}){
  let action='brief',title='Describe the customer’s project',description='Save what the client needs and what the platform should do.';
  if(!brief?.business_description?.trim()){action='brief';}
  else if(!priced){action='components';title='Choose and price the work';description='Select the items AI Gents will deliver, then save their quoted prices.';}
+ else if(memberIds.size===0&&unlinkedInvites.length){action='pending-invite';title='Check the client invitation';description='An invitation is already on record. Check its status before sending another.';}
  else if(memberIds.size===0){action='invite';title='Invite your customer';description='Send access to the correct client organization. The customer must verify their account.';}
  else if(!approvers.length){action='approver';title='Choose who can approve the proposal';description='Assign one verified customer representative with Read & respond permission.';}
  else if(!pkg){action='scope';title='Prepare the client proposal';description='Review the selected work, price and payment terms, then create the draft.';}
@@ -47,7 +49,7 @@ export function projectReadinessPage({rows,project,escape,staff}){
  else if(!verified){action='work';title='Review and verify the work';description='Check completed tasks and supporting evidence before marking delivery finished.';}
  else if(!docs){action='handoff';title='Share the final handoff';description='Upload and share the approved files with the customer.';}
  else {action='review';title='Review the completed handoff';description='Internal task evidence and handoff records exist. Confirm real client delivery separately.';}
- const labels={brief:'Edit business description',components:'Edit project scope',invite:'Invite client',approver:'Assign decision-maker',scope:'Prepare proposal',publish:'Review proposal',review:'View proposal',tasks:'Create work tasks',billing:'Prepare billing draft',work:'Review tasks',handoff:'Share files'};
+ const labels={brief:'Edit business description',components:'Edit project scope',invite:'Invite client','pending-invite':'Check invitation',approver:'Assign decision-maker',scope:'Prepare proposal',publish:'Review proposal',review:'View proposal',tasks:'Create work tasks',billing:'Prepare billing draft',work:'Review tasks',handoff:'Share files'};
  const summary=stages.filter(x=>x.done).length;
  return '<section class="card office-workflow" id="office-project-readiness"><div class="section-head"><div><p class="eyebrow">Project management</p><h3>What happens next?</h3><p>One clear next step. The rest is handled as the project moves forward.</p></div><span class="pill">'+h(summary+' of 4 stages recorded')+'</span></div>'+
  '<div class="office-workflow-primary"><div><span class="tiny muted">YOUR NEXT ACTION</span><h4>'+h(title)+'</h4><p>'+h(description)+'</p></div>'+
