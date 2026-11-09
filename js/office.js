@@ -13,6 +13,7 @@ import {projectReadinessPage,projectReadinessWire} from '/js/office-project-read
 const supabase=createClient('https://apcvfezfmegqqjuonrgl.supabase.co','sb_publishable_zV6w0DBZzfe4oX2OCSYZmg_dp1OvBn0',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 const root=document.getElementById('office-app');
 window.addEventListener('beforeunload',event=>{if(hasUnsavedOfficeQuote()||hasUnsavedOfficeProposalDraft()){event.preventDefault();event.returnValue='';}});
+let pendingInviteClientId=null;
 let session=null,staff=false,officeRole=null,teamRole=null,view=new URLSearchParams(location.search).get('view')==='profile'?'profile':'overview',activeProject=null,data={},loading=false,flash='',failure='',recoveryMode=false;
 const keys=['ag_clients','ag_projects','ag_milestones','ag_messages','ag_tasks','ag_documents','ag_invoices','ag_review_items','ag_review_versions','ag_review_comments','ag_review_decisions','ag_client_approvers','ag_client_users','ag_client_invitations','ag_project_activity','ag_proposals','ag_proposal_decisions','ag_notifications','ag_stripe_invoice_preparations','ag_project_integrations','ag_project_progress_reports','ag_team_members','ag_team_assignments','ag_client_member_access','ag_project_components','ag_component_pricing','ag_project_build_briefs','ag_scope_packages','ag_scope_delivery_tasks','ag_task_verifications','ag_scope_invoice_allocations','ag_project_proposal_drafts'];
 const titles={overview:'Overview',clients:'Clients',team:'Team & Access',projects:'Projects',progress:'Progress Updates',studio:'Design Studio',proposals:'Proposals',tasks:'Tasks',messages:'Messages',documents:'Documents',invoices:'Billing',notifications:'Notifications',profile:'My Account'};
@@ -70,14 +71,14 @@ function render(){if(!session)return loginView();const count=(a)=>list(a).length
  if(view==='proposals')content=proposalPage({rows:data,staff,userId:session.user.id,escape:safe,projectName,clientName});
  if(view==='tasks'&&(staff||teamRole))content=header('Delivery tasks','Tasks for assigned projects.',staff?button('+ New task','new-task'):'')+'<section class="card">'+(count('ag_tasks')?list('ag_tasks').map(t=>{
  const editable=staff||list('ag_team_assignments').some(a=>a.project_id===t.project_id&&a.user_id===session.user.id&&a.access_level==='write');
- return '<div class="item"><div><strong>'+safe(t.title)+'</strong><small>'+safe(projectName(t.project_id))+' · Due '+date(t.due_date)+'</small></div>'+(editable?'<select class="small-status" data-task="'+safe(t.id)+'" aria-label="Task status">'+['todo','in_progress','blocked','done'].map(st=>'<option value="'+st+'" '+(st===t.status?'selected':'')+'>'+pretty(st)+'</option>').join('')+'</select>':'<span class="pill">'+pretty(t.status)+'</span>')+'</div>'+deliveryEvidencePanel({task:t,rows:data,staff,canWrite:editable,userId:session.user.id,escape:safe});
+ return '<div class="item" data-task-project="'+safe(t.project_id)+'"><div><strong>'+safe(t.title)+'</strong><small>'+safe(projectName(t.project_id))+' · Due '+date(t.due_date)+'</small></div>'+(editable?'<select class="small-status" data-task="'+safe(t.id)+'" aria-label="Task status">'+['todo','in_progress','blocked','done'].map(st=>'<option value="'+st+'" '+(st===t.status?'selected':'')+'>'+pretty(st)+'</option>').join('')+'</select>':'<span class="pill">'+pretty(t.status)+'</span>')+'</div>'+deliveryEvidencePanel({task:t,rows:data,staff,canWrite:editable,userId:session.user.id,escape:safe});
  }).join(''):empty('No tasks yet.'))+'</section>';
   if(view==='messages')content=header('Project conversations','Your messages remain connected to the right engagement.')+'<section class="card">'+(count('ag_projects')?list('ag_projects').map(p=>'<div class="item"><div><strong>'+safe(p.title)+'</strong><small>'+list('ag_messages').filter(m=>m.project_id===p.id&&!m.internal_only).length+' messages</small></div><button class="link" data-project="'+safe(p.id)+'">Open conversation →</button></div>').join(''):empty('No project conversations yet.'))+'</section>';
  if(view==='documents')content=deliverablesPage({rows:data,staff,escape:safe,projectName,clientName});
  if(view==='invoices')content=billingPage({rows:data,staff,escape:safe,clientName,projectName});
  if(view==='notifications')content=notificationPage({rows:data,escape:safe,projectName});
  if(view==='profile')content=header('My Account','Your identity, role and security settings.')+'<section class="card"><h3>Account details</h3><p><strong>Email:</strong> '+safe(session.user.email||'')+'</p><p><strong>Role:</strong> '+safe(officeRole||teamRole||'Customer')+'</p><p class="tiny muted">Your access is granted by the AI Gents owner. Contact your administrator to change permissions.</p><h3 style="margin-top:24px">Personal details</h3><form id="profile-details-form"><label class="form-field">Display name<input name="display_name" maxlength="100" value="'+safe(session.user.user_metadata?.display_name||'')+'" autocomplete="name"></label><label class="form-field">Phone (optional)<input name="phone" type="tel" maxlength="30" value="'+safe(session.user.user_metadata?.phone||'')+'" autocomplete="tel"></label><button class="btn alt" type="submit">Save my profile</button></form><h3 style="margin-top:24px">Password & security</h3><form id="password-form"><label class="form-field">New password<input type="password" name="password" minlength="12" autocomplete="new-password" required></label><label class="form-field">Confirm password<input type="password" name="confirm" minlength="12" autocomplete="new-password" required></label><button class="btn alt" type="submit">Update password</button></form><p class="tiny muted" style="margin-top:18px">Your account is protected by Supabase authentication. Never share passwords or recovery links.</p></section>';
- root.innerHTML=template(content);wire();if(view==='overview'&&(staff||teamRole))clientFollowupWire({root,onProject:id=>{if(!list('ag_projects').some(p=>p.id===id))return;activeProject=id;view='projects';render();},onTasks:()=>{view='tasks';render();},onTeam:()=>{if(officeRole!=='owner'){notifyOffice('Only the owner can manage team assignments.');return;}view='team';render();},onMessages:()=>{view='messages';render();}});if(view==='team'&&staff&&officeRole==='owner')teamWire({root,supabase,reload,notify:notifyOffice,owner:true});if(view==='progress')progressWire({root,supabase,rows:data,staff,userId:session.user.id,escape:safe,reload,notify:notifyOffice});if(view==='studio')studioWire({root,supabase,rows:data,staff,userId:session.user.id,escape:safe,reload,notify:notifyOffice});if(view==='clients'&&staff)clientAccessWire({root,supabase,rows:data,userId:session.user.id,escape:safe,reload,notify:notifyOffice,owner:officeRole==='owner'});if(view==='proposals')proposalWire({root,supabase,rows:data,staff,userId:session.user.id,escape:safe,reload,notify:notifyOffice,openProject:id=>{if(!staff||!list('ag_projects').some(p=>p.id===id))return;activeProject=id;view='projects';flash='';render();}});if(view==='documents')deliverablesWire({root,supabase,staff,userId:session.user.id,escape:safe,reload,notify:notifyOffice});if(view==='invoices')billingWire({root,supabase,staff,reload,notify:notifyOffice});if(view==='notifications')notificationWire({root,supabase,reload,notify:notifyOffice,rows:data,navigateProject:(id)=>{if(!list('ag_projects').some(p=>p.id===id)){notifyOffice('This project is no longer available.');return;}activeProject=id;view='projects';render();}});}
+ root.innerHTML=template(content);wire();if(view==='overview'&&(staff||teamRole))clientFollowupWire({root,onProject:id=>{if(!list('ag_projects').some(p=>p.id===id))return;activeProject=id;view='projects';render();},onTasks:()=>{view='tasks';render();},onTeam:()=>{if(officeRole!=='owner'){notifyOffice('Only the owner can manage team assignments.');return;}view='team';render();},onMessages:()=>{view='messages';render();}});if(view==='team'&&staff&&officeRole==='owner')teamWire({root,supabase,reload,notify:notifyOffice,owner:true});if(view==='progress')progressWire({root,supabase,rows:data,staff,userId:session.user.id,escape:safe,reload,notify:notifyOffice});if(view==='studio')studioWire({root,supabase,rows:data,staff,userId:session.user.id,escape:safe,reload,notify:notifyOffice});if(view==='clients'&&staff)clientAccessWire({root,supabase,rows:data,userId:session.user.id,escape:safe,reload,notify:notifyOffice,owner:officeRole==='owner',focusClientId:pendingInviteClientId});pendingInviteClientId=null;if(view==='proposals')proposalWire({root,supabase,rows:data,staff,userId:session.user.id,escape:safe,reload,notify:notifyOffice,openProject:id=>{if(!staff||!list('ag_projects').some(p=>p.id===id))return;activeProject=id;view='projects';flash='';render();}});if(view==='documents')deliverablesWire({root,supabase,staff,userId:session.user.id,escape:safe,reload,notify:notifyOffice});if(view==='invoices')billingWire({root,supabase,staff,reload,notify:notifyOffice});if(view==='notifications')notificationWire({root,supabase,reload,notify:notifyOffice,rows:data,navigateProject:(id)=>{if(!list('ag_projects').some(p=>p.id===id)){notifyOffice('This project is no longer available.');return;}activeProject=id;view='projects';render();}});}
 function attentionRows(){
  const today=new Date().toISOString().slice(0,10);
  const dueSoon=new Date(Date.now()+7*86400000).toISOString().slice(0,10);
@@ -143,7 +144,72 @@ function wire(){
  root.querySelectorAll('[data-action]').forEach(x=>x.onclick=async()=>{const act=x.dataset.action;if(!canLeaveQuote())return;if(act==='logout'){await supabase.auth.signOut();session=null;loginView();return;}if(act==='back-projects'){activeProject=null;render();return;}if(act==='go-clients'){view='clients';activeProject=null;render();return;}if(act==='edit-project'){editProject();return;}if(act.startsWith('new-'))openDialog(act.slice(4));});
  const p=list('ag_projects').find(x=>x.id===activeProject);
  if(p&&(staff||teamRole))componentsWire({root,supabase,rows:data,project:p,staff,teamRole,userId:session.user.id,reload,notify:notifyOffice});
- if(p&&staff){scopePackageWire({root,supabase,rows:data,project:p,staff,userId:session.user.id,reload,notify:notifyOffice});projectReadinessWire({root});}
+ if(p&&staff){
+  scopePackageWire({root,supabase,rows:data,project:p,staff,userId:session.user.id,reload,notify:notifyOffice});
+  projectReadinessWire({root,project:p,onAction:(action,chosen)=>{
+   const goToElement=(el,opening)=>{
+    if(!el){notifyOffice('That action is not available yet. Review the project settings first.');return;}
+    if(opening&&el.tagName==='DETAILS')el.open=true;
+    el.scrollIntoView({behavior:'smooth',block:'center'});
+    if(el.matches('input,textarea,select'))el.focus();
+   };
+   const navigate=(target,selector)=>{
+    if(!canLeaveQuote())return;
+    view=target;activeProject=null;flash='';render();
+    const el=root.querySelector(selector);
+    if(el)goToElement(el);else notifyOffice('No matching record is available yet for this project.');
+   };
+   if(action==='brief'){
+    const el=root.querySelector('#command-center-generator');
+    goToElement(el,true);
+    el?.querySelector('[name="business_description"]')?.focus();return;
+   }
+   if(action==='components'){
+    const el=root.querySelector('#project-component-scope');
+    goToElement(el);
+    const estimate=root.querySelector('#component-live-estimate');
+    if(estimate&&list('ag_project_components').some(c=>c.project_id===chosen.id))estimate.open=true;
+    return;
+   }
+   if(action==='scope'){
+    const el=root.querySelector('#scope-packages .scope-package-create');
+    goToElement(el,true);return;
+   }
+   if(action==='tasks'){
+    const button=root.querySelector('#scope-packages [data-package-tasks]');
+    if(button){button.click();return;}
+    notifyOffice('An accepted scope is required before creating approved tasks.');return;
+   }
+   if(action==='billing'){
+    const latest=list('ag_scope_packages').filter(x=>x.project_id===chosen.id).sort((a,b)=>b.version-a.version)[0];
+    const section=[...root.querySelectorAll('#scope-packages .scope-version')].find(x=>x.querySelector('[data-package-tasks="'+latest?.id+'"]'));
+    const billingForm=section?.querySelector('.scope-invoice-drafts');
+    if(billingForm){goToElement(billingForm,true);return;}
+    goToElement(root.querySelector('#scope-packages'));return;
+   }
+   if(action==='invite'){
+    if(!canLeaveQuote())return;
+    pendingInviteClientId=chosen.client_id;
+    view='clients';activeProject=null;render();return;
+   }
+   if(action==='approver'){
+    navigate('clients','[data-client-organization="'+chosen.client_id+'"] .office-client-approvers');
+    return;
+   }
+   if(action==='publish'||action==='review'){
+    const latest=list('ag_scope_packages').filter(x=>x.project_id===chosen.id).sort((a,b)=>b.version-a.version)[0];
+    navigate('proposals','[data-proposal-card="'+latest?.proposal_id+'"]');
+    return;
+   }
+   if(action==='work'){
+    navigate('tasks','[data-task-project="'+chosen.id+'"]');
+    return;
+   }
+   if(action==='handoff'){
+    navigate('documents','[data-deliverable-project="'+chosen.id+'"]');
+   }
+  }});
+ }
  if(p){const phase=root.querySelector('#phase-select');if(phase)phase.onchange=e=>update('ag_projects',p.id,{status:e.target.value,updated_at:new Date().toISOString()});const progress=root.querySelector('#progress-range');if(progress){progress.oninput=e=>{root.querySelector('#progress-value').textContent=e.target.value+'%';};progress.onchange=e=>update('ag_projects',p.id,{progress:num(e.target.value),updated_at:new Date().toISOString()});}root.querySelectorAll('[data-milestone]').forEach(x=>x.onchange=e=>update('ag_milestones',x.dataset.milestone,{status:e.target.value}));const mf=root.querySelector('#message-form');if(mf)mf.onsubmit=async e=>{e.preventDefault();const body=String(new FormData(mf).get('body')||'').trim();if(!body)return;const send=mf.querySelector('button');send.disabled=true;const {error}=await supabase.from('ag_messages').insert({project_id:activeProject,sender_id:session.user.id,body,internal_only:false});if(error){failure=error.message;render();}else await reload();};}
 }
 supabase.auth.onAuthStateChange((event,newSession)=>{if(event==='PASSWORD_RECOVERY'){recoveryMode=true;session=newSession;recoveryView();}if(event==='SIGNED_OUT'){recoveryMode=false;session=null;loginView();}});
