@@ -41,7 +41,7 @@ export function proposalPage({rows,staff,userId,escape,projectName,clientName}) 
   const hasDecision=ds.length>0;
   const publishReady=hasApprover(project?.client_id);
   const canApprove=!((rows.ag_client_member_access||[]).some(a=>a.user_id===userId&&a.client_id===project?.client_id&&a.access_level==='read'))&&approvers.some(a=>a.user_id===userId&&project?.client_id===a.client_id);
-  return '<section class="card" style="margin-bottom:16px"><div class="section-head"><div><p class="eyebrow">'+h(projectName(p.project_id))+'</p><h3>'+h(p.title)+'</h3><p>'+h(money(p.amount_cents,p.currency))+'</p></div><span class="pill">'+h(p.status)+'</span></div><div class="office-proposal-scope">'+h(p.scope)+'</div>'+
+  return '<section class="card" data-proposal-card="'+h(p.id)+'" style="margin-bottom:16px"><div class="section-head"><div><p class="eyebrow">'+h(projectName(p.project_id))+'</p><h3>'+h(p.title)+'</h3><p>'+h(money(p.amount_cents,p.currency))+'</p></div><span class="pill">'+h(p.status)+'</span></div><div class="office-proposal-scope">'+h(p.scope)+'</div>'+
    '<div class="action-area" style="margin:12px 0"><button type="button" class="btn alt small" data-print-proposal="'+h(p.id)+'">Review / Print / Save PDF</button>'+(superseded?'<span class="pill">Superseded by a newer scope version</span>':'')+'</div>'+
    '<div class="proposal-next-action"><strong>Next step: '+h(action)+'</strong><p class="tiny muted">'+h(detail)+'</p>'+(staff&&project?'<button type="button" class="btn alt small" data-open-proposal-project="'+h(project.id)+'">Open project</button>':'')+'</div>'+
    '<div class="office-approval-history"><strong>Client decisions</strong>'+ (ds.length?ds.map(d=>'<p class="tiny">'+h(d.decision.replaceAll('_',' '))+' · '+new Date(d.created_at).toLocaleString()+(d.typed_name?' · Acknowledged by '+h(d.typed_name):'')+(d.note?' · '+h(d.note):'')+'</p>').join(''):'<p class="tiny muted">Awaiting review.</p>')+'</div>'+
@@ -110,7 +110,7 @@ export function proposalWire({root,supabase,rows,staff,userId,escape,reload,noti
   };
  });
 }
-export function deliverablesWire({root,supabase,staff,userId,escape,reload,notify}){
+export function deliverablesWire({root,supabase,staff,userId,escape,reload,notify,focusProjectId}){
  const bucket=supabase.storage.from('ag-client-deliverables');
  root.querySelectorAll('[data-download-deliverable]').forEach(b=>b.onclick=async()=>{
   const {data,error}=await bucket.createSignedUrl(b.dataset.downloadDeliverable,90);
@@ -124,13 +124,15 @@ export function deliverablesWire({root,supabase,staff,userId,escape,reload,notif
   const {data,error}=await supabase.from('ag_documents').update({visible_to_client:visible}).eq('id',b.dataset.toggleDeliverable).select('id').single();
   if(error||!data){notify(error?.message||'Document visibility was not changed.');return;}notify(visible?'Document shared with client.':'Document made internal.');await reload();
  });
- root.querySelector('[data-new-deliverable]')?.addEventListener('click',()=>{
+ const openUpload=(selectedProjectId)=>{
   if(!staff)return;
   const options=root.querySelector('#deliverable-project-options')?.innerHTML||'';
   if(!options){notify('Create a project before uploading deliverables.');return;}
   const el=document.createElement('div');el.className='dialog';
   el.innerHTML='<div class="dialog-card" role="dialog" aria-modal="true"><h2>Upload client deliverable</h2><p>The file starts internal. Share it after checking the result.</p><form id="deliverable-form"><label class="form-field">Project<select name="project_id" required><option value="">Choose project</option>'+options+'</select></label><label class="form-field">File label<input name="title" maxlength="180" required></label><label class="form-field">File (PDF, PNG, JPG, WebP, TXT or CSV; maximum 20 MB)<input type="file" name="file" accept=".pdf,.png,.jpg,.jpeg,.webp,.txt,.csv" required></label><div class="dialog-buttons"><button class="btn alt" type="button" id="deliverable-cancel">Cancel</button><button class="btn" type="submit">Upload privately</button></div></form></div>';
-  document.body.appendChild(el);el.querySelector('#deliverable-cancel').onclick=()=>el.remove();
+  document.body.appendChild(el);
+  if(selectedProjectId&&[...el.querySelector('[name="project_id"]').options].some(o=>o.value===selectedProjectId))el.querySelector('[name="project_id"]').value=selectedProjectId;
+  el.querySelector('#deliverable-cancel').onclick=()=>el.remove();
   el.onclick=e=>{if(e.target===el)el.remove();};
   el.querySelector('form').onsubmit=async e=>{
    e.preventDefault();const form=e.target,fd=new FormData(form),file=fd.get('file'),project=String(fd.get('project_id')||''),title=String(fd.get('title')||'').trim();
@@ -143,5 +145,7 @@ export function deliverablesWire({root,supabase,staff,userId,escape,reload,notif
    if(result.error){notify('File stored, but the document record failed. Contact the administrator: '+result.error.message);button.disabled=false;return;}
    el.remove();notify('Document uploaded privately. Share it when ready.');await reload();
   };
- });
+ };
+ root.querySelector('[data-new-deliverable]')?.addEventListener('click',()=>openUpload());
+ if(staff&&focusProjectId)openUpload(focusProjectId);
 }

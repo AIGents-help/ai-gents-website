@@ -7,7 +7,7 @@ export function clientAccessPage({rows,escape,pretty,owner,userId}) {
  '<div class="card" style="margin-bottom:20px"><div class="section-head"><div><h3>Client organizations</h3><p class="tiny">Create projects after the client has been registered.</p></div></div>'+
  (clients.length?clients.map(c=>{
   const linked=projects.filter(p=>p.client_id===c.id).sort((a,b)=>String(a.title||'').localeCompare(String(b.title||'')));
-  return '<section class="office-client-projects"><div class="item"><div><strong>'+h(c.company)+'</strong><small>'+h(c.contact_name||'No primary contact')+' · '+h(c.contact_email||'No email')+'</small></div><span class="pill">'+h(c.status||'active')+'</span></div>'+
+  return '<section class="office-client-projects" data-client-organization="'+h(c.id)+'"><div class="item"><div><strong>'+h(c.company)+'</strong><small>'+h(c.contact_name||'No primary contact')+' · '+h(c.contact_email||'No email')+'</small></div><span class="pill">'+h(c.status||'active')+'</span></div>'+
     '<div class="office-client-project-links"><p class="tiny muted">'+linked.length+' connected project'+(linked.length===1?'':'s')+'</p>'+
     (linked.length?linked.map(p=>'<button type="button" class="office-client-project-link" data-project="'+h(p.id)+'"><span><strong>'+h(p.title)+'</strong><small>'+h(pretty(p.status||'discovery'))+' · '+h(String(p.progress??0))+'% complete</small></span><span aria-hidden="true">Open project →</span></button>').join(''):
       '<p class="tiny muted">No project connected to this client yet. Create a project and select this organization.</p>')+
@@ -28,7 +28,7 @@ export function clientAccessPage({rows,escape,pretty,owner,userId}) {
  (invites.length?invites.map(i=>{
   const expired=!i.accepted_by&&Date.parse(i.expires_at)<Date.now();
   const canDeliver=owner||i.created_by===userId;
-  return '<div class="item"><div><strong>'+h(i.email)+'</strong><small>'+h(clientName(i.client_id))+' · Created '+stamp(i.created_at)+'</small></div><div class="action-area">'+
+  return '<div class="item" data-client-invitation="'+h(i.client_id)+'"><div><strong>'+h(i.email)+'</strong><small>'+h(clientName(i.client_id))+' · Created '+stamp(i.created_at)+'</small></div><div class="action-area">'+
     '<span class="pill">'+(i.accepted_by?'Active':expired?'Expired':'Pending verification')+'</span>'+
     (!i.accepted_by&&!expired&&canDeliver?'<button type="button" class="btn alt small" data-access="resend" data-invite="'+h(i.id)+'">Resend invite</button>':'')+
     (!i.accepted_by?'<button type="button" class="btn alt small" data-access="copy-link">Copy portal link</button>':'')+
@@ -38,7 +38,7 @@ export function clientAccessPage({rows,escape,pretty,owner,userId}) {
  '<p class="tiny muted" style="margin-top:15px">The invitation email is sent through Supabase. If email delivery is unavailable, the pending record is preserved and the secure invitation console can be used.</p>'+
  '<a class="btn alt small" target="_blank" rel="noopener noreferrer" href="https://supabase.com/dashboard/project/apcvfezfmegqqjuonrgl/auth/users">Open secure invitation console ↗</a></div>';
 }
-export function clientAccessWire({root,supabase,rows,userId,escape,reload,notify,owner}) {
+export function clientAccessWire({root,supabase,rows,userId,escape,reload,notify,owner,focusClientId}) {
  const h=escape,clients=rows.ag_clients||[];
  root.querySelectorAll('[data-client-approver-action]').forEach(button=>button.onclick=async()=>{
   const action=button.dataset.clientApproverAction;
@@ -58,9 +58,9 @@ export function clientAccessWire({root,supabase,rows,userId,escape,reload,notify
   await reload();
  });
 
- function dialog(){
+ function dialog(selectedClientId){
   if(!clients.length){notify('Create the client organization before granting access.');return;}
-  const options=clients.map(c=>'<option value="'+h(c.id)+'">'+h(c.company)+'</option>').join('');
+  const options=clients.map(c=>'<option value="'+h(c.id)+'"'+(c.id===selectedClientId?' selected':'')+'>'+h(c.company)+'</option>').join('');
   const el=document.createElement('div');el.className='dialog';
   el.innerHTML='<div class="dialog-card" role="dialog" aria-modal="true"><h2>Grant client portal access</h2><p>Enter the contact’s verified email address. Only the selected organization will be accessible.</p><form id="client-access-form"><label class="form-field">Organization<select name="client_id" required><option value="">Select client</option>'+options+'</select></label><label class="form-field">Client email<input type="email" name="email" maxlength="254" required autocomplete="off" placeholder="client@company.com"></label><div class="dialog-buttons"><button type="button" class="btn alt" id="access-cancel">Cancel</button><button type="submit" class="btn">Add access</button></div></form></div>';
   document.body.appendChild(el);el.querySelector('#access-cancel').onclick=()=>el.remove();
@@ -119,4 +119,5 @@ export function clientAccessWire({root,supabase,rows,userId,escape,reload,notify
    if(error)notify(error.message);else{notify(removed?'Client access revoked and recorded.':'Invitation no longer exists.');await reload();}
   }
  });
+ if(focusClientId&&clients.some(c=>c.id===focusClientId))dialog(focusClientId);
 }
