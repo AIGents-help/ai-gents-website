@@ -434,3 +434,24 @@ form[data-proposal-decision] .btn{white-space:normal}
 .office-workflow-step p{margin:3px 0 0;line-height:1.5;overflow-wrap:anywhere}
 .office-workflow-note{margin:11px 0 0;line-height:1.6;max-width:95ch}
 @media(max-width:700px){.office-workflow-primary{flex-wrap:wrap;padding:14px}.office-workflow-primary>.btn{width:100%}.office-workflow-steps{grid-template-columns:1fr}.office-workflow .section-head .pill{margin-left:0}}
+
+/* Clear section navigation on narrow screens; the complete menu remains reachable. */
+.office-section-label{font-size:10px;letter-spacing:.15em;color:var(--gold);font-weight:700;margin:0 9px -12px}
+.office-nav-hint{display:none;letter-spacing:0;text-transform:none;color:var(--muted);font-weight:500}
+@media(max-width:850px){
+ .office-section-label{display:flex;justify-content:space-between;align-items:center;margin:0 4px -5px}
+ .office-nav-hint{display:inline}
+ .sidebar .nav{scrollbar-width:thin;scrollbar-color:#c8a96e #25282d;scroll-padding-left:8px;overscroll-behavior-x:contain}
+ .sidebar .nav button{flex:none;min-height:44px}
+ .topline{flex-wrap:wrap}
+ .topline .role{max-width:100%;white-space:normal}
+}
+@media(max-width:480px){
+ .login-card{padding:24px 20px}
+ .compose{flex-wrap:wrap}
+ .compose input{flex:1 1 100%}
+ .compose button{width:100%}
+ .main .card{padding:18px 15px}
+ .main .item{min-width:0;flex-wrap:wrap}
+ .main .item>div:first-child{min-width:0;overflow-wrap:anywhere}
+}
